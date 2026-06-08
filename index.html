@@ -16,9 +16,9 @@ header{background:white;padding:15px 20px;border-bottom:1px solid #ddd;position:
 .topbar{display:flex;justify-content:space-between;align-items:center;}
 .logo a{font-size:42px;font-weight:900;cursor:pointer;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-decoration:none;}
 .nav-icons{display:flex;align-items:center;gap:10px;position:relative;}
-.icon-btn{width:50px;height:50px;border:none;border-radius:10px;background:white;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:0.2s;text-decoration:none;}
+.icon-btn{width:50px;height:50px;border:none;border-radius:10px;background:white;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:0.2s;text-decoration:none;color:#555;}
 .icon-btn:hover{background:#f0f0f0;}
-.icon-btn .material-icons{font-size:28px;color:#555;}
+.icon-btn .material-icons{font-size:28px;}
 .notification-badge{position:relative;}
 .notification-badge .badge-count{position:absolute;top:-5px;right:-5px;background:#dc2626;color:white;font-size:10px;font-weight:bold;padding:2px 6px;border-radius:50%;min-width:18px;text-align:center;}
 .tavix-btn{background:white;border-radius:30px;padding:5px 15px 5px 10px;display:flex;align-items:center;gap:8px;cursor:pointer;transition:0.2s;border:1px solid #e0e0e0;}
@@ -89,6 +89,7 @@ header{background:white;padding:15px 20px;border-bottom:1px solid #ddd;position:
 .profile-pfp{width:120px;height:120px;border-radius:50%;object-fit:cover;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);}
 .display-name{font-size:56px;font-weight:800;color:#111;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
 .username{font-size:28px;color:#666;margin-top:5px;}
+.user-id{font-size:16px;color:#888;margin-top:5px;}
 .social-stats{display:flex;gap:25px;margin-top:12px;color:#555;font-size:22px;}
 .about-card{background:white;border:1px solid #e5e5e5;border-radius:16px;padding:25px;margin-bottom:30px;}
 .card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;}
@@ -235,13 +236,13 @@ header{background:white;padding:15px 20px;border-bottom:1px solid #ddd;position:
 <div id="homePage" style="display:none;">
     <header>
         <div class="topbar">
-            <div class="logo"><a href="/home">TAVIAN</a></div>
+            <div class="logo"><a href="/">TAVIAN</a></div>
             <div class="nav-icons">
-                <a href="/search" class="icon-btn search-btn" id="searchBtnHome"><span class="material-icons">search</span></a>
+                <a href="/search" class="icon-btn" id="searchBtnHome"><span class="material-icons">search</span></a>
                 <div class="tavix-btn" id="tavixBtn"><span class="tavix-icon">⌬</span><span class="tavix-amount" id="tavixBalance">0</span></div>
-                <a href="#" class="icon-btn profile-btn" id="profileBtnHome"><span class="material-icons">person</span></a>
+                <a href="/profile" class="icon-btn" id="profileBtnHome"><span class="material-icons">person</span></a>
                 <div class="icon-btn notification-badge" id="notificationBtnHome"><span class="material-icons">notifications</span><span class="badge-count" id="notificationCount">0</span></div>
-                <a href="/settings" class="icon-btn settings-btn" id="settingsBtnHome"><span class="material-icons">settings</span></a>
+                <a href="/settings" class="icon-btn" id="settingsBtnHome"><span class="material-icons">settings</span></a>
             </div>
         </div>
     </header>
@@ -254,13 +255,13 @@ header{background:white;padding:15px 20px;border-bottom:1px solid #ddd;position:
 <div id="profilePage" style="display:none;">
     <header>
         <div class="topbar">
-            <div class="logo"><a href="/home">TAVIAN</a></div>
+            <div class="logo"><a href="/">TAVIAN</a></div>
             <div class="nav-icons">
-                <a href="/search" class="icon-btn search-btn" id="searchBtnProfile"><span class="material-icons">search</span></a>
+                <a href="/search" class="icon-btn" id="searchBtnProfile"><span class="material-icons">search</span></a>
                 <div class="tavix-btn" id="tavixBtnProfile"><span class="tavix-icon">⌬</span><span class="tavix-amount" id="tavixBalanceProfile">0</span></div>
-                <a href="#" class="icon-btn profile-btn" id="profileBtnProfile"><span class="material-icons">person</span></a>
+                <a href="/profile" class="icon-btn" id="profileBtnProfile"><span class="material-icons">person</span></a>
                 <div class="icon-btn notification-badge" id="notificationBtnProfile"><span class="material-icons">notifications</span><span class="badge-count" id="notificationCountProfile">0</span></div>
-                <a href="/settings" class="icon-btn settings-btn" id="settingsBtnProfile"><span class="material-icons">settings</span></a>
+                <a href="/settings" class="icon-btn" id="settingsBtnProfile"><span class="material-icons">settings</span></a>
             </div>
         </div>
     </header>
@@ -291,7 +292,7 @@ header{background:white;padding:15px 20px;border-bottom:1px solid #ddd;position:
 </div>
 
 <!-- AUTH PAGE -->
-<div id="authPage" style="display:none;"><header><div class="topbar"><div class="logo"><a href="/home">TAVIAN</a></div><div class="nav-icons"></div></div></header><div class="auth-container"><div class="tabs"><button class="tab active" id="loginTab" onclick="showAuthForm('login')">Sign In</button><button class="tab" id="signupTab" onclick="showAuthForm('signup')">Create Account</button></div><div id="authError" class="error"></div><form id="loginForm" class="auth-form active"><label>Username</label><input type="text" id="loginUsername" required><label>Password</label><input type="password" id="loginPassword" required><button type="submit" class="submit-btn">Sign In</button><div style="text-align:center; margin-top:15px;"><a href="#" onclick="showAuthForm('signup'); return false;" style="color:#667eea;">No account? Create one</a></div></form><form id="signupForm" class="auth-form"><label>Username</label><input type="text" id="signupUsername" required><label>Email</label><input type="email" id="signupEmail" required><label>Password</label><input type="password" id="signupPassword" required><label>Confirm Password</label><input type="password" id="signupConfirm" required><div class="drag-captcha" id="dragCaptcha"><div class="captcha-title">🐉 DRAG & DROP</div><div class="puzzle-container" id="puzzleContainer"></div><div class="captcha-status incomplete" id="captchaStatus">Match 4 icons</div><button type="button" class="refresh-captcha-btn" onclick="generateDragCaptcha()">⟳ New</button><input type="hidden" id="captchaValid" value="false"></div><div class="tos-container"><div class="tos-checkbox"><input type="checkbox" id="tosAgree"><label>I agree to the <a href="#" onclick="navigateTo('wiki-tos'); return false;">Terms</a> (no bots, don't be a dick)</label></div></div><button type="submit" class="submit-btn">Create Account</button></form><div class="quick-login-section"><h3>📱 Quick Login</h3><div id="savedAccountsList" class="saved-accounts-list"></div></div></div></div>
+<div id="authPage" style="display:none;"><header><div class="topbar"><div class="logo"><a href="/">TAVIAN</a></div><div class="nav-icons"></div></div></header><div class="auth-container"><div class="tabs"><button class="tab active" id="loginTab" onclick="showAuthForm('login')">Sign In</button><button class="tab" id="signupTab" onclick="showAuthForm('signup')">Create Account</button></div><div id="authError" class="error"></div><form id="loginForm" class="auth-form active"><label>Username</label><input type="text" id="loginUsername" required><label>Password</label><input type="password" id="loginPassword" required><button type="submit" class="submit-btn">Sign In</button><div style="text-align:center; margin-top:15px;"><a href="#" onclick="showAuthForm('signup'); return false;" style="color:#667eea;">No account? Create one</a></div></form><form id="signupForm" class="auth-form"><label>Username</label><input type="text" id="signupUsername" required><label>Email</label><input type="email" id="signupEmail" required><label>Password</label><input type="password" id="signupPassword" required><label>Confirm Password</label><input type="password" id="signupConfirm" required><div class="drag-captcha" id="dragCaptcha"><div class="captcha-title">🐉 DRAG & DROP</div><div class="puzzle-container" id="puzzleContainer"></div><div class="captcha-status incomplete" id="captchaStatus">Match 4 icons</div><button type="button" class="refresh-captcha-btn" onclick="generateDragCaptcha()">⟳ New</button><input type="hidden" id="captchaValid" value="false"></div><div class="tos-container"><div class="tos-checkbox"><input type="checkbox" id="tosAgree"><label>I agree to the <a href="#" onclick="navigateTo('wiki-tos'); return false;">Terms</a> (no bots, don't be a dick)</label></div></div><button type="submit" class="submit-btn">Create Account</button></form><div class="quick-login-section"><h3>📱 Quick Login</h3><div id="savedAccountsList" class="saved-accounts-list"></div></div></div></div>
 
 <script>
 // API Configuration
@@ -345,6 +346,8 @@ async function fetchAllUsers(){
         const response = await fetch(`${API_URL}/users`, { credentials: 'include' });
         if(response.ok){
             allUsers = await response.json();
+            // Sort by userId to maintain order
+            allUsers.sort((a,b) => (a.userId || 0) - (b.userId || 0));
             return allUsers;
         }
     }catch(e){console.error(e);}
@@ -486,6 +489,13 @@ async function deleteAccountAPI(){
     return false;
 }
 
+// Get next available user ID
+function getNextUserId(){
+    if(!allUsers.length) return 1;
+    const maxId = Math.max(...allUsers.map(u => u.userId || 0));
+    return maxId + 1;
+}
+
 // BADGE SYSTEM
 function getUserBadge(username){
     const lowerUsername = username.toLowerCase();
@@ -573,7 +583,6 @@ function getUserById(userId){
 async function viewProfile(userIdOrUsername){
     await fetchAllUsers();
     let user;
-    // Check if it's a numeric ID
     if(!isNaN(parseInt(userIdOrUsername))){
         user = getUserById(parseInt(userIdOrUsername));
     } else {
@@ -582,14 +591,15 @@ async function viewProfile(userIdOrUsername){
     
     if(user){
         if(currentUser && currentUser.userId === user.userId){
-            // Show own profile page
             showProfile();
+            window.history.pushState({}, '', `/profile`);
         } else {
-            // Show other user's profile modal
             showUserProfileModal(user);
+            window.history.pushState({}, '', `/users/${user.userId}/profile`);
         }
     } else {
         alert("User not found");
+        window.location.href = '/';
     }
 }
 
@@ -611,11 +621,22 @@ function showUserProfileModal(user){
 
 function closeUserProfileModal(){
     document.getElementById('userProfileModal').style.display = "none";
+    window.location.href = '/';
 }
 
-// SEARCH - Update to use ID links
-function openSearch(){document.getElementById("searchOverlay").style.display="flex";document.getElementById("globalSearchInput").focus();}
-function closeSearch(){document.getElementById("searchOverlay").style.display="none";document.getElementById("globalSearchInput").value="";document.getElementById("globalSearchResults").style.display="none";document.getElementById("globalSearchDropdown").style.display="none";}
+// SEARCH
+function openSearch(){
+    document.getElementById("searchOverlay").style.display="flex";
+    document.getElementById("globalSearchInput").focus();
+    window.history.pushState({}, '', '/search');
+}
+function closeSearch(){
+    document.getElementById("searchOverlay").style.display="none";
+    document.getElementById("globalSearchInput").value="";
+    document.getElementById("globalSearchResults").style.display="none";
+    document.getElementById("globalSearchDropdown").style.display="none";
+    window.history.back();
+}
 async function updateSearchDropdown(){
     const q=document.getElementById("globalSearchInput").value.trim().toLowerCase();
     const d=document.getElementById("globalSearchDropdown");
@@ -627,8 +648,13 @@ async function updateSearchDropdown(){
     players.forEach(p=>{html+=`<div class="dropdown-item" onclick="selectPlayer(${p.userId})"><img src="https://ui-avatars.com/api/?background=667eea&color=fff&size=40&name=${encodeURIComponent(p.displayName||p.username)}" style="width:40px;height:40px;border-radius:50%;"><div>${escapeHtml(p.displayName||p.username)} ${renderBadge(p.username)}<br><small>@${escapeHtml(p.username)}</small><br><small>ID: ${p.userId}</small></div></div>`;});
     html+=`</div>`;d.innerHTML=html;d.style.display="block";
 }
-function selectPlayer(userId){closeSearch();window.location.href = `/users/${userId}/profile`;}
-function handleSearchKey(e){if(e.key==="Enter")performSearch();}
+function selectPlayer(userId){
+    closeSearch();
+    window.location.href = `/users/${userId}/profile`;
+}
+function handleSearchKey(e){
+    if(e.key==="Enter") performSearch();
+}
 async function performSearch(){
     const q=document.getElementById("globalSearchInput").value.trim().toLowerCase();
     if(!q)return;
@@ -641,14 +667,18 @@ async function performSearch(){
 
 // SETTINGS
 function openSettings(){
-    if(!currentUser){navigateTo("signin");return;}
+    if(!currentUser){window.location.href = '/'; return;}
     document.getElementById("globalSettingsUsername").innerHTML=escapeHtml(currentUser.username)+" "+renderBadge(currentUser.username);
     document.getElementById("globalSettingsDisplayName").innerHTML=escapeHtml(currentUser.displayName||currentUser.username);
     document.getElementById("globalSettingsEmail").innerHTML=formatEmail(currentUser.email);
     document.getElementById("globalSettingsTAVIX").innerHTML=formatTavix(currentUser.tavix||0)+" ⌬";
-    document.getElementById("settingsOverlay").style.display="flex";updateHash("#settings");
+    document.getElementById("settingsOverlay").style.display="flex";
+    window.history.pushState({}, '', '/settings');
 }
-function closeSettingsGlobal(){document.getElementById("settingsOverlay").style.display="none";if(window.location.hash==="#settings")updateHash("#home");}
+function closeSettingsGlobal(){
+    document.getElementById("settingsOverlay").style.display="none";
+    window.location.href = '/';
+}
 async function updateDisplayNameGlobal(){
     const newName=document.getElementById("globalNewDisplayName").value.trim();
     if(!newName){alert("Enter display name");return;}
@@ -664,13 +694,13 @@ async function logoutGlobal(){
     await logoutAPI();
     currentUser=null;
     closeSettingsGlobal();
-    window.location.href = '/home';
+    window.location.href = '/';
 }
 async function confirmDeleteAccount(){
     if(document.getElementById("deleteConfirmInput").value==="DELETE"){
         if(await deleteAccountAPI()){
             alert("Account deleted.");
-            window.location.href = '/home';
+            window.location.href = '/';
         }else{alert("Failed to delete account");}
     }else{alert('Type "DELETE" to confirm');}
 }
@@ -706,11 +736,50 @@ function updateWelcome(){
 }
 
 // PAGE DISPLAY FUNCTIONS
-function showHome(){document.getElementById("authPage").style.display="none";document.getElementById("profilePage").style.display="none";document.getElementById("tosPage").style.display="none";document.getElementById("deletePage").style.display="none";document.getElementById("homePage").style.display="block";updateWelcome();updateTavixDisplay();updateNotifications();}
-function showProfile(){document.getElementById("authPage").style.display="none";document.getElementById("homePage").style.display="none";document.getElementById("tosPage").style.display="none";document.getElementById("deletePage").style.display="none";document.getElementById("profilePage").style.display="block";renderProfile();updateTavixDisplay();updateNotifications();}
-function showTOS(){document.getElementById("authPage").style.display="none";document.getElementById("homePage").style.display="none";document.getElementById("profilePage").style.display="none";document.getElementById("deletePage").style.display="none";document.getElementById("tosPage").style.display="block";}
-function showDelete(){document.getElementById("authPage").style.display="none";document.getElementById("homePage").style.display="none";document.getElementById("profilePage").style.display="none";document.getElementById("tosPage").style.display="none";document.getElementById("deletePage").style.display="block";document.getElementById("deleteConfirmInput").value="";}
-function showAuth(){document.getElementById("homePage").style.display="none";document.getElementById("profilePage").style.display="none";document.getElementById("tosPage").style.display="none";document.getElementById("deletePage").style.display="none";document.getElementById("authPage").style.display="block";generateDragCaptcha();renderSaved();}
+function showHome(){
+    document.getElementById("authPage").style.display="none";
+    document.getElementById("profilePage").style.display="none";
+    document.getElementById("tosPage").style.display="none";
+    document.getElementById("deletePage").style.display="none";
+    document.getElementById("homePage").style.display="block";
+    updateWelcome();
+    updateTavixDisplay();
+    updateNotifications();
+}
+function showProfile(){
+    document.getElementById("authPage").style.display="none";
+    document.getElementById("homePage").style.display="none";
+    document.getElementById("tosPage").style.display="none";
+    document.getElementById("deletePage").style.display="none";
+    document.getElementById("profilePage").style.display="block";
+    renderProfile();
+    updateTavixDisplay();
+    updateNotifications();
+}
+function showTOS(){
+    document.getElementById("authPage").style.display="none";
+    document.getElementById("homePage").style.display="none";
+    document.getElementById("profilePage").style.display="none";
+    document.getElementById("deletePage").style.display="none";
+    document.getElementById("tosPage").style.display="block";
+}
+function showDelete(){
+    document.getElementById("authPage").style.display="none";
+    document.getElementById("homePage").style.display="none";
+    document.getElementById("profilePage").style.display="none";
+    document.getElementById("tosPage").style.display="none";
+    document.getElementById("deletePage").style.display="block";
+    document.getElementById("deleteConfirmInput").value="";
+}
+function showAuth(){
+    document.getElementById("homePage").style.display="none";
+    document.getElementById("profilePage").style.display="none";
+    document.getElementById("tosPage").style.display="none";
+    document.getElementById("deletePage").style.display="none";
+    document.getElementById("authPage").style.display="block";
+    generateDragCaptcha();
+    renderSaved();
+}
 function showAuthForm(t){
     const lf=document.getElementById("loginForm"),sf=document.getElementById("signupForm");
     const lt=document.getElementById("loginTab"),st=document.getElementById("signupTab");
@@ -723,9 +792,24 @@ function showAuthForm(t){
 
 // TAVIX MODAL FUNCTIONS
 let tavixDropdownOpen=false,notifDropdownOpen=false;
-document.addEventListener("click",function(e){const td=document.getElementById("tavixDropdown");const nd=document.getElementById("notificationDropdown");const tb=document.getElementById("tavixBtn")||document.getElementById("tavixBtnProfile");const nb=document.getElementById("notificationBtnHome")||document.getElementById("notificationBtnProfile");if(td&&tb&&!tb.contains(e.target)&&!td.contains(e.target)){td.style.display="none";tavixDropdownOpen=false;}if(nd&&nb&&!nb.contains(e.target)&&!nd.contains(e.target)){nd.style.display="none";notifDropdownOpen=false;}});
-function toggleTavix(){const d=document.getElementById("tavixDropdown");if(tavixDropdownOpen){d.style.display="none";tavixDropdownOpen=false;}else{updateTavixDisplay();d.style.display="block";tavixDropdownOpen=true;}}
-function toggleNotifications(){const d=document.getElementById("notificationDropdown");if(notifDropdownOpen){d.style.display="none";notifDropdownOpen=false;}else{updateNotifications();d.style.display="block";notifDropdownOpen=true;}}
+document.addEventListener("click",function(e){
+    const td=document.getElementById("tavixDropdown");
+    const nd=document.getElementById("notificationDropdown");
+    const tb=document.getElementById("tavixBtn")||document.getElementById("tavixBtnProfile");
+    const nb=document.getElementById("notificationBtnHome")||document.getElementById("notificationBtnProfile");
+    if(td&&tb&&!tb.contains(e.target)&&!td.contains(e.target)){td.style.display="none";tavixDropdownOpen=false;}
+    if(nd&&nb&&!nb.contains(e.target)&&!nd.contains(e.target)){nd.style.display="none";notifDropdownOpen=false;}
+});
+function toggleTavix(){
+    const d=document.getElementById("tavixDropdown");
+    if(tavixDropdownOpen){d.style.display="none";tavixDropdownOpen=false;}
+    else{updateTavixDisplay();d.style.display="block";tavixDropdownOpen=true;}
+}
+function toggleNotifications(){
+    const d=document.getElementById("notificationDropdown");
+    if(notifDropdownOpen){d.style.display="none";notifDropdownOpen=false;}
+    else{updateNotifications();d.style.display="block";notifDropdownOpen=true;}
+}
 function openBuyModal(){closeModals();document.getElementById("buyModal").style.display="flex";}
 function openGiftModal(){closeModals();document.getElementById("giftModal").style.display="flex";}
 function openTransactionsModal(){
@@ -767,14 +851,14 @@ async function sendGift(){
 }
 function closeModals(){document.querySelectorAll(".modal-overlay").forEach(m=>m.style.display="none");}
 
-// ============= ROUTER (Roblox-style URLs) =============
+// ============= ROUTER (Clean URLs - Needs _redirects file) =============
 function navigateTo(page){
-    if(page === "home") window.location.href = '/home';
+    if(page === "home") window.location.href = '/';
     else if(page === "settings") window.location.href = '/settings';
-    else if(page === "profile") window.location.href = `/users/${currentUser?.userId}/profile`;
+    else if(page === "profile") window.location.href = `/profile`;
     else if(page === "wiki-tos") window.location.href = '/wiki-tos';
     else if(page === "delete") window.location.href = '/delete';
-    else if(page === "signin") window.location.href = '/signin';
+    else if(page === "signin") window.location.href = '/';
     else if(page === "search") window.location.href = '/search';
 }
 
@@ -794,43 +878,51 @@ async function handleRoute(){
                 showUserProfileModal(user);
             } else {
                 alert("User not found");
-                window.location.href = '/home';
+                window.location.href = '/';
             }
         }
         return;
     }
     
     // Other routes
-    if(path === '/home' || path === '/'){
+    if(path === '/' || path === '/home'){
         if(currentUser) showHome();
         else showAuth();
     }
+    else if(path === '/profile'){
+        if(currentUser){
+            showProfile();
+        } else {
+            window.location.href = '/';
+        }
+    }
     else if(path === '/settings'){
         if(currentUser) openSettings();
-        else showAuth();
+        else window.location.href = '/';
     }
     else if(path === '/wiki-tos') showTOS();
     else if(path === '/delete'){
         if(currentUser) showDelete();
-        else showAuth();
+        else window.location.href = '/';
     }
-    else if(path === '/signin') showAuth();
     else if(path === '/search'){
-        openSearch();
-        window.history.pushState({}, '', '/search');
+        if(!document.getElementById("searchOverlay").style.display === "flex"){
+            openSearch();
+        }
     }
     else {
-        window.location.href = '/home';
+        // If path doesn't match any route, go home
+        if(path !== '/') window.location.href = '/';
     }
 }
 
 // EVENT LISTENERS
-document.getElementById("searchBtnHome")?.addEventListener("click",()=>navigateTo('search'));
-document.getElementById("searchBtnProfile")?.addEventListener("click",()=>navigateTo('search'));
-document.getElementById("profileBtnHome")?.addEventListener("click",()=>navigateTo('profile'));
-document.getElementById("profileBtnProfile")?.addEventListener("click",()=>navigateTo('profile'));
-document.getElementById("settingsBtnHome")?.addEventListener("click",()=>navigateTo('settings'));
-document.getElementById("settingsBtnProfile")?.addEventListener("click",()=>navigateTo('settings'));
+document.getElementById("searchBtnHome")?.addEventListener("click",(e)=>{e.preventDefault(); navigateTo('search');});
+document.getElementById("searchBtnProfile")?.addEventListener("click",(e)=>{e.preventDefault(); navigateTo('search');});
+document.getElementById("profileBtnHome")?.addEventListener("click",(e)=>{e.preventDefault(); navigateTo('profile');});
+document.getElementById("profileBtnProfile")?.addEventListener("click",(e)=>{e.preventDefault(); navigateTo('profile');});
+document.getElementById("settingsBtnHome")?.addEventListener("click",(e)=>{e.preventDefault(); navigateTo('settings');});
+document.getElementById("settingsBtnProfile")?.addEventListener("click",(e)=>{e.preventDefault(); navigateTo('settings');});
 document.getElementById("globalLogoutBtn")?.addEventListener("click",logoutGlobal);
 document.getElementById("searchOverlay")?.addEventListener("click",function(e){if(e.target===this)closeSearch();});
 document.getElementById("settingsOverlay")?.addEventListener("click",function(e){if(e.target===this)closeSettingsGlobal();});
@@ -856,10 +948,19 @@ document.getElementById("signupForm")?.addEventListener("submit",async function(
     if(pw.length<8){err.textContent="Password 8+ chars";return;}
     if(pw!==cf){err.textContent="Passwords don't match";return;}
     if(!em.includes("@")){err.textContent="Valid email required";return;}
+    
+    // Get next user ID
+    await fetchAllUsers();
+    const nextId = getNextUserId();
+    
     const result=await registerAPI(un,em,pw,un);
     if(result.success){
+        // Add userId to the user object
+        result.user.userId = nextId;
+        await updateUserAPI({ userId: nextId });
+        currentUser.userId = nextId;
         saveAccount({username:un,displayName:un,email:em});
-        window.location.href = '/home';
+        window.location.href = '/';
     }else{
         err.textContent=result.error;
         generateDragCaptcha();
@@ -874,7 +975,7 @@ document.getElementById("loginForm")?.addEventListener("submit",async function(e
     const result=await loginAPI(un,pw);
     if(result.success){
         saveAccount({username:un,displayName:result.user.displayName||un,email:result.user.email});
-        window.location.href = '/home';
+        window.location.href = '/';
     }else{
         document.getElementById("authError").textContent=result.error;
     }
