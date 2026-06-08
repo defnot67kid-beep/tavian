@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tavian - Cloud Powered</title>
+
+<!-- Material Icons -->
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif;}
+body{background:#f4f4f4;overflow-x:hidden;}
+
+/* HEADER */
+header{background:white;padding:15px 20px;border-bottom:1px solid #ddd;position:sticky;top:0;z-index:100;}
+.topbar{display:flex;justify-content:space-between;align-items:center;}
+.logo{font-size:42px;font-weight:900;cursor:pointer;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.nav-icons{display:flex;align-items:center;gap:10px;position:relative;}
+.icon-btn{width:50px;height:50px;border:none;border-radius:10px;background:white;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:0.2s;}
+.icon-btn:hover{background:#f0f0f0;}
+.icon-btn .material-icons{font-size:28px;color:#555;}
+.notification-badge{position:relative;}
+.notification-badge .badge-count{position:absolute;top:-5px;right:-5px;background:#dc2626;color:white;font-size:10px;font-weight:bold;padding:2px 6px;border-radius:50%;min-width:18px;text-align:center;}
+.tavix-btn{background:white;border-radius:30px;padding:5px 15px 5px 10px;display:flex;align-items:center;gap:8px;cursor:pointer;transition:0.2s;border:1px solid #e0e0e0;}
+.tavix-btn:hover{background:#f0f0f0;border-color:#f0b800;}
+.tavix-icon{font-size:28px;color:#f0b800;}
+.tavix-amount{font-weight:bold;font-size:18px;color:#333;}
+.tavix-dropdown{display:none;position:absolute;top:65px;right:0;background:white;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,0.15);width:280px;z-index:1000;overflow:hidden;animation:fadeIn 0.2s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-10px);}to{opacity:1;transform:translateY(0);}}
+.tavix-dropdown-header{background:linear-gradient(135deg,#f0b800 0%,#f0b800 100%);padding:15px;text-align:center;}
+.tavix-dropdown-header .balance{color:white;font-size:24px;font-weight:bold;}
+.tavix-dropdown-header .label{color:rgba(255,255,255,0.9);font-size:12px;margin-top:5px;}
+.tavix-dropdown-item{padding:15px;display:flex;align-items:center;gap:15px;cursor:pointer;transition:0.2s;border-bottom:1px solid #f0f0f0;}
+.tavix-dropdown-item:hover{background:#f9f9f9;}
+.tavix-dropdown-item .icon{font-size:24px;width:40px;text-align:center;}
+.tavix-dropdown-item .info{flex:1;}
+.tavix-dropdown-item .title{font-weight:bold;color:#333;}
+.tavix-dropdown-item .desc{font-size:12px;color:#888;margin-top:2px;}
+.modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:3000;justify-content:center;align-items:center;}
+.modal-container{background:white;border-radius:24px;padding:30px;max-width:450px;width:90%;text-align:center;}
+.modal-container h2{margin-bottom:20px;color:#333;}
+.modal-container input,.modal-container select{width:100%;padding:15px;border:2px solid #e0e0e0;border-radius:12px;margin:10px 0;font-size:16px;}
+.modal-container input:focus,.modal-container select:focus{outline:none;border-color:#f0b800;}
+.modal-buttons{display:flex;gap:10px;margin-top:20px;}
+.modal-buttons button{flex:1;padding:12px;border:none;border-radius:10px;cursor:pointer;font-size:16px;}
+.modal-buttons button:first-child{background:#e0e0e0;color:#333;}
+.modal-buttons button:last-child{background:#f0b800;color:white;}
+.transaction-list{max-height:300px;overflow-y:auto;text-align:left;}
+.transaction-item{padding:10px;border-bottom:1px solid #f0f0f0;display:flex;justify-content:space-between;}
+.transaction-amount{font-weight:bold;}
+.transaction-amount.positive{color:#10b981;}
+.transaction-amount.negative{color:#dc2626;}
+.notification-dropdown{display:none;position:absolute;top:65px;right:60px;background:white;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,0.15);width:320px;max-height:400px;overflow-y:auto;z-index:1000;animation:fadeIn 0.2s ease;}
+.notification-item{padding:15px;border-bottom:1px solid #f0f0f0;display:flex;gap:12px;cursor:pointer;transition:0.2s;}
+.notification-item:hover{background:#f9f9f9;}
+.notification-item.unread{background:#f0f7ff;}
+.notification-icon{font-size:24px;}
+.notification-content{flex:1;}
+.notification-title{font-weight:bold;color:#333;margin-bottom:4px;}
+.notification-message{font-size:12px;color:#666;}
+.notification-time{font-size:10px;color:#999;margin-top:4px;}
+.empty-notifications{padding:30px;text-align:center;color:#999;}
+.search-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:2000;justify-content:flex-start;align-items:flex-start;}
+.search-panel{width:100%;background:white;border-radius:0 0 20px 20px;box-shadow:0 10px 30px rgba(0,0,0,0.2);animation:slideDown 0.3s ease;}
+@keyframes slideDown{from{transform:translateY(-100%);opacity:0;}to{transform:translateY(0);opacity:1;}}
+.search-header{padding:20px 25px;border-bottom:1px solid #e0e0e0;display:flex;justify-content:space-between;align-items:center;}
+.search-header h2{font-size:24px;font-weight:600;color:#333;}
+.close-search-global{background:none;border:none;font-size:24px;cursor:pointer;padding:10px;border-radius:10px;color:#666;}
+.close-search-global:hover{background:#f0f0f0;}
+.search-input-wrapper{padding:20px 25px;position:relative;}
+.search-input-wrapper input{width:100%;padding:18px;border:2px solid #e0e0e0;border-radius:12px;font-size:18px;}
+.search-input-wrapper input:focus{outline:none;border-color:#667eea;}
+.search-dropdown-global{position:absolute;top:100%;left:25px;right:25px;background:white;border-radius:12px;box-shadow:0 8px 20px rgba(0,0,0,0.15);max-height:400px;overflow-y:auto;z-index:2001;display:none;margin-top:5px;}
+.search-results-global{padding:25px;max-height:60vh;overflow-y:auto;display:none;}
+.players-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+.player-card{background:white;border-radius:16px;padding:20px;display:flex;align-items:center;gap:15px;border:1px solid #e5e5e5;transition:0.2s;cursor:pointer;}
+.player-card:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.08);}
+.player-avatar{width:60px;height:60px;border-radius:50%;object-fit:cover;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);}
+.badge{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;background:#f0f0f0;border-radius:50%;font-size:22px;margin-left:8px;}
+.badge.owner{background:#ffd700;color:#8b7500;}
+.badge.admin{background:#4a90e2;color:white;}
+.section{padding:25px;max-width:1200px;margin:auto;}
+.section h2{color:#666;margin-bottom:20px;letter-spacing:4px;font-size:18px;}
+.friends-box{background:white;border-radius:15px;padding:30px;display:flex;flex-direction:column;align-items:center;gap:20px;color:#888;font-size:18px;}
+.welcome-message{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);padding:15px 25px;margin:10px 25px 0 25px;border-radius:12px;display:flex;justify-content:space-between;align-items:center;}
+.welcome-text{color:white;font-size:18px;font-weight:500;}
+.profile-page{max-width:1200px;margin:auto;padding:25px;}
+.profile-header{display:flex;gap:30px;align-items:center;margin-bottom:30px;background:white;padding:30px;border-radius:20px;box-shadow:0 2px 10px rgba(0,0,0,0.05);}
+.profile-pfp{width:120px;height:120px;border-radius:50%;object-fit:cover;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);}
+.display-name{font-size:56px;font-weight:800;color:#111;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.username{font-size:28px;color:#666;margin-top:5px;}
+.social-stats{display:flex;gap:25px;margin-top:12px;color:#555;font-size:22px;}
+.about-card{background:white;border:1px solid #e5e5e5;border-radius:16px;padding:25px;margin-bottom:30px;}
+.card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;}
+.card-header h2{color:#666;letter-spacing:4px;font-size:18px;}
+.edit-btn{background:white;border:1px solid #dcdcdc;border-radius:8px;padding:8px 18px;cursor:pointer;font-size:14px;}
+.edit-btn:hover{background:#f5f5f5;}
+.about-text{color:#555;font-size:16px;line-height:1.5;min-height:80px;}
+.profile-stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;}
+.stat-card{background:white;border:1px solid #e5e5e5;border-radius:16px;padding:25px;}
+.stat-label{color:#999;font-size:14px;font-weight:bold;letter-spacing:2px;}
+.stat-value{font-size:32px;margin-top:10px;font-weight:500;}
+.auth-container{max-width:550px;margin:40px auto;padding:20px;}
+.tabs{display:flex;margin-bottom:40px;border-radius:10px;overflow:hidden;border:1px solid #ddd;}
+.tab{flex:1;padding:15px;border:none;background:white;cursor:pointer;font-size:18px;}
+.tab.active{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;}
+.auth-form{display:none;}
+.auth-form.active{display:block;}
+.auth-form label{display:block;margin-bottom:10px;color:#666;font-size:18px;}
+.auth-form input{width:100%;padding:18px;border:1px solid #ccc;border-radius:8px;margin-bottom:25px;font-size:16px;}
+.auth-form input:focus{outline:none;border-color:#667eea;}
+.submit-btn{width:100%;padding:18px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;border:none;border-radius:8px;font-size:24px;cursor:pointer;}
+.submit-btn:hover{opacity:0.9;}
+.error{color:red;margin-bottom:20px;}
+.drag-captcha{background:#f0f0f0;border-radius:16px;padding:20px;margin-bottom:25px;border:2px solid #e0e0e0;}
+.captcha-title{text-align:center;margin-bottom:15px;font-weight:bold;color:#333;}
+.puzzle-container{display:flex;gap:20px;justify-content:center;flex-wrap:wrap;}
+.puzzle-pieces{flex:1;min-width:200px;background:#e8e8e8;border-radius:12px;padding:15px;text-align:center;}
+.puzzle-pieces h4{margin-bottom:15px;color:#666;font-size:14px;}
+.pieces-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+.drag-piece{background:white;border:2px solid #ddd;border-radius:10px;padding:15px;cursor:grab;text-align:center;transition:0.1s;user-select:none;}
+.drag-piece:active{cursor:grabbing;}
+.drag-piece.dragging{opacity:0.5;}
+.puzzle-dropzone{flex:1;min-width:200px;background:#e8e8e8;border-radius:12px;padding:15px;text-align:center;}
+.dropzone-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;min-height:180px;}
+.drop-slot{background:#fafafa;border:2px dashed #aaa;border-radius:10px;padding:15px;text-align:center;transition:0.2s;min-height:80px;display:flex;align-items:center;justify-content:center;}
+.drop-slot.drag-over{background:#e0e7ff;border-color:#667eea;}
+.drop-slot.filled{background:#d1fae5;border-color:#10b981;border-style:solid;}
+.drop-slot .dropped-item{font-size:32px;}
+.captcha-status{margin-top:15px;padding:10px;border-radius:8px;text-align:center;font-size:14px;}
+.captcha-status.complete{background:#d1fae5;color:#065f46;}
+.captcha-status.incomplete{background:#fed7aa;color:#92400e;}
+.refresh-captcha-btn{margin-top:15px;padding:10px 20px;background:#666;color:white;border:none;border-radius:8px;cursor:pointer;width:100%;}
+.refresh-captcha-btn:hover{background:#555;}
+.emoji-large{font-size:36px;display:block;}
+.tos-container{margin:20px 0;padding:15px;background:#f9f9f9;border-radius:12px;border:1px solid #e0e0e0;}
+.tos-checkbox{display:flex;align-items:center;gap:10px;cursor:pointer;}
+.tos-checkbox input{width:20px;height:20px;cursor:pointer;margin:0;}
+.tos-checkbox label{margin:0;cursor:pointer;font-size:14px;color:#555;}
+.tos-link{color:#667eea;text-decoration:none;font-weight:bold;}
+.tos-link:hover{text-decoration:underline;}
+.quick-login-section{margin-top:30px;padding:20px;background:#f9f9f9;border-radius:16px;border:1px solid #e0e0e0;}
+.quick-login-section h3{font-size:16px;color:#666;margin-bottom:15px;display:flex;align-items:center;gap:8px;}
+.saved-accounts-list{display:flex;flex-wrap:wrap;gap:10px;}
+.saved-account-btn{display:flex;align-items:center;gap:10px;padding:10px 16px;background:white;border:1px solid #ddd;border-radius:12px;cursor:pointer;transition:0.2s;}
+.saved-account-btn:hover{background:#f0f0f0;border-color:#667eea;}
+.saved-account-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);display:flex;align-items:center;justify-content:center;color:white;font-weight:bold;}
+.saved-account-info{text-align:left;}
+.saved-account-name{font-weight:600;font-size:14px;}
+.saved-account-username{font-size:11px;color:#888;}
+.remove-account{margin-left:10px;color:#999;font-size:18px;cursor:pointer;padding:0 5px;}
+.remove-account:hover{color:#dc2626;}
+.settings-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:2000;justify-content:center;align-items:center;}
+.settings-container{max-width:600px;width:90%;margin:20px;padding:40px;background:white;border-radius:24px;max-height:90vh;overflow-y:auto;}
+.setting-item{margin-bottom:30px;padding:20px;background:#f9f9f9;border-radius:16px;}
+.setting-label{font-weight:bold;color:#555;margin-bottom:8px;font-size:12px;text-transform:uppercase;}
+.setting-value{font-size:20px;font-weight:500;margin-bottom:15px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.setting-input{width:100%;padding:14px;border:2px solid #e0e0e0;border-radius:12px;font-size:16px;}
+.save-btn{width:100%;padding:14px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;border:none;border-radius:12px;cursor:pointer;margin-top:10px;}
+.delete-btn{width:100%;padding:14px;background:#dc2626;color:white;border:none;border-radius:12px;cursor:pointer;margin-top:15px;}
+.delete-btn:hover{background:#b91c1c;}
+.logout-btn{width:100%;padding:14px;background:#666;color:white;border:none;border-radius:12px;cursor:pointer;margin-top:10px;}
+.logout-btn:hover{background:#555;}
+.note{font-size:12px;color:#888;text-align:center;margin-top:20px;}
+.delete-page{display:none;max-width:600px;margin:80px auto;padding:40px;background:white;border-radius:24px;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,0.1);}
+.delete-page h1{font-size:36px;color:#dc2626;margin-bottom:20px;}
+.delete-page p{color:#555;margin-bottom:30px;line-height:1.6;}
+.warning-text{background:#fee2e2;padding:15px;border-radius:12px;color:#dc2626;margin:20px 0;font-weight:bold;}
+.delete-input{width:100%;padding:15px;border:2px solid #e0e0e0;border-radius:12px;font-size:16px;margin:20px 0;}
+.delete-buttons{display:flex;gap:15px;}
+.delete-buttons button{flex:1;padding:15px;border:none;border-radius:12px;cursor:pointer;font-size:16px;}
+.cancel-delete{background:#e0e0e0;color:#333;}
+.confirm-delete{background:#dc2626;color:white;}
+.confirm-delete:hover{background:#b91c1c;}
+.tos-page{display:none;max-width:1000px;margin:0 auto;padding:30px;background:#f4f4f4;min-height:100vh;}
+.tos-header{background:white;border-radius:20px;padding:30px;margin-bottom:30px;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,0.05);}
+.tos-header h1{font-size:48px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:10px;}
+.tos-header p{color:#666;font-size:14px;}
+.tos-card{background:white;border-radius:20px;padding:30px;margin-bottom:30px;box-shadow:0 2px 10px rgba(0,0,0,0.05);}
+.tos-card h2{color:#333;margin-bottom:20px;padding-bottom:10px;border-bottom:3px solid #667eea;display:inline-block;}
+.tos-card h3{color:#667eea;margin:20px 0 10px 0;}
+.tos-card ul,.tos-card ol{margin-left:25px;line-height:1.8;color:#444;}
+.tos-card li{margin:8px 0;}
+.tos-card p{line-height:1.6;color:#444;margin:10px 0;}
+.warning-box{background:#1a1a2e;color:#ff4444;padding:15px;border-radius:10px;font-family:monospace;margin:15px 0;}
+.green-box{background:#d1fae5;border-left:4px solid #10b981;padding:15px;border-radius:10px;margin:15px 0;color:#065f46;}
+.back-to-home{position:fixed;bottom:30px;right:30px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;border:none;padding:12px 24px;border-radius:50px;cursor:pointer;font-weight:bold;box-shadow:0 4px 12px rgba(0,0,0,0.2);z-index:100;}
+.back-to-home:hover{opacity:0.9;}
+@media (max-width:768px){.logo{font-size:28px;}.players-grid{grid-template-columns:1fr;}.display-name{font-size:42px;}.puzzle-container{flex-direction:column;}.tos-header h1{font-size:32px;}}
+</style>
+</head>
+<body>
+
+<!-- GLOBAL SEARCH OVERLAY -->
+<div id="searchOverlay" class="search-overlay">
+    <div class="search-panel">
+        <div class="search-header"><h2>🔍 Search</h2><button class="close-search-global" onclick="closeSearchGlobal()">✕</button></div>
+        <div class="search-input-wrapper"><input type="text" id="globalSearchInput" placeholder="Search players..." autocomplete="off"><div id="globalSearchDropdown" class="search-dropdown-global"></div></div>
+        <div id="globalSearchResults" class="search-results-global"></div>
+    </div>
+</div>
+
+<!-- NOTIFICATION DROPDOWN -->
+<div id="notificationDropdown" class="notification-dropdown"><div id="notificationList"></div></div>
+
+<!-- TAVIX MODALS -->
+<div id="buyModal" class="modal-overlay"><div class="modal-container"><h2>💰 Buy TAVIX</h2><p style="color:#666; margin-bottom:15px;">Select amount:</p><select id="buyAmount"><option value="100">100 TAVIX - $0.99</option><option value="500">500 TAVIX - $4.99</option><option value="1000">1000 TAVIX - $9.99</option><option value="5000">5000 TAVIX - $49.99</option></select><div class="modal-buttons"><button onclick="closeModals()">Cancel</button><button onclick="buyTAVIX()">Purchase</button></div></div></div>
+<div id="giftModal" class="modal-overlay"><div class="modal-container"><h2>🎁 Gift TAVIX</h2><input type="text" id="giftUsername" placeholder="Recipient username"><input type="number" id="giftAmount" placeholder="Amount to send" min="1"><div class="modal-buttons"><button onclick="closeModals()">Cancel</button><button onclick="sendGift()">Send Gift</button></div></div></div>
+<div id="transactionsModal" class="modal-overlay"><div class="modal-container"><h2>📜 Transaction History</h2><div id="transactionList" class="transaction-list"></div><div class="modal-buttons"><button onclick="closeModals()">Close</button></div></div></div>
+
+<!-- SETTINGS OVERLAY -->
+<div id="settingsOverlay" class="settings-overlay">
+    <div class="settings-container">
+        <div class="settings-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h1>⚙️ Settings</h1>
+            <button class="close-settings" onclick="closeSettingsGlobal()" style="background:none; border:none; font-size:28px; cursor:pointer; color:#666; padding:5px 10px;">✕</button>
+        </div>
+        <div class="setting-item"><div class="setting-label">USERNAME</div><div class="setting-value" id="globalSettingsUsername">-</div></div>
+        <div class="setting-item"><div class="setting-label">DISPLAY NAME</div><div class="setting-value" id="globalSettingsDisplayName">-</div><input type="text" id="globalNewDisplayName" class="setting-input" placeholder="New display name"><button class="save-btn" onclick="updateDisplayNameGlobal()">Save Display Name</button></div>
+        <div class="setting-item"><div class="setting-label">EMAIL</div><div class="setting-value" id="globalSettingsEmail">-</div></div>
+        <div class="setting-item"><div class="setting-label">TAVIX BALANCE</div><div class="setting-value" id="globalSettingsTAVIX">-</div></div>
+        <button class="delete-btn" onclick="navigateTo('delete')">🗑️ Delete Account</button>
+        <button class="logout-btn" id="globalLogoutBtn">Logout</button>
+        <div class="note">🔒 Username cannot be changed • Display name can be updated anytime</div>
+    </div>
+</div>
+
+<!-- DELETE PAGE -->
+<div id="deletePage" class="delete-page"><h1>⚠️ Delete Account</h1><p>This action is <strong>permanent</strong> and cannot be undone.</p><div class="warning-text">All your data will be erased.</div><p>Type <strong style="color:#dc2626;">DELETE</strong> to confirm:</p><input type="text" id="deleteConfirmInput" class="delete-input" placeholder="Type DELETE here"><div class="delete-buttons"><button class="cancel-delete" onclick="navigateTo('home')">Cancel</button><button class="confirm-delete" onclick="confirmDeleteAccount()">Permanently Delete</button></div></div>
+
+<!-- HOME PAGE -->
+<div id="homePage" style="display:none;"><header><div class="topbar"><div class="logo" onclick="navigateTo('home')">TAVIAN</div><div class="nav-icons"><button class="icon-btn search-btn" id="searchBtnHome"><span class="material-icons">search</span></button><div class="tavix-btn" id="tavixBtn"><span class="tavix-icon">⌬</span><span class="tavix-amount" id="tavixBalance">0</span></div><button class="icon-btn profile-btn" id="profileBtnHome"><span class="material-icons">person</span></button><button class="icon-btn notification-badge" id="notificationBtnHome"><span class="material-icons">notifications</span><span class="badge-count" id="notificationCount">0</span></button><button class="icon-btn settings-btn" id="settingsBtnHome"><span class="material-icons">settings</span></button></div></div></header><div id="tavixDropdown" class="tavix-dropdown"><div class="tavix-dropdown-header"><div class="balance" id="dropdownBalance">0 ⌬</div><div class="label">TAVIX Balance</div></div><div class="tavix-dropdown-item" onclick="openBuyModal()"><div class="icon">💰</div><div class="info"><div class="title">Buy TAVIX</div><div class="desc">Purchase TAVIX with real money</div></div></div><div class="tavix-dropdown-item" onclick="openGiftModal()"><div class="icon">🎁</div><div class="info"><div class="title">Gift TAVIX</div><div class="desc">Send TAVIX to a friend</div></div></div><div class="tavix-dropdown-item" onclick="openTransactionsModal()"><div class="icon">📜</div><div class="info"><div class="title">Transactions</div><div class="desc">View your TAVIX history</div></div></div></div><div id="welcomeBanner" class="welcome-message" style="display:none;"><span class="welcome-text" id="welcomeText"></span></div><div id="mainContent"><div class="section"><h2>FRIENDS</h2><div class="friends-box"><div>No friends 😭</div><button class="friend-arrow">&gt;</button></div></div><div class="section"><h2>GAMES</h2><div class="empty-games">No games available</div></div><footer style="margin-top:40px; background:white; padding:20px; text-align:center;"></footer></div></div>
+
+<!-- PROFILE PAGE -->
+<div id="profilePage" style="display:none;"><header><div class="topbar"><div class="logo" onclick="navigateTo('home')">TAVIAN</div><div class="nav-icons"><button class="icon-btn search-btn" id="searchBtnProfile"><span class="material-icons">search</span></button><div class="tavix-btn" id="tavixBtnProfile"><span class="tavix-icon">⌬</span><span class="tavix-amount" id="tavixBalanceProfile">0</span></div><button class="icon-btn profile-btn" id="profileBtnProfile"><span class="material-icons">person</span></button><button class="icon-btn notification-badge" id="notificationBtnProfile"><span class="material-icons">notifications</span><span class="badge-count" id="notificationCountProfile">0</span></button><button class="icon-btn settings-btn" id="settingsBtnProfile"><span class="material-icons">settings</span></button></div></div></header><div id="profileContent" class="profile-page"></div><footer style="margin-top:40px; background:white; padding:20px; text-align:center;"></footer></div>
+
+<!-- TERMS OF SERVICE PAGE -->
+<div id="tosPage" class="tos-page">
+    <div class="tos-header"><h1>📜 TERMS OF SERVICE</h1><p>Last Updated: June 7, 2026</p></div>
+    <div class="tos-card"><h2>1. Acceptance of Terms</h2><p>By accessing or using Tavian, you agree to be bound by these Terms.</p></div>
+    <div class="tos-card"><h2>2. Account Registration & Security</h2><p>You are responsible for your account security.</p></div>
+    <div class="tos-card"><h2>3. Prohibited Conduct</h2><p>Harassment, cheating, illegal activities are strictly prohibited.</p><div class="warning-box">⚠️ VIOLATIONS RESULT IN BANS OR LEGAL ACTION</div></div>
+    <div class="tos-card"><h2>4. Cheats & Macros Policy</h2><div class="green-box">✅ CHEATS & MACROS ARE ALLOWED if the game permits them</div><div class="warning-box">⚠️ MALICIOUS BOTS NEVER ALLOWED</div></div>
+    <div class="tos-card"><h2>5. TAVIX Virtual Currency</h2><p>TAVIX has no real-world value and cannot be exchanged for real currency.</p></div>
+    <div class="tos-card"><h2>6. Contact</h2><p>Message RealGysj or Plstealme2 for issues.</p></div>
+    <button class="back-to-home" onclick="navigateTo('home')">← BACK TO TAVIAN</button>
+</div>
+
+<!-- AUTH PAGE -->
+<div id="authPage" style="display:none;"><header><div class="topbar"><div class="logo">TAVIAN</div><div class="nav-icons"></div></div></header><div class="auth-container"><div class="tabs"><button class="tab active" id="loginTab" onclick="showAuthForm('login')">Sign In</button><button class="tab" id="signupTab" onclick="showAuthForm('signup')">Create Account</button></div><div id="authError" class="error"></div><form id="loginForm" class="auth-form active"><label>Username</label><input type="text" id="loginUsername" required><label>Password</label><input type="password" id="loginPassword" required><button type="submit" class="submit-btn">Sign In</button><div style="text-align:center; margin-top:15px;"><a href="#" onclick="showAuthForm('signup'); return false;" style="color:#667eea;">No account? Create one</a></div></form><form id="signupForm" class="auth-form"><label>Username</label><input type="text" id="signupUsername" required><label>Email</label><input type="email" id="signupEmail" required><label>Password</label><input type="password" id="signupPassword" required><label>Confirm Password</label><input type="password" id="signupConfirm" required><div class="drag-captcha" id="dragCaptcha"><div class="captcha-title">🐉 DRAG & DROP</div><div class="puzzle-container" id="puzzleContainer"></div><div class="captcha-status incomplete" id="captchaStatus">Match 4 icons</div><button type="button" class="refresh-captcha-btn" onclick="generateDragCaptcha()">⟳ New</button><input type="hidden" id="captchaValid" value="false"></div><div class="tos-container"><div class="tos-checkbox"><input type="checkbox" id="tosAgree"><label>I agree to the <a href="#" onclick="navigateTo('wiki-tos'); return false;">Terms of Service</a></label></div></div><button type="submit" class="submit-btn">Create Account</button></form><div class="quick-login-section"><h3>📱 Quick Login</h3><div id="savedAccountsList" class="saved-accounts-list"></div></div></div></div>
+
+<script>
+// API Configuration
+const API_URL = 'https://tavian-api.onrender.com/api';
+
+// FORMAT NUMBER WITH K/M SUFFIX
+function formatTavix(amount){
+    if(amount >= 1000000) return (amount / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+    if(amount >= 1000) return (amount / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+    return amount.toString();
+}
+
+// CAPTCHA SYSTEM
+const captchaPairs=[{name:"🐉 Dragon",icon:"🐉",match:"🐲 Dragon Face"},{name:"👑 Crown",icon:"👑",match:"🏆 Trophy"},{name:"⭐ Star",icon:"⭐",match:"🌙 Moon"},{name:"🔥 Fire",icon:"🔥",match:"💧 Water"},{name:"⚔️ Sword",icon:"⚔️",match:"🛡️ Shield"},{name:"🎮 Controller",icon:"🎮",match:"🖥️ Monitor"}];
+let currentCaptchaPieces=[],currentCaptchaSlots=[],dragEnabled=true;
+function generateDragCaptcha(){const shuffled=[...captchaPairs];for(let i=shuffled.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]];}const selected=shuffled.slice(0,4);currentCaptchaPieces=selected.map(p=>({id:Math.random().toString(36).substr(2,6),name:p.name,icon:p.icon,matchText:p.match}));for(let i=currentCaptchaPieces.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[currentCaptchaPieces[i],currentCaptchaPieces[j]]=[currentCaptchaPieces[j],currentCaptchaPieces[i]];}currentCaptchaSlots=selected.map(p=>({id:Math.random().toString(36).substr(2,6),expectedMatch:p.match,filled:false,filledBy:null}));for(let i=currentCaptchaSlots.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[currentCaptchaSlots[i],currentCaptchaSlots[j]]=[currentCaptchaSlots[j],currentCaptchaSlots[i]];}renderCaptcha();}
+function renderCaptcha(){const c=document.getElementById("puzzleContainer");if(!c)return;c.innerHTML=`<div class="puzzle-pieces"><h4>📦 DRAG THESE</h4><div class="pieces-grid">${currentCaptchaPieces.map(p=>`<div class="drag-piece" draggable="true" data-id="${p.id}" data-icon="${p.icon}" data-match="${p.matchText}" data-name="${p.name}" ondragstart="dragStart(event)" ondragend="dragEnd(event)"><span class="emoji-large">${p.icon}</span><div style="font-size:12px">${p.name}</div></div>`).join('')}</div></div><div class="puzzle-dropzone"><h4>🎯 DROP HERE</h4><div class="dropzone-grid">${currentCaptchaSlots.map(s=>`<div class="drop-slot ${s.filled?'filled':''}" data-id="${s.id}" data-expected="${s.expectedMatch}" ondragover="dragOver(event)" ondrop="drop(event)">${s.filled?`<div><span class="emoji-large">${s.filledBy?.icon}</span><div style="font-size:10px">${s.filledBy?.name}</div></div>`:'⬅️ Drop here'}</div>`).join('')}</div></div>`;updateCaptchaStatus();}
+let dragged=null;
+function dragStart(e){if(!dragEnabled){e.preventDefault();return;}dragged={id:e.target.closest('.drag-piece').dataset.id,icon:e.target.closest('.drag-piece').dataset.icon,match:e.target.closest('.drag-piece').dataset.match,name:e.target.closest('.drag-piece').dataset.name};e.dataTransfer.setData('text/plain',JSON.stringify(dragged));}
+function dragEnd(e){dragged=null;}
+function dragOver(e){e.preventDefault();const s=e.target.closest('.drop-slot');if(s&&!s.classList.contains('filled'))s.classList.add('drag-over');}
+function drop(e){e.preventDefault();const slot=e.target.closest('.drop-slot');if(!slot)return;slot.classList.remove('drag-over');if(slot.classList.contains('filled'))return;let d;try{d=JSON.parse(e.dataTransfer.getData('text/plain'));}catch(e){d=dragged;}if(!d)return;const slotIdx=currentCaptchaSlots.findIndex(s=>s.id===slot.dataset.id);const pieceIdx=currentCaptchaPieces.findIndex(p=>p.id===d.id);if(slotIdx===-1||pieceIdx===-1)return;if(d.match===currentCaptchaSlots[slotIdx].expectedMatch){currentCaptchaSlots[slotIdx].filled=true;currentCaptchaSlots[slotIdx].filledBy={icon:d.icon,name:d.name};currentCaptchaPieces.splice(pieceIdx,1);slot.classList.add('filled');slot.innerHTML=`<div><span class="emoji-large">${d.icon}</span><div style="font-size:10px">${d.name}</div></div>`;document.querySelector(`.drag-piece[data-id="${d.id}"]`)?.remove();updateCaptchaStatus();}else{slot.style.backgroundColor="#fee2e2";setTimeout(()=>slot.style.backgroundColor="",300);}}
+function updateCaptchaStatus(){const all=currentCaptchaSlots.every(s=>s.filled);const s=document.getElementById("captchaStatus");const h=document.getElementById("captchaValid");if(all){s.innerHTML="✅ Complete!";s.className="captcha-status complete";if(h)h.value="true";dragEnabled=false;}else{s.innerHTML=`🔄 Match ${currentCaptchaSlots.filter(s=>s.filled).length}/4`;s.className="captcha-status incomplete";if(h)h.value="false";dragEnabled=true;}}
+function verifyCaptcha(){return document.getElementById("captchaValid")?.value==="true";}
+
+// USER SYSTEM (Cloud API)
+let currentUser = null;
+let allUsers = [];
+
+async function fetchAllUsers(){
+    try{
+        const response = await fetch(`${API_URL}/users`);
+        if(response.ok){
+            allUsers = await response.json();
+            return allUsers;
+        }
+    }catch(e){console.error("Fetch users error:",e);}
+    return [];
+}
+
+async function getCurrentUserFromAPI(){
+    try{
+        const response = await fetch(`${API_URL}/me`, { credentials: 'include' });
+        if(response.ok){
+            currentUser = await response.json();
+            return currentUser;
+        }
+    }catch(e){}
+    return null;
+}
+
+async function loginAPI(username, password){
+    try{
+        const response = await fetch(`${API_URL}/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ username, password })
+        });
+        if(response.ok){
+            currentUser = await response.json();
+            return { success: true, user: currentUser };
+        } else {
+            const error = await response.json();
+            return { success: false, error: error.error };
+        }
+    }catch(e){ return { success: false, error: "Network error" }; }
+}
+
+async function registerAPI(username, email, password, displayName){
+    try{
+        const response = await fetch(`${API_URL}/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ username, email, password, displayName })
+        });
+        if(response.ok){
+            currentUser = await response.json();
+            return { success: true, user: currentUser };
+        } else {
+            const error = await response.json();
+            return { success: false, error: error.error };
+        }
+    }catch(e){ return { success: false, error: "Network error" }; }
+}
+
+async function logoutAPI(){
+    try{
+        await fetch(`${API_URL}/logout`, { method: 'POST', credentials: 'include' });
+    }catch(e){}
+    currentUser = null;
+}
+
+async function updateUserAPI(updates){
+    if(!currentUser) return false;
+    try{
+        const response = await fetch(`${API_URL}/user/${currentUser.username}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify(updates)
+        });
+        if(response.ok){
+            currentUser = await response.json();
+            return true;
+        }
+    }catch(e){}
+    return false;
+}
+
+async function addTransactionAPI(amount, reason, from=null){
+    if(!currentUser) return false;
+    try{
+        const response = await fetch(`${API_URL}/transaction`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ username: currentUser.username, amount, reason, from })
+        });
+        if(response.ok){
+            const result = await response.json();
+            currentUser.tavix = result.newBalance;
+            return true;
+        }
+    }catch(e){}
+    return false;
+}
+
+async function addNotificationAPI(title, message){
+    if(!currentUser) return false;
+    try{
+        await fetch(`${API_URL}/notification`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ username: currentUser.username, title, message })
+        });
+        return true;
+    }catch(e){ return false; }
+}
+
+async function deleteAccountAPI(){
+    if(!currentUser) return false;
+    try{
+        const response = await fetch(`${API_URL}/user/${currentUser.username}`, {
+            method: 'DELETE',
+            credentials: 'include'
+        });
+        if(response.ok){
+            currentUser = null;
+            return true;
+        }
+    }catch(e){}
+    return false;
+}
+
+// BADGE SYSTEM
+function getUserBadge(username){
+    const lowerUsername = username.toLowerCase();
+    if(lowerUsername === "realgysj") return { icon: "👑", class: "owner" };
+    if(lowerUsername === "plstealme2") return { icon: "🛡️", class: "admin" };
+    return null;
+}
+function renderBadge(username){
+    const badge = getUserBadge(username);
+    if(badge) return `<span class="badge ${badge.class}">${badge.icon}</span>`;
+    return "";
+}
+
+// UI Update Functions
+function updateTavixDisplay(){
+    const b = currentUser?.tavix || 0;
+    ["tavixBalance","tavixBalanceProfile","dropdownBalance","globalSettingsTAVIX"].forEach(id=>{
+        const e=document.getElementById(id);
+        if(e) e.innerHTML=id==="dropdownBalance"?`${formatTavix(b)} ⌬`:formatTavix(b);
+    });
+}
+
+async function addTransaction(amount, reason, from=null){
+    if(await addTransactionAPI(amount, reason, from)){
+        if(amount>0&&!from) addNotification("💰 TAVIX Purchased", `+${formatTavix(amount)} TAVIX`);
+        if(from) addNotification("🎁 Gift Received", `${from} sent you ${formatTavix(amount)} TAVIX!`);
+        updateTavixDisplay();
+        if(document.getElementById("profilePage").style.display === "block") renderProfile();
+        return true;
+    }
+    return false;
+}
+
+async function addNotification(title, message){
+    await addNotificationAPI(title, message);
+    updateNotifications();
+}
+
+function updateNotifications(){
+    if(!currentUser) return;
+    const unread = currentUser.notifications?.filter(n=>!n.read).length||0;
+    ["notificationCount","notificationCountProfile"].forEach(id=>{
+        const e=document.getElementById(id);
+        if(e) e.textContent=unread;
+    });
+    const container=document.getElementById("notificationList");
+    if(container){
+        if(!currentUser.notifications||currentUser.notifications.length===0){
+            container.innerHTML='<div class="empty-notifications">🔔 No notifications</div>';
+        }else{
+            container.innerHTML=currentUser.notifications.map(n=>`<div class="notification-item ${!n.read?'unread':''}" onclick="markRead(${n.id})"><div class="notification-icon">${n.title.includes("TAVIX")?"💰":"📢"}</div><div class="notification-content"><div class="notification-title">${escapeHtml(n.title)}</div><div class="notification-message">${escapeHtml(n.message)}</div><div class="notification-time">${new Date(n.time).toLocaleString()}</div></div></div>`).join('');
+        }
+    }
+}
+
+async function markRead(id){
+    if(currentUser && currentUser.notifications){
+        const n = currentUser.notifications.find(x=>x.id===id);
+        if(n) n.read=true;
+        await updateUserAPI({ notifications: currentUser.notifications });
+        updateNotifications();
+    }
+}
+
+// SAVED ACCOUNTS (local only)
+function getSaved(){return JSON.parse(localStorage.getItem("savedAccounts"))||[];}
+function saveAccount(acc){let s=getSaved();if(!s.find(a=>a.username===acc.username)){s.push({username:acc.username,displayName:acc.displayName||acc.username,email:acc.email,lastLogin:new Date().toISOString(),color:'#'+Math.floor(Math.random()*16777215).toString(16)});localStorage.setItem("savedAccounts",JSON.stringify(s));}renderSaved();}
+function removeSaved(user){let s=getSaved().filter(a=>a.username!==user);localStorage.setItem("savedAccounts",JSON.stringify(s));renderSaved();}
+function quickLogin(user){document.getElementById("loginUsername").value=user;showAuthForm('login');}
+function renderSaved(){const c=document.getElementById("savedAccountsList");if(!c)return;const s=getSaved();if(s.length===0){c.innerHTML='<div style="color:#999">No saved accounts</div>';return;}c.innerHTML=s.map(acc=>`<div class="saved-account-btn" onclick="quickLogin('${escapeHtml(acc.username)}')"><div class="saved-account-avatar" style="background:${acc.color||'#667eea'}">${(acc.displayName.charAt(0)||acc.username.charAt(0)).toUpperCase()}</div><div class="saved-account-info"><div class="saved-account-name">${escapeHtml(acc.displayName)}</div><div class="saved-account-username">@${escapeHtml(acc.username)}</div></div><span class="remove-account" onclick="event.stopPropagation(); removeSaved('${escapeHtml(acc.username)}')">✕</span></div>`).join('');}
+
+function escapeHtml(s){if(!s)return '';return s.replace(/[&<>]/g,function(m){if(m==='&')return '&amp;';if(m==='<')return '&lt;';if(m==='>')return '&gt;';return m;});}
+function formatEmail(e){if(!e)return '-';const a=e.indexOf('@');if(a<=4)return e.substring(0,a)+'***'+e.substring(a);return e.substring(0,4)+'***'+e.substring(a);}
+
+// VIEW PROFILE
+async function viewProfile(user){
+    await fetchAllUsers();
+    const u = allUsers.find(x=>x.username===user);
+    if(u){
+        if(currentUser && currentUser.username===user) navigateTo("profile");
+        else alert(`👤 ${u.displayName||u.username}\n@${u.username}\n💰 ${formatTavix(u.tavix||0)} TAVIX`);
+    } else alert("User not found");
+}
+
+// SEARCH
+function openSearch(){document.getElementById("searchOverlay").style.display="flex";document.getElementById("globalSearchInput").focus();}
+function closeSearch(){document.getElementById("searchOverlay").style.display="none";document.getElementById("globalSearchInput").value="";document.getElementById("globalSearchResults").style.display="none";document.getElementById("globalSearchDropdown").style.display="none";}
+async function updateSearchDropdown(){
+    const q=document.getElementById("globalSearchInput").value.trim().toLowerCase();
+    const d=document.getElementById("globalSearchDropdown");
+    if(q===""){d.style.display="none";return;}
+    await fetchAllUsers();
+    const players=allUsers.filter(p=>p.username.toLowerCase().includes(q)||(p.displayName&&p.displayName.toLowerCase().includes(q)));
+    if(players.length===0){d.style.display="none";return;}
+    let html='<div class="dropdown-section"><h4>👥 PLAYERS</h4>';
+    players.forEach(p=>{html+=`<div class="dropdown-item" onclick="selectPlayer('${escapeHtml(p.username)}')"><img src="https://ui-avatars.com/api/?background=667eea&color=fff&size=40&name=${encodeURIComponent(p.displayName||p.username)}" style="width:40px;height:40px;border-radius:50%;"><div>${escapeHtml(p.displayName||p.username)} ${renderBadge(p.username)}<br><small>@${escapeHtml(p.username)}</small></div></div>`;});
+    html+=`</div>`;d.innerHTML=html;d.style.display="block";
+}
+function selectPlayer(user){closeSearch();viewProfile(user);}
+function handleSearchKey(e){if(e.key==="Enter")performSearch();}
+async function performSearch(){
+    const q=document.getElementById("globalSearchInput").value.trim().toLowerCase();
+    if(!q)return;
+    await fetchAllUsers();
+    const players=allUsers.filter(p=>p.username.toLowerCase().includes(q)||(p.displayName&&p.displayName.toLowerCase().includes(q)));
+    const r=document.getElementById("globalSearchResults");
+    if(players.length===0){r.innerHTML='<div class="empty-games">No players found</div>';
+    }else{r.innerHTML=`<div class="results-section"><h3>👥 PLAYERS</h3><div class="players-grid">${players.map(p=>`<div class="player-card" onclick="closeSearch();viewProfile('${escapeHtml(p.username)}')"><img class="player-avatar" src="https://ui-avatars.com/api/?background=667eea&color=fff&size=60&name=${encodeURIComponent(p.displayName||p.username)}"><div><div class="player-display-name">${escapeHtml(p.displayName||p.username)} ${renderBadge(p.username)}</div><div class="player-username">@${escapeHtml(p.username)}</div></div></div>`).join('')}</div></div>`;}r.style.display="block";document.getElementById("globalSearchDropdown").style.display="none";
+}
+
+// SETTINGS
+function openSettings(){
+    if(!currentUser){navigateTo("signin");return;}
+    document.getElementById("globalSettingsUsername").innerHTML=escapeHtml(currentUser.username)+" "+renderBadge(currentUser.username);
+    document.getElementById("globalSettingsDisplayName").innerHTML=escapeHtml(currentUser.displayName||currentUser.username);
+    document.getElementById("globalSettingsEmail").innerHTML=formatEmail(currentUser.email);
+    document.getElementById("globalSettingsTAVIX").innerHTML=formatTavix(currentUser.tavix||0)+" ⌬";
+    document.getElementById("settingsOverlay").style.display="flex";updateHash("#settings");
+}
+function closeSettingsGlobal(){document.getElementById("settingsOverlay").style.display="none";if(window.location.hash==="#settings")updateHash("#home");}
+async function updateDisplayNameGlobal(){
+    const newName=document.getElementById("globalNewDisplayName").value.trim();
+    if(!newName){alert("Enter display name");return;}
+    if(await updateUserAPI({ displayName: newName })){
+        document.getElementById("globalSettingsDisplayName").innerHTML=escapeHtml(newName);
+        document.getElementById("globalNewDisplayName").value="";
+        updateWelcome();
+        if(document.getElementById("profilePage").style.display==="block") renderProfile();
+        alert("Display name updated!");
+    }else{alert("Failed to update");}
+}
+async function logoutGlobal(){
+    await logoutAPI();
+    currentUser=null;
+    closeSettingsGlobal();
+    navigateTo("signin");
+}
+async function confirmDeleteAccount(){
+    if(document.getElementById("deleteConfirmInput").value==="DELETE"){
+        if(await deleteAccountAPI()){
+            alert("Account deleted.");
+            navigateTo("signin");
+        }else{alert("Failed to delete account");}
+    }else{alert('Type "DELETE" to confirm');}
+}
+
+// PAGE RENDERING
+function renderProfile(){
+    if(!currentUser) return;
+    const html=`<div class="profile-header"><img class="profile-pfp" src="https://ui-avatars.com/api/?background=667eea&color=fff&size=120&name=${encodeURIComponent(currentUser.displayName||currentUser.username)}"><div><div class="display-name">${escapeHtml(currentUser.displayName||currentUser.username)} ${renderBadge(currentUser.username)}</div><div class="username">@${escapeHtml(currentUser.username)}</div><div class="social-stats"><span>0 Friends</span><span>2 Followers</span></div></div></div><div class="about-card"><div class="card-header"><h2>ABOUT</h2><button class="edit-btn" onclick="editAbout()">Edit</button></div><p class="about-text">${escapeHtml(currentUser.about||"Tell people about yourself...")}</p></div><div class="profile-stats-grid"><div class="stat-card"><div class="stat-label">VISITS</div><div class="stat-value">${currentUser.visits||0}</div></div><div class="stat-card"><div class="stat-label">JOINED</div><div class="stat-value">${new Date(currentUser.createdAt||Date.now()).toLocaleDateString()}</div></div></div>`;
+    document.getElementById("profileContent").innerHTML=html;
+}
+async function editAbout(){
+    const about=prompt("Edit about:",currentUser?.about||"");
+    if(about!==null){
+        if(await updateUserAPI({ about: about })){
+            renderProfile();
+        }
+    }
+}
+function updateWelcome(){
+    if(currentUser){
+        document.getElementById("welcomeText").innerHTML=`Welcome back, ${currentUser.displayName||currentUser.username}! ✨`;
+        document.getElementById("welcomeBanner").style.display="flex";
+    }
+}
+
+// TAVIX MODAL FUNCTIONS
+let tavixDropdownOpen=false,notifDropdownOpen=false;
+document.addEventListener("click",function(e){const td=document.getElementById("tavixDropdown");const nd=document.getElementById("notificationDropdown");const tb=document.getElementById("tavixBtn")||document.getElementById("tavixBtnProfile");const nb=document.getElementById("notificationBtnHome")||document.getElementById("notificationBtnProfile");if(td&&tb&&!tb.contains(e.target)&&!td.contains(e.target)){td.style.display="none";tavixDropdownOpen=false;}if(nd&&nb&&!nb.contains(e.target)&&!nd.contains(e.target)){nd.style.display="none";notifDropdownOpen=false;}});
+function toggleTavix(){const d=document.getElementById("tavixDropdown");if(tavixDropdownOpen){d.style.display="none";tavixDropdownOpen=false;}else{updateTavixDisplay();d.style.display="block";tavixDropdownOpen=true;}}
+function toggleNotifications(){const d=document.getElementById("notificationDropdown");if(notifDropdownOpen){d.style.display="none";notifDropdownOpen=false;}else{updateNotifications();d.style.display="block";notifDropdownOpen=true;}}
+function openBuyModal(){closeModals();document.getElementById("buyModal").style.display="flex";}
+function openGiftModal(){closeModals();document.getElementById("giftModal").style.display="flex";}
+function openTransactionsModal(){
+    closeModals();
+    const t=currentUser?.transactions||[];
+    const c=document.getElementById("transactionList");
+    if(t.length===0){c.innerHTML='<p style="text-align:center;color:#888">No transactions</p>';
+    }else{c.innerHTML=t.map(tr=>`<div class="transaction-item"><span>${new Date(tr.date).toLocaleDateString()} - ${tr.reason}${tr.from?` from @${tr.from}`:""}</span><span class="transaction-amount ${tr.amount>0?"positive":"negative"}">${tr.amount>0?"+":""}${formatTavix(Math.abs(tr.amount))} ⌬</span></div>`).join('');}
+    document.getElementById("transactionsModal").style.display="flex";
+}
+async function buyTAVIX(){
+    const s=document.getElementById("buyAmount");
+    const a=parseInt(s.value);
+    if(await addTransaction(a,`Purchased ${a} TAVIX`)){
+        alert(`+${formatTavix(a)} TAVIX added!`);
+        closeModals();
+        updateTavixDisplay();
+    }else{alert("Purchase failed");}
+}
+async function sendGift(){
+    const un=document.getElementById("giftUsername").value.trim();
+    const amt=parseInt(document.getElementById("giftAmount").value);
+    if(!un){alert("Enter username");return;}
+    if(isNaN(amt)||amt<=0){alert("Enter valid amount");return;}
+    if(!currentUser){alert("Not logged in");return;}
+    if((currentUser.tavix||0)<amt){alert("Insufficient TAVIX");return;}
+    await fetchAllUsers();
+    const recipient=allUsers.find(x=>x.username===un);
+    if(!recipient){alert("User not found");return;}
+    if(await addTransactionAPI(-amt,`Gifted ${formatTavix(amt)} TAVIX to @${un}`)){
+        await addTransactionAPI(amt,`Received ${formatTavix(amt)} TAVIX from @${currentUser.username}`, currentUser.username);
+        await addNotificationAPI("🎁 Gift Received", `@${currentUser.username} sent you ${formatTavix(amt)} TAVIX!`);
+        alert(`Sent ${formatTavix(amt)} TAVIX to @${un}!`);
+        closeModals();
+        document.getElementById("giftUsername").value="";
+        document.getElementById("giftAmount").value="";
+        updateTavixDisplay();
+    }else{alert("Failed to send gift");}
+}
+function closeModals(){document.querySelectorAll(".modal-overlay").forEach(m=>m.style.display="none");}
+
+// NAVIGATION
+function showHome(){document.getElementById("authPage").style.display="none";document.getElementById("profilePage").style.display="none";document.getElementById("tosPage").style.display="none";document.getElementById("deletePage").style.display="none";document.getElementById("homePage").style.display="block";updateWelcome();updateTavixDisplay();updateNotifications();}
+function showProfile(){document.getElementById("authPage").style.display="none";document.getElementById("homePage").style.display="none";document.getElementById("tosPage").style.display="none";document.getElementById("deletePage").style.display="none";document.getElementById("profilePage").style.display="block";renderProfile();updateTavixDisplay();updateNotifications();}
+function showTOS(){document.getElementById("authPage").style.display="none";document.getElementById("homePage").style.display="none";document.getElementById("profilePage").style.display="none";document.getElementById("deletePage").style.display="none";document.getElementById("tosPage").style.display="block";}
+function showDelete(){document.getElementById("authPage").style.display="none";document.getElementById("homePage").style.display="none";document.getElementById("profilePage").style.display="none";document.getElementById("tosPage").style.display="none";document.getElementById("deletePage").style.display="block";document.getElementById("deleteConfirmInput").value="";updateHash("#delete");}
+function showAuth(){document.getElementById("homePage").style.display="none";document.getElementById("profilePage").style.display="none";document.getElementById("tosPage").style.display="none";document.getElementById("deletePage").style.display="none";document.getElementById("authPage").style.display="block";generateDragCaptcha();renderSaved();}
+function navigateTo(p){
+    if(p==="home"){if(currentUser){showHome();updateHash("#home");}else{showAuth();updateHash("#signin");}}
+    else if(p==="profile"){if(currentUser){showProfile();updateHash("#profile");}else{showAuth();updateHash("#signin");}}
+    else if(p==="settings"){if(currentUser){openSettings();}else{showAuth();updateHash("#signin");}}
+    else if(p==="wiki-tos"){showTOS();updateHash("#wiki-tos");}
+    else if(p==="delete"){if(currentUser){showDelete();}else{showAuth();updateHash("#signin");}}
+    else if(p==="signin"){showAuth();showAuthForm("login");updateHash("#signin");}
+}
+function updateHash(h){history.pushState(null,null,h);}
+async function handleRoute(){
+    const h=window.location.hash;
+    await fetchAllUsers();
+    if(h==="#wiki-tos"){showTOS();return;}
+    if(h==="#delete"){if(currentUser){showDelete();}else{showAuth();}return;}
+    if(h==="#settings"){if(currentUser){showHome();openSettings();}else{showAuth();}return;}
+    if(currentUser){if(h==="#profile")showProfile();else showHome();}
+    else{showAuth();showAuthForm("login");}
+}
+function showAuthForm(t){
+    const lf=document.getElementById("loginForm"),sf=document.getElementById("signupForm");
+    const lt=document.getElementById("loginTab"),st=document.getElementById("signupTab");
+    lf.classList.remove("active");sf.classList.remove("active");
+    lt.classList.remove("active");st.classList.remove("active");
+    if(t==="login"){lf.classList.add("active");lt.classList.add("active");}
+    else{sf.classList.add("active");st.classList.add("active");generateDragCaptcha();}
+    document.getElementById("authError").textContent="";
+}
+
+// EVENT LISTENERS
+document.getElementById("searchBtnHome")?.addEventListener("click",openSearch);
+document.getElementById("searchBtnProfile")?.addEventListener("click",openSearch);
+document.getElementById("profileBtnHome")?.addEventListener("click",()=>navigateTo("profile"));
+document.getElementById("profileBtnProfile")?.addEventListener("click",()=>navigateTo("profile"));
+document.getElementById("settingsBtnHome")?.addEventListener("click",()=>navigateTo("settings"));
+document.getElementById("settingsBtnProfile")?.addEventListener("click",()=>navigateTo("settings"));
+document.getElementById("globalSearchInput")?.addEventListener("input",updateSearchDropdown);
+document.getElementById("globalSearchInput")?.addEventListener("keypress",handleSearchKey);
+document.getElementById("globalLogoutBtn")?.addEventListener("click",logoutGlobal);
+document.getElementById("searchOverlay")?.addEventListener("click",function(e){if(e.target===this)closeSearch();});
+document.getElementById("settingsOverlay")?.addEventListener("click",function(e){if(e.target===this)closeSettingsGlobal();});
+const tb1=document.getElementById("tavixBtn");if(tb1)tb1.onclick=toggleTavix;
+const tb2=document.getElementById("tavixBtnProfile");if(tb2)tb2.onclick=toggleTavix;
+const nb1=document.getElementById("notificationBtnHome");if(nb1)nb1.onclick=toggleNotifications;
+const nb2=document.getElementById("notificationBtnProfile");if(nb2)nb2.onclick=toggleNotifications;
+
+// SIGNUP
+document.getElementById("signupForm")?.addEventListener("submit",async function(e){
+    e.preventDefault();
+    const un=document.getElementById("signupUsername").value.trim();
+    const em=document.getElementById("signupEmail").value.trim();
+    const pw=document.getElementById("signupPassword").value;
+    const cf=document.getElementById("signupConfirm").value;
+    const tos=document.getElementById("tosAgree").checked;
+    const err=document.getElementById("authError");
+    if(!tos){err.textContent="Accept Terms";return;}
+    if(!verifyCaptcha()){err.textContent="Complete CAPTCHA";generateDragCaptcha();return;}
+    if(un.length<3){err.textContent="Username 3-20 chars";return;}
+    if(pw.length<8){err.textContent="Password 8+ chars";return;}
+    if(pw!==cf){err.textContent="Passwords don't match";return;}
+    if(!em.includes("@")){err.textContent="Valid email required";return;}
+    const result=await registerAPI(un,em,pw,un);
+    if(result.success){
+        saveAccount({username:un,displayName:un,email:em});
+        navigateTo("home");
+    }else{
+        err.textContent=result.error;
+        generateDragCaptcha();
+    }
+});
+
+// LOGIN
+document.getElementById("loginForm")?.addEventListener("submit",async function(e){
+    e.preventDefault();
+    const un=document.getElementById("loginUsername").value.trim();
+    const pw=document.getElementById("loginPassword").value;
+    const result=await loginAPI(un,pw);
+    if(result.success){
+        saveAccount({username:un,displayName:result.user.displayName||un,email:result.user.email});
+        navigateTo("home");
+    }else{
+        document.getElementById("authError").textContent=result.error;
+    }
+});
+
+window.addEventListener("hashchange",handleRoute);
+window.onload=async function(){
+    await fetchAllUsers();
+    await getCurrentUserFromAPI();
+    handleRoute();
+};
+</script>
+</body>
+</html>
