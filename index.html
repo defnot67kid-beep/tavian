@@ -568,25 +568,41 @@ async function editAbout(){
 }
 function updateWelcome(){
     if(currentUser){
-        document.getElementById("welcomeText").innerHTML=`Welcome back, ${currentUser.displayName||currentUser.username}! ✨`;
-        document.getElementById("welcomeBanner").style.display="flex";
+        const username = currentUser.displayName || currentUser.username;
+        
+        const greetings = [
+            `Sup ${username}, ready to play?`,
+            `Yo ${username}, good to see you`,
+            `${username} back at it again`,
+            `Hey ${username}, let's go`,
+            `What's good ${username}?`,
+            `${username} in the building`,
+            `Ayy ${username}, welcome back`,
+            `There he is, ${username}`,
+            `${username} returned for more`,
+            `The legend is back, ${username}`,
+            `Let's go ${username}`,
+            `${username} is here`,
+            `Back for more ${username}?`,
+            `Welcome back playa`,
+            `The goat ${username} has arrived`
+        ];
+        
+        const randomGreeting = greetings[Math.floor(Math.random() * greetings.length)];
+        
+        document.getElementById("welcomeText").innerHTML = randomGreeting;
+        document.getElementById("welcomeBanner").style.display = "flex";
+        
+        // Auto hide after 5 seconds
+        setTimeout(() => {
+            const banner = document.getElementById("welcomeBanner");
+            if(banner) banner.style.opacity = "0";
+            setTimeout(() => {
+                if(banner) banner.style.display = "none";
+                if(banner) banner.style.opacity = "1";
+            }, 500);
+        }, 5000);
     }
-}
-
-// TAVIX MODAL FUNCTIONS
-let tavixDropdownOpen=false,notifDropdownOpen=false;
-document.addEventListener("click",function(e){const td=document.getElementById("tavixDropdown");const nd=document.getElementById("notificationDropdown");const tb=document.getElementById("tavixBtn")||document.getElementById("tavixBtnProfile");const nb=document.getElementById("notificationBtnHome")||document.getElementById("notificationBtnProfile");if(td&&tb&&!tb.contains(e.target)&&!td.contains(e.target)){td.style.display="none";tavixDropdownOpen=false;}if(nd&&nb&&!nb.contains(e.target)&&!nd.contains(e.target)){nd.style.display="none";notifDropdownOpen=false;}});
-function toggleTavix(){const d=document.getElementById("tavixDropdown");if(tavixDropdownOpen){d.style.display="none";tavixDropdownOpen=false;}else{updateTavixDisplay();d.style.display="block";tavixDropdownOpen=true;}}
-function toggleNotifications(){const d=document.getElementById("notificationDropdown");if(notifDropdownOpen){d.style.display="none";notifDropdownOpen=false;}else{updateNotifications();d.style.display="block";notifDropdownOpen=true;}}
-function openBuyModal(){closeModals();document.getElementById("buyModal").style.display="flex";}
-function openGiftModal(){closeModals();document.getElementById("giftModal").style.display="flex";}
-function openTransactionsModal(){
-    closeModals();
-    const t=currentUser?.transactions||[];
-    const c=document.getElementById("transactionList");
-    if(t.length===0){c.innerHTML='<p style="text-align:center;color:#888">No transactions</p>';
-    }else{c.innerHTML=t.map(tr=>`<div class="transaction-item"><span>${new Date(tr.date).toLocaleDateString()} - ${tr.reason}${tr.from?` from @${tr.from}`:""}</span><span class="transaction-amount ${tr.amount>0?"positive":"negative"}">${tr.amount>0?"+":""}${formatTavix(Math.abs(tr.amount))} ⌬</span></div>`).join('');}
-    document.getElementById("transactionsModal").style.display="flex";
 }
 async function buyTAVIX(){
     const s=document.getElementById("buyAmount");
