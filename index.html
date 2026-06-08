@@ -271,7 +271,7 @@ function drop(e){e.preventDefault();const slot=e.target.closest('.drop-slot');if
 function updateCaptchaStatus(){const all=currentCaptchaSlots.every(s=>s.filled);const s=document.getElementById("captchaStatus");const h=document.getElementById("captchaValid");if(all){s.innerHTML="✅ Complete!";s.className="captcha-status complete";if(h)h.value="true";dragEnabled=false;}else{s.innerHTML=`🔄 Match ${currentCaptchaSlots.filter(s=>s.filled).length}/4`;s.className="captcha-status incomplete";if(h)h.value="false";dragEnabled=true;}}
 function verifyCaptcha(){return document.getElementById("captchaValid")?.value==="true";}
 
-// USER SYSTEM (Cloud API)
+// USER SYSTEM (Cloud API with Auto-Login via Secure Cookie)
 let currentUser = null;
 let allUsers = [];
 
@@ -297,6 +297,28 @@ async function getCurrentUserFromAPI(){
     return null;
 }
 
+// AUTO-LOGIN via secure cookie - this is what checks the tavian_token cookie
+async function autoLogin(){
+    try{
+        const response = await fetch(`${API_URL}/auto-login`, {
+            method: 'GET',
+            credentials: 'include'
+        });
+        
+        if(response.ok){
+            const data = await response.json();
+            if(data.success && data.user){
+                currentUser = data.user;
+                console.log('Auto-login successful via secure cookie!');
+                return true;
+            }
+        }
+    } catch(e){
+        console.log('Auto-login failed:', e);
+    }
+    return false;
+}
+
 async function loginAPI(username, password){
     try{
         const response = await fetch(`${API_URL}/login`, {
@@ -307,6 +329,7 @@ async function loginAPI(username, password){
         });
         if(response.ok){
             currentUser = await response.json();
+            // Cookie is automatically set by server
             return { success: true, user: currentUser };
         } else {
             const error = await response.json();
@@ -325,6 +348,7 @@ async function registerAPI(username, email, password, displayName){
         });
         if(response.ok){
             currentUser = await response.json();
+            // Cookie is automatically set by server
             return { success: true, user: currentUser };
         } else {
             const error = await response.json();
@@ -747,11 +771,23 @@ document.getElementById("loginForm")?.addEventListener("submit",async function(e
     }
 });
 
+// AUTO-LOGIN ON PAGE LOAD - Checks for tavian_token cookie
 window.addEventListener("hashchange",handleRoute);
 window.onload=async function(){
     await fetchAllUsers();
-    await getCurrentUserFromAPI();
+    
+    // Try auto-login first (checks secure cookie)
+    const autoLoggedIn = await autoLogin();
+    
+    if(!autoLoggedIn){
+        // Fallback to normal API check
+        await getCurrentUserFromAPI();
+    }
+    
     handleRoute();
+    
+    // Log cookie info to console for debugging
+    console.log('Check Application > Cookies in DevTools to see tavian_token cookie');
 };
 </script>
 </body>
