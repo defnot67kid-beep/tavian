@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tavian - Cloud Powered</title>
+<title>Tavian - Game Platform</title>
 
 <!-- Material Icons -->
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -12,7 +12,6 @@
 *{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif;}
 body{background:#f4f4f4;overflow-x:hidden;}
 
-/* HEADER */
 header{background:white;padding:15px 20px;border-bottom:1px solid #ddd;position:sticky;top:0;z-index:100;}
 .topbar{display:flex;justify-content:space-between;align-items:center;}
 .logo{font-size:42px;font-weight:900;cursor:pointer;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
@@ -83,7 +82,7 @@ header{background:white;padding:15px 20px;border-bottom:1px solid #ddd;position:
 .section{padding:25px;max-width:1200px;margin:auto;}
 .section h2{color:#666;margin-bottom:20px;letter-spacing:4px;font-size:18px;}
 .friends-box{background:white;border-radius:15px;padding:30px;display:flex;flex-direction:column;align-items:center;gap:20px;color:#888;font-size:18px;}
-.welcome-message{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);padding:15px 25px;margin:10px 25px 0 25px;border-radius:12px;display:flex;justify-content:space-between;align-items:center;}
+.welcome-message{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);padding:15px 25px;margin:10px 25px 0 25px;border-radius:12px;display:flex;justify-content:space-between;align-items:center;transition:opacity 0.5s;}
 .welcome-text{color:white;font-size:18px;font-weight:500;}
 .profile-page{max-width:1200px;margin:auto;padding:25px;}
 .profile-header{display:flex;gap:30px;align-items:center;margin-bottom:30px;background:white;padding:30px;border-radius:20px;box-shadow:0 2px 10px rgba(0,0,0,0.05);}
@@ -179,8 +178,7 @@ header{background:white;padding:15px 20px;border-bottom:1px solid #ddd;position:
 .tos-header p{color:#666;font-size:14px;}
 .tos-card{background:white;border-radius:20px;padding:30px;margin-bottom:30px;box-shadow:0 2px 10px rgba(0,0,0,0.05);}
 .tos-card h2{color:#333;margin-bottom:20px;padding-bottom:10px;border-bottom:3px solid #667eea;display:inline-block;}
-.tos-card h3{color:#667eea;margin:20px 0 10px 0;}
-.tos-card ul,.tos-card ol{margin-left:25px;line-height:1.8;color:#444;}
+.tos-card ul{margin-left:25px;line-height:1.8;color:#444;}
 .tos-card li{margin:8px 0;}
 .tos-card p{line-height:1.6;color:#444;margin:10px 0;}
 .warning-box{background:#1a1a2e;color:#ff4444;padding:15px;border-radius:10px;font-family:monospace;margin:15px 0;}
@@ -237,18 +235,17 @@ header{background:white;padding:15px 20px;border-bottom:1px solid #ddd;position:
 
 <!-- TERMS OF SERVICE PAGE -->
 <div id="tosPage" class="tos-page">
-    <div class="tos-header"><h1>📜 TERMS OF SERVICE</h1><p>Last Updated: June 7, 2026</p></div>
-    <div class="tos-card"><h2>1. Acceptance of Terms</h2><p>By accessing or using Tavian, you agree to be bound by these Terms.</p></div>
-    <div class="tos-card"><h2>2. Account Registration & Security</h2><p>You are responsible for your account security.</p></div>
-    <div class="tos-card"><h2>3. Prohibited Conduct</h2><p>Harassment, cheating, illegal activities are strictly prohibited.</p><div class="warning-box">⚠️ VIOLATIONS RESULT IN BANS OR LEGAL ACTION</div></div>
-    <div class="tos-card"><h2>4. Cheats & Macros Policy</h2><div class="green-box">✅ CHEATS & MACROS ARE ALLOWED if the game permits them</div><div class="warning-box">⚠️ MALICIOUS BOTS NEVER ALLOWED</div></div>
-    <div class="tos-card"><h2>5. TAVIX Virtual Currency</h2><p>TAVIX has no real-world value and cannot be exchanged for real currency.</p></div>
-    <div class="tos-card"><h2>6. Contact</h2><p>Message RealGysj or Plstealme2 for issues.</p></div>
-    <button class="back-to-home" onclick="navigateTo('home')">← BACK TO TAVIAN</button>
+    <div class="tos-header"><h1>📜 TERMS OF SERVICE</h1><p>Updated: June 2026</p></div>
+    <div class="tos-card"><h2>1. Acceptance</h2><p>By using Tavian, you agree to these terms. Don't like it? Leave.</p></div>
+    <div class="tos-card"><h2>2. Your Account</h2><p>You break it, you lose it. Don't share passwords. Don't steal accounts.</p></div>
+    <div class="tos-card"><h2>3. Rules</h2><p>No bots. No cheating unless the game says it's cool. No being a dick to people.</p><div class="warning-box">⚠️ BULLYING = BAN. BOTS = BAN. SIMPLE.</div></div>
+    <div class="tos-card"><h2>4. TAVIX</h2><p>Virtual currency. No real money value. We can change or remove it whenever.</p></div>
+    <div class="tos-card"><h2>5. Contact</h2><p>Message RealGysj or Plstealme2 if something's wrong.</p></div>
+    <button class="back-to-home" onclick="navigateTo('home')">← BACK</button>
 </div>
 
 <!-- AUTH PAGE -->
-<div id="authPage" style="display:none;"><header><div class="topbar"><div class="logo">TAVIAN</div><div class="nav-icons"></div></div></header><div class="auth-container"><div class="tabs"><button class="tab active" id="loginTab" onclick="showAuthForm('login')">Sign In</button><button class="tab" id="signupTab" onclick="showAuthForm('signup')">Create Account</button></div><div id="authError" class="error"></div><form id="loginForm" class="auth-form active"><label>Username</label><input type="text" id="loginUsername" required><label>Password</label><input type="password" id="loginPassword" required><button type="submit" class="submit-btn">Sign In</button><div style="text-align:center; margin-top:15px;"><a href="#" onclick="showAuthForm('signup'); return false;" style="color:#667eea;">No account? Create one</a></div></form><form id="signupForm" class="auth-form"><label>Username</label><input type="text" id="signupUsername" required><label>Email</label><input type="email" id="signupEmail" required><label>Password</label><input type="password" id="signupPassword" required><label>Confirm Password</label><input type="password" id="signupConfirm" required><div class="drag-captcha" id="dragCaptcha"><div class="captcha-title">🐉 DRAG & DROP</div><div class="puzzle-container" id="puzzleContainer"></div><div class="captcha-status incomplete" id="captchaStatus">Match 4 icons</div><button type="button" class="refresh-captcha-btn" onclick="generateDragCaptcha()">⟳ New</button><input type="hidden" id="captchaValid" value="false"></div><div class="tos-container"><div class="tos-checkbox"><input type="checkbox" id="tosAgree"><label>I agree to the <a href="#" onclick="navigateTo('wiki-tos'); return false;">Terms of Service</a></label></div></div><button type="submit" class="submit-btn">Create Account</button></form><div class="quick-login-section"><h3>📱 Quick Login</h3><div id="savedAccountsList" class="saved-accounts-list"></div></div></div></div>
+<div id="authPage" style="display:none;"><header><div class="topbar"><div class="logo">TAVIAN</div><div class="nav-icons"></div></div></header><div class="auth-container"><div class="tabs"><button class="tab active" id="loginTab" onclick="showAuthForm('login')">Sign In</button><button class="tab" id="signupTab" onclick="showAuthForm('signup')">Create Account</button></div><div id="authError" class="error"></div><form id="loginForm" class="auth-form active"><label>Username</label><input type="text" id="loginUsername" required><label>Password</label><input type="password" id="loginPassword" required><button type="submit" class="submit-btn">Sign In</button><div style="text-align:center; margin-top:15px;"><a href="#" onclick="showAuthForm('signup'); return false;" style="color:#667eea;">No account? Create one</a></div></form><form id="signupForm" class="auth-form"><label>Username</label><input type="text" id="signupUsername" required><label>Email</label><input type="email" id="signupEmail" required><label>Password</label><input type="password" id="signupPassword" required><label>Confirm Password</label><input type="password" id="signupConfirm" required><div class="drag-captcha" id="dragCaptcha"><div class="captcha-title">🐉 DRAG & DROP</div><div class="puzzle-container" id="puzzleContainer"></div><div class="captcha-status incomplete" id="captchaStatus">Match 4 icons</div><button type="button" class="refresh-captcha-btn" onclick="generateDragCaptcha()">⟳ New</button><input type="hidden" id="captchaValid" value="false"></div><div class="tos-container"><div class="tos-checkbox"><input type="checkbox" id="tosAgree"><label>I agree to the <a href="#" onclick="navigateTo('wiki-tos'); return false;">Terms</a> (no bots, don't be a dick)</label></div></div><button type="submit" class="submit-btn">Create Account</button></form><div class="quick-login-section"><h3>📱 Quick Login</h3><div id="savedAccountsList" class="saved-accounts-list"></div></div></div></div>
 
 <script>
 // API Configuration
@@ -280,12 +277,12 @@ let allUsers = [];
 
 async function fetchAllUsers(){
     try{
-        const response = await fetch(`${API_URL}/users`);
+        const response = await fetch(`${API_URL}/users`, { credentials: 'include' });
         if(response.ok){
             allUsers = await response.json();
             return allUsers;
         }
-    }catch(e){console.error("Fetch users error:",e);}
+    }catch(e){console.error(e);}
     return [];
 }
 
@@ -566,6 +563,8 @@ async function editAbout(){
         }
     }
 }
+
+// REAL WELCOME MESSAGE - NO AI SLOP
 function updateWelcome(){
     if(currentUser){
         const username = currentUser.displayName || currentUser.username;
@@ -585,7 +584,12 @@ function updateWelcome(){
             `${username} is here`,
             `Back for more ${username}?`,
             `Welcome back playa`,
-            `The goat ${username} has arrived`
+            `The goat ${username} has arrived`,
+            `${username} my guy!`,
+            `Yooo ${username} what's up`,
+            `${username} pulling up again`,
+            `He's back... ${username}`,
+            `${username} let's get it`
         ];
         
         const randomGreeting = greetings[Math.floor(Math.random() * greetings.length)];
@@ -598,42 +602,14 @@ function updateWelcome(){
             const banner = document.getElementById("welcomeBanner");
             if(banner) banner.style.opacity = "0";
             setTimeout(() => {
-                if(banner) banner.style.display = "none";
-                if(banner) banner.style.opacity = "1";
+                if(banner) {
+                    banner.style.display = "none";
+                    banner.style.opacity = "1";
+                }
             }, 500);
         }, 5000);
     }
 }
-async function buyTAVIX(){
-    const s=document.getElementById("buyAmount");
-    const a=parseInt(s.value);
-    if(await addTransaction(a,`Purchased ${a} TAVIX`)){
-        alert(`+${formatTavix(a)} TAVIX added!`);
-        closeModals();
-        updateTavixDisplay();
-    }else{alert("Purchase failed");}
-}
-async function sendGift(){
-    const un=document.getElementById("giftUsername").value.trim();
-    const amt=parseInt(document.getElementById("giftAmount").value);
-    if(!un){alert("Enter username");return;}
-    if(isNaN(amt)||amt<=0){alert("Enter valid amount");return;}
-    if(!currentUser){alert("Not logged in");return;}
-    if((currentUser.tavix||0)<amt){alert("Insufficient TAVIX");return;}
-    await fetchAllUsers();
-    const recipient=allUsers.find(x=>x.username===un);
-    if(!recipient){alert("User not found");return;}
-    if(await addTransactionAPI(-amt,`Gifted ${formatTavix(amt)} TAVIX to @${un}`)){
-        await addTransactionAPI(amt,`Received ${formatTavix(amt)} TAVIX from @${currentUser.username}`, currentUser.username);
-        await addNotificationAPI("🎁 Gift Received", `@${currentUser.username} sent you ${formatTavix(amt)} TAVIX!`);
-        alert(`Sent ${formatTavix(amt)} TAVIX to @${un}!`);
-        closeModals();
-        document.getElementById("giftUsername").value="";
-        document.getElementById("giftAmount").value="";
-        updateTavixDisplay();
-    }else{alert("Failed to send gift");}
-}
-function closeModals(){document.querySelectorAll(".modal-overlay").forEach(m=>m.style.display="none");}
 
 // NAVIGATION
 function showHome(){document.getElementById("authPage").style.display="none";document.getElementById("profilePage").style.display="none";document.getElementById("tosPage").style.display="none";document.getElementById("deletePage").style.display="none";document.getElementById("homePage").style.display="block";updateWelcome();updateTavixDisplay();updateNotifications();}
@@ -668,6 +644,52 @@ function showAuthForm(t){
     else{sf.classList.add("active");st.classList.add("active");generateDragCaptcha();}
     document.getElementById("authError").textContent="";
 }
+
+// TAVIX MODAL FUNCTIONS
+let tavixDropdownOpen=false,notifDropdownOpen=false;
+document.addEventListener("click",function(e){const td=document.getElementById("tavixDropdown");const nd=document.getElementById("notificationDropdown");const tb=document.getElementById("tavixBtn")||document.getElementById("tavixBtnProfile");const nb=document.getElementById("notificationBtnHome")||document.getElementById("notificationBtnProfile");if(td&&tb&&!tb.contains(e.target)&&!td.contains(e.target)){td.style.display="none";tavixDropdownOpen=false;}if(nd&&nb&&!nb.contains(e.target)&&!nd.contains(e.target)){nd.style.display="none";notifDropdownOpen=false;}});
+function toggleTavix(){const d=document.getElementById("tavixDropdown");if(tavixDropdownOpen){d.style.display="none";tavixDropdownOpen=false;}else{updateTavixDisplay();d.style.display="block";tavixDropdownOpen=true;}}
+function toggleNotifications(){const d=document.getElementById("notificationDropdown");if(notifDropdownOpen){d.style.display="none";notifDropdownOpen=false;}else{updateNotifications();d.style.display="block";notifDropdownOpen=true;}}
+function openBuyModal(){closeModals();document.getElementById("buyModal").style.display="flex";}
+function openGiftModal(){closeModals();document.getElementById("giftModal").style.display="flex";}
+function openTransactionsModal(){
+    closeModals();
+    const t=currentUser?.transactions||[];
+    const c=document.getElementById("transactionList");
+    if(t.length===0){c.innerHTML='<p style="text-align:center;color:#888">No transactions</p>';
+    }else{c.innerHTML=t.map(tr=>`<div class="transaction-item"><span>${new Date(tr.date).toLocaleDateString()} - ${tr.reason}${tr.from?` from @${tr.from}`:""}</span><span class="transaction-amount ${tr.amount>0?"positive":"negative"}">${tr.amount>0?"+":""}${formatTavix(Math.abs(tr.amount))} ⌬</span></div>`).join('');}
+    document.getElementById("transactionsModal").style.display="flex";
+}
+async function buyTAVIX(){
+    const s=document.getElementById("buyAmount");
+    const a=parseInt(s.value);
+    if(await addTransaction(a,`Purchased ${a} TAVIX`)){
+        alert(`+${formatTavix(a)} TAVIX added!`);
+        closeModals();
+        updateTavixDisplay();
+    }else{alert("Purchase failed");}
+}
+async function sendGift(){
+    const un=document.getElementById("giftUsername").value.trim();
+    const amt=parseInt(document.getElementById("giftAmount").value);
+    if(!un){alert("Enter username");return;}
+    if(isNaN(amt)||amt<=0){alert("Enter valid amount");return;}
+    if(!currentUser){alert("Not logged in");return;}
+    if((currentUser.tavix||0)<amt){alert("Insufficient TAVIX");return;}
+    await fetchAllUsers();
+    const recipient=allUsers.find(x=>x.username===un);
+    if(!recipient){alert("User not found");return;}
+    if(await addTransactionAPI(-amt,`Gifted ${formatTavix(amt)} TAVIX to @${un}`)){
+        await addTransactionAPI(amt,`Received ${formatTavix(amt)} TAVIX from @${currentUser.username}`, currentUser.username);
+        await addNotificationAPI("🎁 Gift Received", `@${currentUser.username} sent you ${formatTavix(amt)} TAVIX!`);
+        alert(`Sent ${formatTavix(amt)} TAVIX to @${un}!`);
+        closeModals();
+        document.getElementById("giftUsername").value="";
+        document.getElementById("giftAmount").value="";
+        updateTavixDisplay();
+    }else{alert("Failed to send gift");}
+}
+function closeModals(){document.querySelectorAll(".modal-overlay").forEach(m=>m.style.display="none");}
 
 // EVENT LISTENERS
 document.getElementById("searchBtnHome")?.addEventListener("click",openSearch);
