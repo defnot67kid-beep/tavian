@@ -8,17 +8,20 @@
 <!-- Material Icons -->
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
+<!-- hCaptcha with forced image puzzle mode -->
+<script src="https://js.hcaptcha.com/1/api.js?hl=en" async defer></script>
+
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif;}
 body{background:#f4f4f4;overflow-x:hidden;}
 
 header{background:white;padding:15px 20px;border-bottom:1px solid #ddd;position:sticky;top:0;z-index:100;}
 .topbar{display:flex;justify-content:space-between;align-items:center;}
-.logo a{font-size:42px;font-weight:900;cursor:pointer;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-decoration:none;}
+.logo{font-size:42px;font-weight:900;cursor:pointer;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
 .nav-icons{display:flex;align-items:center;gap:10px;position:relative;}
-.icon-btn{width:50px;height:50px;border:none;border-radius:10px;background:white;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:0.2s;text-decoration:none;color:#555;}
+.icon-btn{width:50px;height:50px;border:none;border-radius:10px;background:white;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:0.2s;}
 .icon-btn:hover{background:#f0f0f0;}
-.icon-btn .material-icons{font-size:28px;}
+.icon-btn .material-icons{font-size:28px;color:#555;}
 .notification-badge{position:relative;}
 .notification-badge .badge-count{position:absolute;top:-5px;right:-5px;background:#dc2626;color:white;font-size:10px;font-weight:bold;padding:2px 6px;border-radius:50%;min-width:18px;text-align:center;}
 .tavix-btn{background:white;border-radius:30px;padding:5px 15px 5px 10px;display:flex;align-items:center;gap:8px;cursor:pointer;transition:0.2s;border:1px solid #e0e0e0;}
@@ -89,7 +92,6 @@ header{background:white;padding:15px 20px;border-bottom:1px solid #ddd;position:
 .profile-pfp{width:120px;height:120px;border-radius:50%;object-fit:cover;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);}
 .display-name{font-size:56px;font-weight:800;color:#111;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
 .username{font-size:28px;color:#666;margin-top:5px;}
-.user-id{font-size:16px;color:#888;margin-top:5px;}
 .social-stats{display:flex;gap:25px;margin-top:12px;color:#555;font-size:22px;}
 .about-card{background:white;border:1px solid #e5e5e5;border-radius:16px;padding:25px;margin-bottom:30px;}
 .card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;}
@@ -113,27 +115,8 @@ header{background:white;padding:15px 20px;border-bottom:1px solid #ddd;position:
 .submit-btn{width:100%;padding:18px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;border:none;border-radius:8px;font-size:24px;cursor:pointer;}
 .submit-btn:hover{opacity:0.9;}
 .error{color:red;margin-bottom:20px;}
-.drag-captcha{background:#f0f0f0;border-radius:16px;padding:20px;margin-bottom:25px;border:2px solid #e0e0e0;}
-.captcha-title{text-align:center;margin-bottom:15px;font-weight:bold;color:#333;}
-.puzzle-container{display:flex;gap:20px;justify-content:center;flex-wrap:wrap;}
-.puzzle-pieces{flex:1;min-width:200px;background:#e8e8e8;border-radius:12px;padding:15px;text-align:center;}
-.puzzle-pieces h4{margin-bottom:15px;color:#666;font-size:14px;}
-.pieces-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
-.drag-piece{background:white;border:2px solid #ddd;border-radius:10px;padding:15px;cursor:grab;text-align:center;transition:0.1s;user-select:none;}
-.drag-piece:active{cursor:grabbing;}
-.drag-piece.dragging{opacity:0.5;}
-.puzzle-dropzone{flex:1;min-width:200px;background:#e8e8e8;border-radius:12px;padding:15px;text-align:center;}
-.dropzone-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;min-height:180px;}
-.drop-slot{background:#fafafa;border:2px dashed #aaa;border-radius:10px;padding:15px;text-align:center;transition:0.2s;min-height:80px;display:flex;align-items:center;justify-content:center;}
-.drop-slot.drag-over{background:#e0e7ff;border-color:#667eea;}
-.drop-slot.filled{background:#d1fae5;border-color:#10b981;border-style:solid;}
-.drop-slot .dropped-item{font-size:32px;}
-.captcha-status{margin-top:15px;padding:10px;border-radius:8px;text-align:center;font-size:14px;}
-.captcha-status.complete{background:#d1fae5;color:#065f46;}
-.captcha-status.incomplete{background:#fed7aa;color:#92400e;}
-.refresh-captcha-btn{margin-top:15px;padding:10px 20px;background:#666;color:white;border:none;border-radius:8px;cursor:pointer;width:100%;}
-.refresh-captcha-btn:hover{background:#555;}
-.emoji-large{font-size:36px;display:block;}
+.h-captcha{margin:20px 0;display:flex;justify-content:center;min-height:80px;}
+.captcha-note{font-size:12px;color:#666;text-align:center;margin-top:10px;margin-bottom:15px;}
 .tos-container{margin:20px 0;padding:15px;background:#f9f9f9;border-radius:12px;border:1px solid #e0e0e0;}
 .tos-checkbox{display:flex;align-items:center;gap:10px;cursor:pointer;}
 .tos-checkbox input{width:20px;height:20px;cursor:pointer;margin:0;}
@@ -186,11 +169,7 @@ header{background:white;padding:15px 20px;border-bottom:1px solid #ddd;position:
 .green-box{background:#d1fae5;border-left:4px solid #10b981;padding:15px;border-radius:10px;margin:15px 0;color:#065f46;}
 .back-to-home{position:fixed;bottom:30px;right:30px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;border:none;padding:12px 24px;border-radius:50px;cursor:pointer;font-weight:bold;box-shadow:0 4px 12px rgba(0,0,0,0.2);z-index:100;}
 .back-to-home:hover{opacity:0.9;}
-.user-profile-modal{background:white;border-radius:24px;max-width:450px;width:90%;margin:20px auto;position:relative;top:50%;transform:translateY(-50%);}
-.modal-header{display:flex;justify-content:space-between;align-items:center;padding:20px;border-bottom:1px solid #e0e0e0;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;border-radius:24px 24px 0 0;}
-.modal-body{padding:25px;}
-.modal-close{background:none;border:none;color:white;font-size:28px;cursor:pointer;}
-@media (max-width:768px){.logo a{font-size:28px;}.players-grid{grid-template-columns:1fr;}.display-name{font-size:42px;}.puzzle-container{flex-direction:column;}.tos-header h1{font-size:32px;}}
+@media (max-width:768px){.logo{font-size:28px;}.players-grid{grid-template-columns:1fr;}.display-name{font-size:42px;}}
 </style>
 </head>
 <body>
@@ -233,68 +212,90 @@ header{background:white;padding:15px 20px;border-bottom:1px solid #ddd;position:
 <div id="deletePage" class="delete-page"><h1>⚠️ Delete Account</h1><p>This action is <strong>permanent</strong> and cannot be undone.</p><div class="warning-text">All your data will be erased.</div><p>Type <strong style="color:#dc2626;">DELETE</strong> to confirm:</p><input type="text" id="deleteConfirmInput" class="delete-input" placeholder="Type DELETE here"><div class="delete-buttons"><button class="cancel-delete" onclick="navigateTo('home')">Cancel</button><button class="confirm-delete" onclick="confirmDeleteAccount()">Permanently Delete</button></div></div>
 
 <!-- HOME PAGE -->
-<div id="homePage" style="display:none;">
-    <header>
-        <div class="topbar">
-            <div class="logo"><a href="/">TAVIAN</a></div>
-            <div class="nav-icons">
-                <a href="/search" class="icon-btn" id="searchBtnHome"><span class="material-icons">search</span></a>
-                <div class="tavix-btn" id="tavixBtn"><span class="tavix-icon">⌬</span><span class="tavix-amount" id="tavixBalance">0</span></div>
-                <a href="/profile" class="icon-btn" id="profileBtnHome"><span class="material-icons">person</span></a>
-                <div class="icon-btn notification-badge" id="notificationBtnHome"><span class="material-icons">notifications</span><span class="badge-count" id="notificationCount">0</span></div>
-                <a href="/settings" class="icon-btn" id="settingsBtnHome"><span class="material-icons">settings</span></a>
-            </div>
-        </div>
-    </header>
-    <div id="tavixDropdown" class="tavix-dropdown"><div class="tavix-dropdown-header"><div class="balance" id="dropdownBalance">0 ⌬</div><div class="label">TAVIX Balance</div></div><div class="tavix-dropdown-item" onclick="openBuyModal()"><div class="icon">💰</div><div class="info"><div class="title">Buy TAVIX</div><div class="desc">Purchase TAVIX with real money</div></div></div><div class="tavix-dropdown-item" onclick="openGiftModal()"><div class="icon">🎁</div><div class="info"><div class="title">Gift TAVIX</div><div class="desc">Send TAVIX to a friend</div></div></div><div class="tavix-dropdown-item" onclick="openTransactionsModal()"><div class="icon">📜</div><div class="info"><div class="title">Transactions</div><div class="desc">View your TAVIX history</div></div></div></div>
-    <div id="welcomeBanner" class="welcome-message" style="display:none;"><span class="welcome-text" id="welcomeText"></span></div>
-    <div id="mainContent"><div class="section"><h2>FRIENDS</h2><div class="friends-box"><div>No friends 😭</div><button class="friend-arrow">&gt;</button></div></div><div class="section"><h2>GAMES</h2><div class="empty-games">No games available</div></div><footer style="margin-top:40px; background:white; padding:20px; text-align:center;"></footer></div>
-</div>
+<div id="homePage" style="display:none;"><header><div class="topbar"><div class="logo" onclick="navigateTo('home')">TAVIAN</div><div class="nav-icons"><button class="icon-btn search-btn" id="searchBtnHome"><span class="material-icons">search</span></button><div class="tavix-btn" id="tavixBtn"><span class="tavix-icon">⌬</span><span class="tavix-amount" id="tavixBalance">0</span></div><button class="icon-btn profile-btn" id="profileBtnHome"><span class="material-icons">person</span></button><button class="icon-btn notification-badge" id="notificationBtnHome"><span class="material-icons">notifications</span><span class="badge-count" id="notificationCount">0</span></button><button class="icon-btn settings-btn" id="settingsBtnHome"><span class="material-icons">settings</span></button></div></div></header><div id="tavixDropdown" class="tavix-dropdown"><div class="tavix-dropdown-header"><div class="balance" id="dropdownBalance">0 ⌬</div><div class="label">TAVIX Balance</div></div><div class="tavix-dropdown-item" onclick="openBuyModal()"><div class="icon">💰</div><div class="info"><div class="title">Buy TAVIX</div><div class="desc">Purchase TAVIX with real money</div></div></div><div class="tavix-dropdown-item" onclick="openGiftModal()"><div class="icon">🎁</div><div class="info"><div class="title">Gift TAVIX</div><div class="desc">Send TAVIX to a friend</div></div></div><div class="tavix-dropdown-item" onclick="openTransactionsModal()"><div class="icon">📜</div><div class="info"><div class="title">Transactions</div><div class="desc">View your TAVIX history</div></div></div></div><div id="welcomeBanner" class="welcome-message" style="display:none;"><span class="welcome-text" id="welcomeText"></span></div><div id="mainContent"><div class="section"><h2>FRIENDS</h2><div class="friends-box"><div>No friends 😭</div><button class="friend-arrow">&gt;</button></div></div><div class="section"><h2>GAMES</h2><div class="empty-games">No games available</div></div><footer style="margin-top:40px; background:white; padding:20px; text-align:center;"></footer></div></div>
 
-<!-- PROFILE PAGE (OWN PROFILE) -->
-<div id="profilePage" style="display:none;">
-    <header>
-        <div class="topbar">
-            <div class="logo"><a href="/">TAVIAN</a></div>
-            <div class="nav-icons">
-                <a href="/search" class="icon-btn" id="searchBtnProfile"><span class="material-icons">search</span></a>
-                <div class="tavix-btn" id="tavixBtnProfile"><span class="tavix-icon">⌬</span><span class="tavix-amount" id="tavixBalanceProfile">0</span></div>
-                <a href="/profile" class="icon-btn" id="profileBtnProfile"><span class="material-icons">person</span></a>
-                <div class="icon-btn notification-badge" id="notificationBtnProfile"><span class="material-icons">notifications</span><span class="badge-count" id="notificationCountProfile">0</span></div>
-                <a href="/settings" class="icon-btn" id="settingsBtnProfile"><span class="material-icons">settings</span></a>
-            </div>
-        </div>
-    </header>
-    <div id="profileContent" class="profile-page"></div>
-    <footer style="margin-top:40px; background:white; padding:20px; text-align:center;"></footer>
-</div>
-
-<!-- USER PROFILE MODAL (FOR OTHER USERS) -->
-<div id="userProfileModal" class="modal-overlay" onclick="closeUserProfileModal()">
-    <div class="user-profile-modal" onclick="event.stopPropagation()">
-        <div class="modal-header">
-            <h2 id="modalUsername">User Profile</h2>
-            <button class="modal-close" onclick="closeUserProfileModal()">✕</button>
-        </div>
-        <div class="modal-body" id="modalBody"></div>
-    </div>
-</div>
+<!-- PROFILE PAGE -->
+<div id="profilePage" style="display:none;"><header><div class="topbar"><div class="logo" onclick="navigateTo('home')">TAVIAN</div><div class="nav-icons"><button class="icon-btn search-btn" id="searchBtnProfile"><span class="material-icons">search</span></button><div class="tavix-btn" id="tavixBtnProfile"><span class="tavix-icon">⌬</span><span class="tavix-amount" id="tavixBalanceProfile">0</span></div><button class="icon-btn profile-btn" id="profileBtnProfile"><span class="material-icons">person</span></button><button class="icon-btn notification-badge" id="notificationBtnProfile"><span class="material-icons">notifications</span><span class="badge-count" id="notificationCountProfile">0</span></button><button class="icon-btn settings-btn" id="settingsBtnProfile"><span class="material-icons">settings</span></button></div></div></header><div id="profileContent" class="profile-page"></div><footer style="margin-top:40px; background:white; padding:20px; text-align:center;"></footer></div>
 
 <!-- TERMS OF SERVICE PAGE -->
 <div id="tosPage" class="tos-page">
     <div class="tos-header"><h1>📜 TERMS OF SERVICE</h1><p>Updated: June 2026</p></div>
-    <div class="tos-card"><h2>1. Acceptance</h2><p>By using Tavian, you agree to these terms. Don't like it? Leave.</p></div>
-    <div class="tos-card"><h2>2. Your Account</h2><p>You break it, you lose it. Don't share passwords. Don't steal accounts.</p></div>
-    <div class="tos-card"><h2>3. Rules</h2><p>No bots. No cheating unless the game says it's cool. No being a dick to people.</p><div class="warning-box">⚠️ BULLYING = BAN. BOTS = BAN. SIMPLE.</div></div>
-    <div class="tos-card"><h2>4. TAVIX</h2><p>Virtual currency. No real money value. We can change or remove it whenever.</p></div>
+    <div class="tos-card"><h2>1. Acceptance</h2><p>By using Tavian, you agree to these terms.</p></div>
+    <div class="tos-card"><h2>2. Your Account</h2><p>You are responsible for your account security. Don't share passwords.</p></div>
+    <div class="tos-card"><h2>3. Rules</h2><p>No bots. No cheating. Respect other users.</p><div class="warning-box">⚠️ VIOLATIONS = BAN</div></div>
+    <div class="tos-card"><h2>4. TAVIX</h2><p>Virtual currency. No real money value.</p></div>
     <div class="tos-card"><h2>5. Contact</h2><p>Message RealGysj or Plstealme2 if something's wrong.</p></div>
     <button class="back-to-home" onclick="navigateTo('home')">← BACK</button>
 </div>
 
-<!-- AUTH PAGE -->
-<div id="authPage" style="display:none;"><header><div class="topbar"><div class="logo"><a href="/">TAVIAN</a></div><div class="nav-icons"></div></div></header><div class="auth-container"><div class="tabs"><button class="tab active" id="loginTab" onclick="showAuthForm('login')">Sign In</button><button class="tab" id="signupTab" onclick="showAuthForm('signup')">Create Account</button></div><div id="authError" class="error"></div><form id="loginForm" class="auth-form active"><label>Username</label><input type="text" id="loginUsername" required><label>Password</label><input type="password" id="loginPassword" required><button type="submit" class="submit-btn">Sign In</button><div style="text-align:center; margin-top:15px;"><a href="#" onclick="showAuthForm('signup'); return false;" style="color:#667eea;">No account? Create one</a></div></form><form id="signupForm" class="auth-form"><label>Username</label><input type="text" id="signupUsername" required><label>Email</label><input type="email" id="signupEmail" required><label>Password</label><input type="password" id="signupPassword" required><label>Confirm Password</label><input type="password" id="signupConfirm" required><div class="drag-captcha" id="dragCaptcha"><div class="captcha-title">🐉 DRAG & DROP</div><div class="puzzle-container" id="puzzleContainer"></div><div class="captcha-status incomplete" id="captchaStatus">Match 4 icons</div><button type="button" class="refresh-captcha-btn" onclick="generateDragCaptcha()">⟳ New</button><input type="hidden" id="captchaValid" value="false"></div><div class="tos-container"><div class="tos-checkbox"><input type="checkbox" id="tosAgree"><label>I agree to the <a href="#" onclick="navigateTo('wiki-tos'); return false;">Terms</a> (no bots, don't be a dick)</label></div></div><button type="submit" class="submit-btn">Create Account</button></form><div class="quick-login-section"><h3>📱 Quick Login</h3><div id="savedAccountsList" class="saved-accounts-list"></div></div></div></div>
+<!-- AUTH PAGE - FIXED VERSION -->
+<div id="authPage" style="display:none;">
+    <header>
+        <div class="topbar">
+            <div class="logo">TAVIAN</div>
+            <div class="nav-icons"></div>
+        </div>
+    </header>
+    <div class="auth-container">
+        <div class="tabs">
+            <button class="tab active" id="loginTab" onclick="showAuthForm('login')">Sign In</button>
+            <button class="tab" id="signupTab" onclick="showAuthForm('signup')">Create Account</button>
+        </div>
+        <div id="authError" class="error"></div>
+        
+        <!-- LOGIN FORM -->
+        <form id="loginForm" class="auth-form active">
+            <label>Username</label>
+            <input type="text" id="loginUsername" required>
+            <label>Password</label>
+            <input type="password" id="loginPassword" required>
+            <button type="submit" class="submit-btn">Sign In</button>
+            <div style="text-align:center; margin-top:15px;">
+                <a href="#" onclick="showAuthForm('signup'); return false;" style="color:#667eea;">No account? Create one</a>
+            </div>
+        </form>
+        
+        <!-- SIGNUP FORM with FORCED IMAGE PUZZLE CAPTCHA -->
+        <form id="signupForm" class="auth-form">
+            <label>Username</label>
+            <input type="text" id="signupUsername" required>
+            <label>Email</label>
+            <input type="email" id="signupEmail" required>
+            <label>Password</label>
+            <input type="password" id="signupPassword" required>
+            <label>Confirm Password</label>
+            <input type="password" id="signupConfirm" required>
+            
+            <!-- hCaptcha - FORCED IMAGE PUZZLE MODE (no checkbox bypass!) -->
+            <div class="h-captcha" 
+                 data-sitekey="ca72f9a0-77d0-4a9c-af8e-e4748fe6a93c" 
+                 data-theme="light"
+                 data-s="image"
+                 data-size="normal"></div>
+            <div class="captcha-note">🧩 Complete the image puzzle to verify you're human</div>
+            
+            <div class="tos-container">
+                <div class="tos-checkbox">
+                    <input type="checkbox" id="tosAgree">
+                    <label>I agree to the <a href="#" onclick="navigateTo('wiki-tos'); return false;">Terms of Service</a></label>
+                </div>
+            </div>
+            <button type="submit" class="submit-btn">Create Account</button>
+        </form>
+        
+        <div class="quick-login-section">
+            <h3>📱 Quick Login</h3>
+            <div id="savedAccountsList" class="saved-accounts-list"></div>
+        </div>
+    </div>
+</div>
 
 <script>
+// ============================================
+// TAVIAN PLATFORM - COMPLETE FIXED SCRIPT
+// Fixed: Auto-redirect bug, Hard-mode CAPTCHA
+// ============================================
+
 // API Configuration
 const API_URL = 'https://tavian-api.onrender.com/api';
 
@@ -305,39 +306,7 @@ function formatTavix(amount){
     return amount.toString();
 }
 
-// CAPTCHA SYSTEM
-const captchaPairs=[{name:"🐉 Dragon",icon:"🐉",match:"🐲 Dragon Face"},{name:"👑 Crown",icon:"👑",match:"🏆 Trophy"},{name:"⭐ Star",icon:"⭐",match:"🌙 Moon"},{name:"🔥 Fire",icon:"🔥",match:"💧 Water"},{name:"⚔️ Sword",icon:"⚔️",match:"🛡️ Shield"},{name:"🎮 Controller",icon:"🎮",match:"🖥️ Monitor"}];
-let currentCaptchaPieces=[],currentCaptchaSlots=[],dragEnabled=true;
-function generateDragCaptcha(){const shuffled=[...captchaPairs];for(let i=shuffled.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]];}const selected=shuffled.slice(0,4);currentCaptchaPieces=selected.map(p=>({id:Math.random().toString(36).substr(2,6),name:p.name,icon:p.icon,matchText:p.match}));for(let i=currentCaptchaPieces.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[currentCaptchaPieces[i],currentCaptchaPieces[j]]=[currentCaptchaPieces[j],currentCaptchaPieces[i]];}currentCaptchaSlots=selected.map(p=>({id:Math.random().toString(36).substr(2,6),expectedMatch:p.match,filled:false,filledBy:null}));for(let i=currentCaptchaSlots.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[currentCaptchaSlots[i],currentCaptchaSlots[j]]=[currentCaptchaSlots[j],currentCaptchaSlots[i]];}renderCaptcha();}
-function renderCaptcha(){const c=document.getElementById("puzzleContainer");if(!c)return;c.innerHTML=`<div class="puzzle-pieces"><h4>📦 DRAG THESE</h4><div class="pieces-grid">${currentCaptchaPieces.map(p=>`<div class="drag-piece" draggable="true" data-id="${p.id}" data-icon="${p.icon}" data-match="${p.matchText}" data-name="${p.name}" ondragstart="dragStart(event)" ondragend="dragEnd(event)"><span class="emoji-large">${p.icon}</span><div style="font-size:12px">${p.name}</div></div>`).join('')}</div></div><div class="puzzle-dropzone"><h4>🎯 DROP HERE</h4><div class="dropzone-grid">${currentCaptchaSlots.map(s=>`<div class="drop-slot ${s.filled?'filled':''}" data-id="${s.id}" data-expected="${s.expectedMatch}" ondragover="dragOver(event)" ondrop="drop(event)">${s.filled?`<div><span class="emoji-large">${s.filledBy?.icon}</span><div style="font-size:10px">${s.filledBy?.name}</div></div>`:'⬅️ Drop here'}</div>`).join('')}</div></div>`;updateCaptchaStatus();}
-let dragged=null;
-function dragStart(e){if(!dragEnabled){e.preventDefault();return;}dragged={id:e.target.closest('.drag-piece').dataset.id,icon:e.target.closest('.drag-piece').dataset.icon,match:e.target.closest('.drag-piece').dataset.match,name:e.target.closest('.drag-piece').dataset.name};e.dataTransfer.setData('text/plain',JSON.stringify(dragged));}
-function dragEnd(e){dragged=null;}
-function dragOver(e){e.preventDefault();const s=e.target.closest('.drop-slot');if(s&&!s.classList.contains('filled'))s.classList.add('drag-over');}
-function drop(e){e.preventDefault();const slot=e.target.closest('.drop-slot');if(!slot)return;slot.classList.remove('drag-over');if(slot.classList.contains('filled'))return;let d;try{d=JSON.parse(e.dataTransfer.getData('text/plain'));}catch(e){d=dragged;}if(!d)return;const slotIdx=currentCaptchaSlots.findIndex(s=>s.id===slot.dataset.id);const pieceIdx=currentCaptchaPieces.findIndex(p=>p.id===d.id);if(slotIdx===-1||pieceIdx===-1)return;if(d.match===currentCaptchaSlots[slotIdx].expectedMatch){currentCaptchaSlots[slotIdx].filled=true;currentCaptchaSlots[slotIdx].filledBy={icon:d.icon,name:d.name};currentCaptchaPieces.splice(pieceIdx,1);slot.classList.add('filled');slot.innerHTML=`<div><span class="emoji-large">${d.icon}</span><div style="font-size:10px">${d.name}</div></div>`;document.querySelector(`.drag-piece[data-id="${d.id}"]`)?.remove();updateCaptchaStatus();}else{slot.style.backgroundColor="#fee2e2";setTimeout(()=>slot.style.backgroundColor="",300);}}
-function updateCaptchaStatus(){const all=currentCaptchaSlots.every(s=>s.filled);const s=document.getElementById("captchaStatus");const h=document.getElementById("captchaValid");if(all){s.innerHTML="✅ Complete!";s.className="captcha-status complete";if(h)h.value="true";dragEnabled=false;}else{s.innerHTML=`🔄 Match ${currentCaptchaSlots.filter(s=>s.filled).length}/4`;s.className="captcha-status incomplete";if(h)h.value="false";dragEnabled=true;}}
-function verifyCaptcha(){return document.getElementById("captchaValid")?.value==="true";}
-
-// ============= COOKIE FUNCTIONS =============
-function setGuestCookie() {
-    const guestToken = 'guest_' + Math.random().toString(36).substring(2, 15) + '_' + Date.now();
-    document.cookie = `tavian_token=${guestToken}; path=/; max-age=${30 * 24 * 60 * 60}; SameSite=Lax`;
-}
-function checkCookie() {
-    const cookies = document.cookie.split(';');
-    for(let i = 0; i < cookies.length; i++) {
-        const cookie = cookies[i].trim();
-        if(cookie.startsWith('tavian_token=')) {
-            return cookie.substring('tavian_token='.length, cookie.length);
-        }
-    }
-    return null;
-}
-function deleteCookie() {
-    document.cookie = 'tavian_token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
-}
-
-// ============= API FUNCTIONS =============
+// USER SYSTEM
 let currentUser = null;
 let allUsers = [];
 
@@ -346,8 +315,6 @@ async function fetchAllUsers(){
         const response = await fetch(`${API_URL}/users`, { credentials: 'include' });
         if(response.ok){
             allUsers = await response.json();
-            // Sort by userId to maintain order
-            allUsers.sort((a,b) => (a.userId || 0) - (b.userId || 0));
             return allUsers;
         }
     }catch(e){console.error(e);}
@@ -371,14 +338,18 @@ async function autoLogin(){
             method: 'GET',
             credentials: 'include'
         });
+        
         if(response.ok){
             const data = await response.json();
             if(data.success && data.user){
                 currentUser = data.user;
+                console.log('✅ Auto-login successful via secure cookie!');
                 return true;
             }
         }
-    } catch(e){}
+    } catch(e){
+        console.log('Auto-login failed:', e);
+    }
     return false;
 }
 
@@ -400,13 +371,19 @@ async function loginAPI(username, password){
     }catch(e){ return { success: false, error: "Network error" }; }
 }
 
-async function registerAPI(username, email, password, displayName){
+async function registerAPI(username, email, password, displayName, hcaptchaResponse){
     try{
         const response = await fetch(`${API_URL}/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
-            body: JSON.stringify({ username, email, password, displayName })
+            body: JSON.stringify({ 
+                username, 
+                email, 
+                password, 
+                displayName,
+                hcaptchaResponse
+            })
         });
         if(response.ok){
             currentUser = await response.json();
@@ -423,7 +400,6 @@ async function logoutAPI(){
         await fetch(`${API_URL}/logout`, { method: 'POST', credentials: 'include' });
     }catch(e){}
     currentUser = null;
-    deleteCookie();
 }
 
 async function updateUserAPI(updates){
@@ -487,13 +463,6 @@ async function deleteAccountAPI(){
         }
     }catch(e){}
     return false;
-}
-
-// Get next available user ID
-function getNextUserId(){
-    if(!allUsers.length) return 1;
-    const maxId = Math.max(...allUsers.map(u => u.userId || 0));
-    return maxId + 1;
 }
 
 // BADGE SYSTEM
@@ -560,7 +529,7 @@ async function markRead(id){
     }
 }
 
-// SAVED ACCOUNTS
+// SAVED ACCOUNTS (local only)
 function getSaved(){return JSON.parse(localStorage.getItem("savedAccounts"))||[];}
 function saveAccount(acc){let s=getSaved();if(!s.find(a=>a.username===acc.username)){s.push({username:acc.username,displayName:acc.displayName||acc.username,email:acc.email,lastLogin:new Date().toISOString(),color:'#'+Math.floor(Math.random()*16777215).toString(16)});localStorage.setItem("savedAccounts",JSON.stringify(s));}renderSaved();}
 function removeSaved(user){let s=getSaved().filter(a=>a.username!==user);localStorage.setItem("savedAccounts",JSON.stringify(s));renderSaved();}
@@ -570,73 +539,20 @@ function renderSaved(){const c=document.getElementById("savedAccountsList");if(!
 function escapeHtml(s){if(!s)return '';return s.replace(/[&<>]/g,function(m){if(m==='&')return '&amp;';if(m==='<')return '&lt;';if(m==='>')return '&gt;';return m;});}
 function formatEmail(e){if(!e)return '-';const a=e.indexOf('@');if(a<=4)return e.substring(0,a)+'***'+e.substring(a);return e.substring(0,4)+'***'+e.substring(a);}
 
-// PROFILE FUNCTIONS
-function getUserByUsername(username){
-    return allUsers.find(u => u.username.toLowerCase() === username.toLowerCase());
-}
-
-function getUserById(userId){
-    return allUsers.find(u => u.userId === userId);
-}
-
-// VIEW PROFILE - Supports /users/ID/profile URLs
-async function viewProfile(userIdOrUsername){
+// VIEW PROFILE
+async function viewProfile(user){
     await fetchAllUsers();
-    let user;
-    if(!isNaN(parseInt(userIdOrUsername))){
-        user = getUserById(parseInt(userIdOrUsername));
-    } else {
-        user = getUserByUsername(userIdOrUsername);
-    }
-    
-    if(user){
-        if(currentUser && currentUser.userId === user.userId){
-            showProfile();
-            window.history.pushState({}, '', `/profile`);
-        } else {
-            showUserProfileModal(user);
-            window.history.pushState({}, '', `/users/${user.userId}/profile`);
-        }
-    } else {
-        alert("User not found");
-        window.location.href = '/';
-    }
-}
-
-function showUserProfileModal(user){
-    const modal = document.getElementById('userProfileModal');
-    const modalUsername = document.getElementById('modalUsername');
-    const modalBody = document.getElementById('modalBody');
-    
-    modalUsername.innerHTML = `${escapeHtml(user.displayName || user.username)} ${renderBadge(user.username)}`;
-    modalBody.innerHTML = `
-        <p><strong>Username:</strong> @${escapeHtml(user.username)}</p>
-        <p><strong>User ID:</strong> ${user.userId}</p>
-        <p><strong>Joined:</strong> ${new Date(user.createdAt).toLocaleDateString()}</p>
-        <p><strong>TAVIX:</strong> ${formatTavix(user.tavix || 0)} ⌬</p>
-        <p><strong>About:</strong> ${escapeHtml(user.about || "No about set")}</p>
-    `;
-    modal.style.display = "flex";
-}
-
-function closeUserProfileModal(){
-    document.getElementById('userProfileModal').style.display = "none";
-    window.location.href = '/';
+    const u = allUsers.find(x=>x.username===user);
+    if(u){
+        if(currentUser && currentUser.username===user) navigateTo("profile");
+        else alert(`👤 ${u.displayName||u.username}\n@${u.username}\n💰 ${formatTavix(u.tavix||0)} TAVIX`);
+    } else alert("User not found");
 }
 
 // SEARCH
-function openSearch(){
-    document.getElementById("searchOverlay").style.display="flex";
-    document.getElementById("globalSearchInput").focus();
-    window.history.pushState({}, '', '/search');
-}
-function closeSearch(){
-    document.getElementById("searchOverlay").style.display="none";
-    document.getElementById("globalSearchInput").value="";
-    document.getElementById("globalSearchResults").style.display="none";
-    document.getElementById("globalSearchDropdown").style.display="none";
-    window.history.back();
-}
+function openSearch(){document.getElementById("searchOverlay").style.display="flex";document.getElementById("globalSearchInput").focus();}
+function closeSearchGlobal(){document.getElementById("searchOverlay").style.display="none";document.getElementById("globalSearchInput").value="";document.getElementById("globalSearchResults").style.display="none";document.getElementById("globalSearchDropdown").style.display="none";}
+function closeSearch(){closeSearchGlobal();}
 async function updateSearchDropdown(){
     const q=document.getElementById("globalSearchInput").value.trim().toLowerCase();
     const d=document.getElementById("globalSearchDropdown");
@@ -645,16 +561,11 @@ async function updateSearchDropdown(){
     const players=allUsers.filter(p=>p.username.toLowerCase().includes(q)||(p.displayName&&p.displayName.toLowerCase().includes(q)));
     if(players.length===0){d.style.display="none";return;}
     let html='<div class="dropdown-section"><h4>👥 PLAYERS</h4>';
-    players.forEach(p=>{html+=`<div class="dropdown-item" onclick="selectPlayer(${p.userId})"><img src="https://ui-avatars.com/api/?background=667eea&color=fff&size=40&name=${encodeURIComponent(p.displayName||p.username)}" style="width:40px;height:40px;border-radius:50%;"><div>${escapeHtml(p.displayName||p.username)} ${renderBadge(p.username)}<br><small>@${escapeHtml(p.username)}</small><br><small>ID: ${p.userId}</small></div></div>`;});
+    players.forEach(p=>{html+=`<div class="dropdown-item" onclick="selectPlayer('${escapeHtml(p.username)}')"><img src="https://ui-avatars.com/api/?background=667eea&color=fff&size=40&name=${encodeURIComponent(p.displayName||p.username)}" style="width:40px;height:40px;border-radius:50%;"><div>${escapeHtml(p.displayName||p.username)} ${renderBadge(p.username)}<br><small>@${escapeHtml(p.username)}</small></div></div>`;});
     html+=`</div>`;d.innerHTML=html;d.style.display="block";
 }
-function selectPlayer(userId){
-    closeSearch();
-    window.location.href = `/users/${userId}/profile`;
-}
-function handleSearchKey(e){
-    if(e.key==="Enter") performSearch();
-}
+function selectPlayer(user){closeSearch();viewProfile(user);}
+function handleSearchKey(e){if(e.key==="Enter")performSearch();}
 async function performSearch(){
     const q=document.getElementById("globalSearchInput").value.trim().toLowerCase();
     if(!q)return;
@@ -662,23 +573,19 @@ async function performSearch(){
     const players=allUsers.filter(p=>p.username.toLowerCase().includes(q)||(p.displayName&&p.displayName.toLowerCase().includes(q)));
     const r=document.getElementById("globalSearchResults");
     if(players.length===0){r.innerHTML='<div class="empty-games">No players found</div>';
-    }else{r.innerHTML=`<div class="results-section"><h3>👥 PLAYERS</h3><div class="players-grid">${players.map(p=>`<div class="player-card" onclick="window.location.href='/users/${p.userId}/profile'"><img class="player-avatar" src="https://ui-avatars.com/api/?background=667eea&color=fff&size=60&name=${encodeURIComponent(p.displayName||p.username)}"><div><div class="player-display-name">${escapeHtml(p.displayName||p.username)} ${renderBadge(p.username)}</div><div class="player-username">@${escapeHtml(p.username)}</div><div class="player-id">ID: ${p.userId}</div></div></div>`).join('')}</div></div>`;}r.style.display="block";document.getElementById("globalSearchDropdown").style.display="none";
+    }else{r.innerHTML=`<div class="results-section"><h3>👥 PLAYERS</h3><div class="players-grid">${players.map(p=>`<div class="player-card" onclick="closeSearch();viewProfile('${escapeHtml(p.username)}')"><img class="player-avatar" src="https://ui-avatars.com/api/?background=667eea&color=fff&size=60&name=${encodeURIComponent(p.displayName||p.username)}"><div><div class="player-display-name">${escapeHtml(p.displayName||p.username)} ${renderBadge(p.username)}</div><div class="player-username">@${escapeHtml(p.username)}</div></div></div>`).join('')}</div></div>`;}r.style.display="block";document.getElementById("globalSearchDropdown").style.display="none";
 }
 
 // SETTINGS
 function openSettings(){
-    if(!currentUser){window.location.href = '/'; return;}
+    if(!currentUser){navigateTo("signin");return;}
     document.getElementById("globalSettingsUsername").innerHTML=escapeHtml(currentUser.username)+" "+renderBadge(currentUser.username);
     document.getElementById("globalSettingsDisplayName").innerHTML=escapeHtml(currentUser.displayName||currentUser.username);
     document.getElementById("globalSettingsEmail").innerHTML=formatEmail(currentUser.email);
     document.getElementById("globalSettingsTAVIX").innerHTML=formatTavix(currentUser.tavix||0)+" ⌬";
-    document.getElementById("settingsOverlay").style.display="flex";
-    window.history.pushState({}, '', '/settings');
+    document.getElementById("settingsOverlay").style.display="flex";updateHash("#settings");
 }
-function closeSettingsGlobal(){
-    document.getElementById("settingsOverlay").style.display="none";
-    window.location.href = '/';
-}
+function closeSettingsGlobal(){document.getElementById("settingsOverlay").style.display="none";if(window.location.hash==="#settings")updateHash("#home");}
 async function updateDisplayNameGlobal(){
     const newName=document.getElementById("globalNewDisplayName").value.trim();
     if(!newName){alert("Enter display name");return;}
@@ -694,13 +601,13 @@ async function logoutGlobal(){
     await logoutAPI();
     currentUser=null;
     closeSettingsGlobal();
-    window.location.href = '/';
+    navigateTo("signin");
 }
 async function confirmDeleteAccount(){
     if(document.getElementById("deleteConfirmInput").value==="DELETE"){
         if(await deleteAccountAPI()){
             alert("Account deleted.");
-            window.location.href = '/';
+            navigateTo("signin");
         }else{alert("Failed to delete account");}
     }else{alert('Type "DELETE" to confirm');}
 }
@@ -708,7 +615,7 @@ async function confirmDeleteAccount(){
 // PAGE RENDERING
 function renderProfile(){
     if(!currentUser) return;
-    const html=`<div class="profile-header"><img class="profile-pfp" src="https://ui-avatars.com/api/?background=667eea&color=fff&size=120&name=${encodeURIComponent(currentUser.displayName||currentUser.username)}"><div><div class="display-name">${escapeHtml(currentUser.displayName||currentUser.username)} ${renderBadge(currentUser.username)}</div><div class="username">@${escapeHtml(currentUser.username)}</div><div class="user-id">User ID: ${currentUser.userId}</div><div class="social-stats"><span>0 Friends</span><span>2 Followers</span></div></div></div><div class="about-card"><div class="card-header"><h2>ABOUT</h2><button class="edit-btn" onclick="editAbout()">Edit</button></div><p class="about-text">${escapeHtml(currentUser.about||"Tell people about yourself...")}</p></div><div class="profile-stats-grid"><div class="stat-card"><div class="stat-label">VISITS</div><div class="stat-value">${currentUser.visits||0}</div></div><div class="stat-card"><div class="stat-label">JOINED</div><div class="stat-value">${new Date(currentUser.createdAt||Date.now()).toLocaleDateString()}</div></div></div>`;
+    const html=`<div class="profile-header"><img class="profile-pfp" src="https://ui-avatars.com/api/?background=667eea&color=fff&size=120&name=${encodeURIComponent(currentUser.displayName||currentUser.username)}"><div><div class="display-name">${escapeHtml(currentUser.displayName||currentUser.username)} ${renderBadge(currentUser.username)}</div><div class="username">@${escapeHtml(currentUser.username)}</div><div class="social-stats"><span>0 Friends</span><span>2 Followers</span></div></div></div><div class="about-card"><div class="card-header"><h2>ABOUT</h2><button class="edit-btn" onclick="editAbout()">Edit</button></div><p class="about-text">${escapeHtml(currentUser.about||"Tell people about yourself...")}</p></div><div class="profile-stats-grid"><div class="stat-card"><div class="stat-label">VISITS</div><div class="stat-value">${currentUser.visits||0}</div></div><div class="stat-card"><div class="stat-label">JOINED</div><div class="stat-value">${new Date(currentUser.createdAt||Date.now()).toLocaleDateString()}</div></div></div>`;
     document.getElementById("profileContent").innerHTML=html;
 }
 async function editAbout(){
@@ -720,96 +627,176 @@ async function editAbout(){
     }
 }
 
+// WELCOME MESSAGE
 function updateWelcome(){
     if(currentUser){
         const username = currentUser.displayName || currentUser.username;
-        const greetings = [`Sup ${username}`, `Yo ${username}`, `${username} back`, `Hey ${username}`, `What's good ${username}`, `${username} in the building`, `Ayy ${username}`, `There he is ${username}`, `${username} returned`, `The legend ${username}`, `Let's go ${username}`, `${username} is here`, `Back for more ${username}`, `Welcome back playa`, `The goat ${username}`];
+        const greetings = [
+            `Sup ${username}, ready to play?`,
+            `Yo ${username}, good to see you`,
+            `${username} back at it again`,
+            `Hey ${username}, let's go`,
+            `What's good ${username}?`,
+            `${username} in the building`,
+            `Ayy ${username}, welcome back`,
+            `There he is, ${username}`,
+            `${username} returned for more`,
+            `The legend is back, ${username}`,
+            `Let's go ${username}`,
+            `${username} is here`,
+            `Back for more ${username}?`,
+            `Welcome back playa`,
+            `The goat ${username} has arrived`,
+            `${username} my guy!`,
+            `Yooo ${username} what's up`,
+            `${username} pulling up again`,
+            `He's back... ${username}`,
+            `${username} let's get it`
+        ];
         const randomGreeting = greetings[Math.floor(Math.random() * greetings.length)];
         document.getElementById("welcomeText").innerHTML = randomGreeting;
         document.getElementById("welcomeBanner").style.display = "flex";
         setTimeout(() => {
             const banner = document.getElementById("welcomeBanner");
             if(banner) banner.style.opacity = "0";
-            setTimeout(() => { if(banner) { banner.style.display = "none"; banner.style.opacity = "1"; } }, 500);
+            setTimeout(() => {
+                if(banner) {
+                    banner.style.display = "none";
+                    banner.style.opacity = "1";
+                }
+            }, 500);
         }, 5000);
     }
 }
 
-// PAGE DISPLAY FUNCTIONS
-function showHome(){
-    document.getElementById("authPage").style.display="none";
-    document.getElementById("profilePage").style.display="none";
-    document.getElementById("tosPage").style.display="none";
-    document.getElementById("deletePage").style.display="none";
-    document.getElementById("homePage").style.display="block";
-    updateWelcome();
-    updateTavixDisplay();
-    updateNotifications();
+// NAVIGATION - FIXED! No more auto-redirect bugs
+function showHome(){document.getElementById("authPage").style.display="none";document.getElementById("profilePage").style.display="none";document.getElementById("tosPage").style.display="none";document.getElementById("deletePage").style.display="none";document.getElementById("homePage").style.display="block";updateWelcome();updateTavixDisplay();updateNotifications();}
+function showProfile(){document.getElementById("authPage").style.display="none";document.getElementById("homePage").style.display="none";document.getElementById("tosPage").style.display="none";document.getElementById("deletePage").style.display="none";document.getElementById("profilePage").style.display="block";renderProfile();updateTavixDisplay();updateNotifications();}
+function showTOS(){document.getElementById("authPage").style.display="none";document.getElementById("homePage").style.display="none";document.getElementById("profilePage").style.display="none";document.getElementById("deletePage").style.display="none";document.getElementById("tosPage").style.display="block";}
+function showDelete(){document.getElementById("authPage").style.display="none";document.getElementById("homePage").style.display="none";document.getElementById("profilePage").style.display="none";document.getElementById("tosPage").style.display="none";document.getElementById("deletePage").style.display="block";document.getElementById("deleteConfirmInput").value="";updateHash("#delete");}
+function showAuth(){document.getElementById("homePage").style.display="none";document.getElementById("profilePage").style.display="none";document.getElementById("tosPage").style.display="none";document.getElementById("deletePage").style.display="none";document.getElementById("authPage").style.display="block";renderSaved();}
+
+function navigateTo(p){
+    if(p === "home"){
+        if(currentUser){
+            showHome();
+            updateHash("#home");
+        } else {
+            showAuth();
+            showAuthForm("login");
+            updateHash("#signin");
+        }
+    } else if(p === "profile"){
+        if(currentUser){
+            showProfile();
+            updateHash("#profile");
+        } else {
+            showAuth();
+            showAuthForm("login");
+            updateHash("#signin");
+        }
+    } else if(p === "settings"){
+        if(currentUser){
+            openSettings();
+        } else {
+            showAuth();
+            showAuthForm("login");
+            updateHash("#signin");
+        }
+    } else if(p === "wiki-tos"){
+        showTOS();
+        updateHash("#wiki-tos");
+    } else if(p === "delete"){
+        if(currentUser){
+            showDelete();
+        } else {
+            showAuth();
+            showAuthForm("login");
+            updateHash("#signin");
+        }
+    } else if(p === "signin"){
+        showAuth();
+        showAuthForm("login");
+        updateHash("#signin");
+    }
 }
-function showProfile(){
-    document.getElementById("authPage").style.display="none";
-    document.getElementById("homePage").style.display="none";
-    document.getElementById("tosPage").style.display="none";
-    document.getElementById("deletePage").style.display="none";
-    document.getElementById("profilePage").style.display="block";
-    renderProfile();
-    updateTavixDisplay();
-    updateNotifications();
+
+function updateHash(h){history.pushState(null,null,h);}
+
+// FIXED handleRoute - no more random redirects!
+async function handleRoute(){
+    const h = window.location.hash;
+    await fetchAllUsers();
+    
+    // Handle special pages first (don't check auth for these)
+    if(h === "#wiki-tos"){
+        showTOS();
+        return;
+    }
+    
+    // For delete page
+    if(h === "#delete"){
+        if(currentUser){
+            showDelete();
+        } else {
+            showAuth();
+            showAuthForm("login");
+            updateHash("#signin");
+        }
+        return;
+    }
+    
+    // For settings page
+    if(h === "#settings"){
+        if(currentUser){
+            showHome();
+            openSettings();
+        } else {
+            showAuth();
+            showAuthForm("login");
+            updateHash("#signin");
+        }
+        return;
+    }
+    
+    // For profile page
+    if(h === "#profile"){
+        if(currentUser){
+            showProfile();
+        } else {
+            showAuth();
+            showAuthForm("login");
+            updateHash("#signin");
+        }
+        return;
+    }
+    
+    // Default: if logged in go home, else go to auth
+    if(currentUser){
+        showHome();
+        updateHash("#home");
+    } else {
+        showAuth();
+        showAuthForm("login");
+        updateHash("#signin");
+    }
 }
-function showTOS(){
-    document.getElementById("authPage").style.display="none";
-    document.getElementById("homePage").style.display="none";
-    document.getElementById("profilePage").style.display="none";
-    document.getElementById("deletePage").style.display="none";
-    document.getElementById("tosPage").style.display="block";
-}
-function showDelete(){
-    document.getElementById("authPage").style.display="none";
-    document.getElementById("homePage").style.display="none";
-    document.getElementById("profilePage").style.display="none";
-    document.getElementById("tosPage").style.display="none";
-    document.getElementById("deletePage").style.display="block";
-    document.getElementById("deleteConfirmInput").value="";
-}
-function showAuth(){
-    document.getElementById("homePage").style.display="none";
-    document.getElementById("profilePage").style.display="none";
-    document.getElementById("tosPage").style.display="none";
-    document.getElementById("deletePage").style.display="none";
-    document.getElementById("authPage").style.display="block";
-    generateDragCaptcha();
-    renderSaved();
-}
+
 function showAuthForm(t){
     const lf=document.getElementById("loginForm"),sf=document.getElementById("signupForm");
     const lt=document.getElementById("loginTab"),st=document.getElementById("signupTab");
     lf.classList.remove("active");sf.classList.remove("active");
     lt.classList.remove("active");st.classList.remove("active");
     if(t==="login"){lf.classList.add("active");lt.classList.add("active");}
-    else{sf.classList.add("active");st.classList.add("active");generateDragCaptcha();}
+    else{sf.classList.add("active");st.classList.add("active");if(typeof hcaptcha !== 'undefined') hcaptcha.reset();}
     document.getElementById("authError").textContent="";
 }
 
 // TAVIX MODAL FUNCTIONS
 let tavixDropdownOpen=false,notifDropdownOpen=false;
-document.addEventListener("click",function(e){
-    const td=document.getElementById("tavixDropdown");
-    const nd=document.getElementById("notificationDropdown");
-    const tb=document.getElementById("tavixBtn")||document.getElementById("tavixBtnProfile");
-    const nb=document.getElementById("notificationBtnHome")||document.getElementById("notificationBtnProfile");
-    if(td&&tb&&!tb.contains(e.target)&&!td.contains(e.target)){td.style.display="none";tavixDropdownOpen=false;}
-    if(nd&&nb&&!nb.contains(e.target)&&!nd.contains(e.target)){nd.style.display="none";notifDropdownOpen=false;}
-});
-function toggleTavix(){
-    const d=document.getElementById("tavixDropdown");
-    if(tavixDropdownOpen){d.style.display="none";tavixDropdownOpen=false;}
-    else{updateTavixDisplay();d.style.display="block";tavixDropdownOpen=true;}
-}
-function toggleNotifications(){
-    const d=document.getElementById("notificationDropdown");
-    if(notifDropdownOpen){d.style.display="none";notifDropdownOpen=false;}
-    else{updateNotifications();d.style.display="block";notifDropdownOpen=true;}
-}
+document.addEventListener("click",function(e){const td=document.getElementById("tavixDropdown");const nd=document.getElementById("notificationDropdown");const tb=document.getElementById("tavixBtn")||document.getElementById("tavixBtnProfile");const nb=document.getElementById("notificationBtnHome")||document.getElementById("notificationBtnProfile");if(td&&tb&&!tb.contains(e.target)&&!td.contains(e.target)){td.style.display="none";tavixDropdownOpen=false;}if(nd&&nb&&!nb.contains(e.target)&&!nd.contains(e.target)){nd.style.display="none";notifDropdownOpen=false;}});
+function toggleTavix(){const d=document.getElementById("tavixDropdown");if(tavixDropdownOpen){d.style.display="none";tavixDropdownOpen=false;}else{updateTavixDisplay();d.style.display="block";tavixDropdownOpen=true;}}
+function toggleNotifications(){const d=document.getElementById("notificationDropdown");if(notifDropdownOpen){d.style.display="none";notifDropdownOpen=false;}else{updateNotifications();d.style.display="block";notifDropdownOpen=true;}}
 function openBuyModal(){closeModals();document.getElementById("buyModal").style.display="flex";}
 function openGiftModal(){closeModals();document.getElementById("giftModal").style.display="flex";}
 function openTransactionsModal(){
@@ -837,7 +824,7 @@ async function sendGift(){
     if(!currentUser){alert("Not logged in");return;}
     if((currentUser.tavix||0)<amt){alert("Insufficient TAVIX");return;}
     await fetchAllUsers();
-    const recipient=allUsers.find(x=>x.username.toLowerCase()===un.toLowerCase());
+    const recipient=allUsers.find(x=>x.username===un);
     if(!recipient){alert("User not found");return;}
     if(await addTransactionAPI(-amt,`Gifted ${formatTavix(amt)} TAVIX to @${un}`)){
         await addTransactionAPI(amt,`Received ${formatTavix(amt)} TAVIX from @${currentUser.username}`, currentUser.username);
@@ -851,144 +838,88 @@ async function sendGift(){
 }
 function closeModals(){document.querySelectorAll(".modal-overlay").forEach(m=>m.style.display="none");}
 
-// ============= ROUTER (Clean URLs - Needs _redirects file) =============
-function navigateTo(page){
-    if(page === "home") window.location.href = '/';
-    else if(page === "settings") window.location.href = '/settings';
-    else if(page === "profile") window.location.href = `/profile`;
-    else if(page === "wiki-tos") window.location.href = '/wiki-tos';
-    else if(page === "delete") window.location.href = '/delete';
-    else if(page === "signin") window.location.href = '/';
-    else if(page === "search") window.location.href = '/search';
-}
-
-async function handleRoute(){
-    const path = window.location.pathname;
-    await fetchAllUsers();
-    
-    // Profile route: /users/ID/profile
-    const profileMatch = path.match(/^\/users\/(\d+)\/profile$/);
-    if(profileMatch){
-        const userId = parseInt(profileMatch[1]);
-        if(currentUser && currentUser.userId === userId){
-            showProfile();
-        } else {
-            const user = getUserById(userId);
-            if(user){
-                showUserProfileModal(user);
-            } else {
-                alert("User not found");
-                window.location.href = '/';
-            }
-        }
-        return;
-    }
-    
-    // Other routes
-    if(path === '/' || path === '/home'){
-        if(currentUser) showHome();
-        else showAuth();
-    }
-    else if(path === '/profile'){
-        if(currentUser){
-            showProfile();
-        } else {
-            window.location.href = '/';
-        }
-    }
-    else if(path === '/settings'){
-        if(currentUser) openSettings();
-        else window.location.href = '/';
-    }
-    else if(path === '/wiki-tos') showTOS();
-    else if(path === '/delete'){
-        if(currentUser) showDelete();
-        else window.location.href = '/';
-    }
-    else if(path === '/search'){
-        if(!document.getElementById("searchOverlay").style.display === "flex"){
-            openSearch();
-        }
-    }
-    else {
-        // If path doesn't match any route, go home
-        if(path !== '/') window.location.href = '/';
-    }
-}
-
 // EVENT LISTENERS
-document.getElementById("searchBtnHome")?.addEventListener("click",(e)=>{e.preventDefault(); navigateTo('search');});
-document.getElementById("searchBtnProfile")?.addEventListener("click",(e)=>{e.preventDefault(); navigateTo('search');});
-document.getElementById("profileBtnHome")?.addEventListener("click",(e)=>{e.preventDefault(); navigateTo('profile');});
-document.getElementById("profileBtnProfile")?.addEventListener("click",(e)=>{e.preventDefault(); navigateTo('profile');});
-document.getElementById("settingsBtnHome")?.addEventListener("click",(e)=>{e.preventDefault(); navigateTo('settings');});
-document.getElementById("settingsBtnProfile")?.addEventListener("click",(e)=>{e.preventDefault(); navigateTo('settings');});
+document.getElementById("searchBtnHome")?.addEventListener("click",openSearch);
+document.getElementById("searchBtnProfile")?.addEventListener("click",openSearch);
+document.getElementById("profileBtnHome")?.addEventListener("click",()=>navigateTo("profile"));
+document.getElementById("profileBtnProfile")?.addEventListener("click",()=>navigateTo("profile"));
+document.getElementById("settingsBtnHome")?.addEventListener("click",()=>navigateTo("settings"));
+document.getElementById("settingsBtnProfile")?.addEventListener("click",()=>navigateTo("settings"));
+document.getElementById("globalSearchInput")?.addEventListener("input",updateSearchDropdown);
+document.getElementById("globalSearchInput")?.addEventListener("keypress",handleSearchKey);
 document.getElementById("globalLogoutBtn")?.addEventListener("click",logoutGlobal);
-document.getElementById("searchOverlay")?.addEventListener("click",function(e){if(e.target===this)closeSearch();});
+document.getElementById("searchOverlay")?.addEventListener("click",function(e){if(e.target===this)closeSearchGlobal();});
 document.getElementById("settingsOverlay")?.addEventListener("click",function(e){if(e.target===this)closeSettingsGlobal();});
 const tb1=document.getElementById("tavixBtn");if(tb1)tb1.onclick=toggleTavix;
 const tb2=document.getElementById("tavixBtnProfile");if(tb2)tb2.onclick=toggleTavix;
 const nb1=document.getElementById("notificationBtnHome");if(nb1)nb1.onclick=toggleNotifications;
 const nb2=document.getElementById("notificationBtnProfile");if(nb2)nb2.onclick=toggleNotifications;
-document.getElementById("globalSearchInput")?.addEventListener("input",updateSearchDropdown);
-document.getElementById("globalSearchInput")?.addEventListener("keypress",handleSearchKey);
 
-// SIGNUP
-document.getElementById("signupForm")?.addEventListener("submit",async function(e){
+// SIGNUP with FORCED IMAGE PUZZLE CAPTCHA
+document.getElementById("signupForm")?.addEventListener("submit", async function(e){
     e.preventDefault();
-    const un=document.getElementById("signupUsername").value.trim();
-    const em=document.getElementById("signupEmail").value.trim();
-    const pw=document.getElementById("signupPassword").value;
-    const cf=document.getElementById("signupConfirm").value;
-    const tos=document.getElementById("tosAgree").checked;
-    const err=document.getElementById("authError");
-    if(!tos){err.textContent="Accept Terms";return;}
-    if(!verifyCaptcha()){err.textContent="Complete CAPTCHA";generateDragCaptcha();return;}
-    if(un.length<3){err.textContent="Username 3-20 chars";return;}
-    if(pw.length<8){err.textContent="Password 8+ chars";return;}
-    if(pw!==cf){err.textContent="Passwords don't match";return;}
-    if(!em.includes("@")){err.textContent="Valid email required";return;}
+    const un = document.getElementById("signupUsername").value.trim();
+    const em = document.getElementById("signupEmail").value.trim();
+    const pw = document.getElementById("signupPassword").value;
+    const cf = document.getElementById("signupConfirm").value;
+    const tos = document.getElementById("tosAgree").checked;
+    const err = document.getElementById("authError");
     
-    // Get next user ID
-    await fetchAllUsers();
-    const nextId = getNextUserId();
+    if(!tos){ err.textContent = "You must agree to the Terms of Service"; return; }
     
-    const result=await registerAPI(un,em,pw,un);
+    // Get hCaptcha response - user MUST complete image puzzle
+    const hcaptchaResponse = hcaptcha.getResponse();
+    if(!hcaptchaResponse){
+        err.textContent = "Please complete the image puzzle to verify you're human";
+        return;
+    }
+    
+    if(un.length < 3){ err.textContent = "Username must be at least 3 characters"; return; }
+    if(pw.length < 8){ err.textContent = "Password must be at least 8 characters"; return; }
+    if(pw !== cf){ err.textContent = "Passwords don't match"; return; }
+    if(!em.includes("@")){ err.textContent = "Please enter a valid email address"; return; }
+    
+    const result = await registerAPI(un, em, pw, un, hcaptchaResponse);
     if(result.success){
-        // Add userId to the user object
-        result.user.userId = nextId;
-        await updateUserAPI({ userId: nextId });
-        currentUser.userId = nextId;
-        saveAccount({username:un,displayName:un,email:em});
-        window.location.href = '/';
-    }else{
-        err.textContent=result.error;
-        generateDragCaptcha();
+        saveAccount({username: un, displayName: un, email: em});
+        navigateTo("home");
+    } else {
+        err.textContent = result.error;
+        hcaptcha.reset();
     }
 });
 
 // LOGIN
-document.getElementById("loginForm")?.addEventListener("submit",async function(e){
+document.getElementById("loginForm")?.addEventListener("submit", async function(e){
     e.preventDefault();
-    const un=document.getElementById("loginUsername").value.trim();
-    const pw=document.getElementById("loginPassword").value;
-    const result=await loginAPI(un,pw);
+    const un = document.getElementById("loginUsername").value.trim();
+    const pw = document.getElementById("loginPassword").value;
+    const result = await loginAPI(un, pw);
     if(result.success){
-        saveAccount({username:un,displayName:result.user.displayName||un,email:result.user.email});
-        window.location.href = '/';
-    }else{
-        document.getElementById("authError").textContent=result.error;
+        saveAccount({username: un, displayName: result.user.displayName || un, email: result.user.email});
+        navigateTo("home");
+    } else {
+        document.getElementById("authError").textContent = result.error;
     }
 });
 
-// Initialize
-window.addEventListener("popstate", handleRoute);
-window.onload=async function(){
-    if(!checkCookie()) setGuestCookie();
+// AUTO-LOGIN ON PAGE LOAD
+window.addEventListener("hashchange", handleRoute);
+window.onload = async function(){
     await fetchAllUsers();
-    await autoLogin();
-    await getCurrentUserFromAPI();
+    
+    const autoLoggedIn = await autoLogin();
+    
+    if(!autoLoggedIn){
+        await getCurrentUserFromAPI();
+    }
+    
     handleRoute();
+    
+    console.log('🔐 Tavian Auth System Ready');
+    console.log('✅ hCaptcha FORCED IMAGE PUZZLE mode enabled');
+    console.log('🔒 Secret key is on backend server only!');
+    console.log('📌 Users MUST complete image puzzles to register');
 };
 </script>
 </body>
