@@ -292,7 +292,7 @@ header{background:white;padding:15px 20px;border-bottom:1px solid #ddd;position:
 <script>
 // ============================================
 // TAVIAN PLATFORM - COMPLETE SCRIPT
-// URL Structure: #username-profile (userid-profile style)
+// URL Structure: #userid-profile (numeric ID)
 // ============================================
 
 // API Configuration
@@ -538,26 +538,26 @@ function escapeHtml(s){if(!s)return '';return s.replace(/[&<>]/g,function(m){if(
 function formatEmail(e){if(!e)return '-';const a=e.indexOf('@');if(a<=4)return e.substring(0,a)+'***'+e.substring(a);return e.substring(0,4)+'***'+e.substring(a);}
 
 // ============================================
-// NEW: USER ID-BASED PROFILE URLs (#username-profile)
+// USER ID-BASED PROFILE URLs (#userid-profile)
 // ============================================
 
-// Navigate to specific user profile by username
-function navigateToUserProfile(username) {
-    if (!username) return;
-    updateHash(`#${username}-profile`);
+// Navigate to specific user profile by ID
+function navigateToUserProfile(userId) {
+    if (!userId) return;
+    updateHash(`#${userId}-profile`);
     
     // Check if it's the current user
-    if (currentUser && currentUser.username === username) {
+    if (currentUser && currentUser.id === userId) {
         showProfile();
     } else {
-        showOtherUserProfile(username);
+        showOtherUserProfile(userId);
     }
 }
 
 // Show other user's profile (not the logged-in user)
-async function showOtherUserProfile(username) {
+async function showOtherUserProfile(userId) {
     await fetchAllUsers();
-    const user = allUsers.find(u => u.username === username);
+    const user = allUsers.find(u => u.id === userId);
     
     if (!user) {
         alert("User not found");
@@ -576,9 +576,9 @@ async function showOtherUserProfile(username) {
     renderOtherUserProfile(user);
 }
 
-// Render someone else's profile
+// Render someone else's profile (NO "TAVIX Platform" text)
 function renderOtherUserProfile(user) {
-    const isOwner = currentUser && currentUser.username === user.username;
+    const isOwner = currentUser && currentUser.id === user.id;
     
     const html = `
         <div class="profile-header">
@@ -607,10 +607,6 @@ function renderOtherUserProfile(user) {
             <div class="stat-card">
                 <div class="stat-label">JOINED</div>
                 <div class="stat-value">${new Date(user.createdAt || Date.now()).toLocaleDateString()}</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">TAVIX</div>
-                <div class="stat-value">${formatTavix(user.tavix || 0)} ⌬</div>
             </div>
         </div>
         ${!isOwner && currentUser ? `<div style="margin-top:20px; text-align:center;">
@@ -656,15 +652,15 @@ async function sendGiftToUser(username) {
         updateTavixDisplay();
         
         // If viewing the recipient's profile, refresh it
-        if (window.location.hash === `#${username}-profile`) {
-            showOtherUserProfile(username);
+        if (window.location.hash === `#${recipient.id}-profile`) {
+            showOtherUserProfile(recipient.id);
         }
     } else {
         alert("Failed to send gift");
     }
 }
 
-// Show current user's own profile (editable)
+// Show current user's own profile (NO "TAVIX Platform" text)
 function showProfile() {
     if (!currentUser) {
         navigateTo("signin");
@@ -680,7 +676,7 @@ function showProfile() {
     renderProfile();
 }
 
-// Render current user's profile (editable)
+// Render current user's profile (NO TAVIX stat card and NO "TAVIX Platform" text)
 function renderProfile(){
     if(!currentUser) return;
     const html = `
@@ -711,10 +707,6 @@ function renderProfile(){
                 <div class="stat-label">JOINED</div>
                 <div class="stat-value">${new Date(currentUser.createdAt || Date.now()).toLocaleDateString()}</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-label">TAVIX</div>
-                <div class="stat-value">${formatTavix(currentUser.tavix || 0)} ⌬</div>
-            </div>
         </div>
     `;
     document.getElementById("profileContent").innerHTML = html;
@@ -731,7 +723,12 @@ async function editAbout(){
 
 // VIEW PROFILE (called from search)
 async function viewProfile(username){
-    navigateToUserProfile(username);
+    const user = allUsers.find(u => u.username === username);
+    if(user){
+        navigateToUserProfile(user.id);
+    } else {
+        alert("User not found");
+    }
 }
 
 // SEARCH FUNCTIONS
@@ -751,7 +748,7 @@ async function updateSearchDropdown(){
     html+=`</div>`;d.innerHTML=html;d.style.display="block";
 }
 
-function selectPlayer(user){closeSearch();navigateToUserProfile(user);}
+function selectPlayer(user){closeSearch();viewProfile(user);}
 
 function handleSearchKey(e){if(e.key==="Enter")performSearch();}
 
@@ -764,7 +761,7 @@ async function performSearch(){
     if(players.length===0){
         r.innerHTML='<div class="empty-games">No players found</div>';
     }else{
-        r.innerHTML=`<div class="results-section"><h3>👥 PLAYERS</h3><div class="players-grid">${players.map(p=>`<div class="player-card" onclick="closeSearch();navigateToUserProfile('${escapeHtml(p.username)}')"><img class="player-avatar" src="https://ui-avatars.com/api/?background=667eea&color=fff&size=60&name=${encodeURIComponent(p.displayName||p.username)}"><div><div class="player-display-name">${escapeHtml(p.displayName||p.username)} ${renderBadge(p.username)}</div><div class="player-username">@${escapeHtml(p.username)}</div></div></div>`).join('')}</div></div>`;
+        r.innerHTML=`<div class="results-section"><h3>👥 PLAYERS</h3><div class="players-grid">${players.map(p=>`<div class="player-card" onclick="closeSearch();viewProfile('${escapeHtml(p.username)}')"><img class="player-avatar" src="https://ui-avatars.com/api/?background=667eea&color=fff&size=60&name=${encodeURIComponent(p.displayName||p.username)}"><div><div class="player-display-name">${escapeHtml(p.displayName||p.username)} ${renderBadge(p.username)}</div><div class="player-username">@${escapeHtml(p.username)}</div></div></div>`).join('')}</div></div>`;
     }
     r.style.display="block";
     document.getElementById("globalSearchDropdown").style.display="none";
@@ -849,7 +846,7 @@ function updateWelcome(){
 }
 
 // ============================================
-// NAVIGATION - FIXED with #username-profile URLs
+// NAVIGATION - with #userid-profile URLs
 // ============================================
 
 function showHome(){
@@ -889,13 +886,11 @@ function showAuth(){
     renderSaved();
 }
 
-function navigateTo(p, username = null){
-    if(p === "profile" && username){
-        // Navigate to specific user profile: #username-profile
-        navigateToUserProfile(username);
-    } else if(p === "profile" && !username && currentUser){
-        // Current user's own profile
-        navigateToUserProfile(currentUser.username);
+function navigateTo(p, userId = null){
+    if(p === "profile" && userId){
+        navigateToUserProfile(userId);
+    } else if(p === "profile" && !userId && currentUser){
+        navigateToUserProfile(currentUser.id);
     } else if(p === "home"){
         if(currentUser){
             showHome();
@@ -935,21 +930,21 @@ function updateHash(h){
     history.pushState(null, null, h);
 }
 
-// FIXED handleRoute - supports #username-profile pattern
+// handleRoute - supports #userid-profile pattern
 async function handleRoute(){
     const h = window.location.hash;
     await fetchAllUsers();
     
-    // Check for user profile pattern: #username-profile
-    const profileMatch = h.match(/^#([a-zA-Z0-9_-]+)-profile$/);
+    // Check for user profile pattern: #userid-profile (numeric ID)
+    const profileMatch = h.match(/^#(\d+)-profile$/);
     if(profileMatch){
-        const username = profileMatch[1];
+        const userId = parseInt(profileMatch[1]);
         // If it's the current user, show editable profile
-        if(currentUser && currentUser.username === username){
+        if(currentUser && currentUser.id === userId){
             showProfile();
         } else {
             // Show other user's profile
-            await showOtherUserProfile(username);
+            await showOtherUserProfile(userId);
         }
         return;
     }
@@ -1054,17 +1049,17 @@ function closeModals(){document.querySelectorAll(".modal-overlay").forEach(m=>m.
 document.getElementById("searchBtnHome")?.addEventListener("click",openSearch);
 document.getElementById("searchBtnProfile")?.addEventListener("click",openSearch);
 
-// Profile button handlers - now navigate to #username-profile
+// Profile button handlers - navigate to #userid-profile
 document.getElementById("profileBtnHome")?.addEventListener("click", () => {
     if(currentUser){
-        navigateToUserProfile(currentUser.username);
+        navigateToUserProfile(currentUser.id);
     } else {
         navigateTo("signin");
     }
 });
 document.getElementById("profileBtnProfile")?.addEventListener("click", () => {
     if(currentUser){
-        navigateToUserProfile(currentUser.username);
+        navigateToUserProfile(currentUser.id);
     } else {
         navigateTo("signin");
     }
@@ -1143,8 +1138,9 @@ window.onload = async function(){
     handleRoute();
     
     console.log('🔐 Tavian Auth System Ready');
-    console.log('✅ URL Structure: #username-profile (userid-profile style)');
-    console.log('📌 Example: https://tavian.netlify.app/#realgysj-profile');
+    console.log('✅ URL Structure: #userid-profile (numeric ID)');
+    console.log('📌 Example: https://tavian.netlify.app/#123-profile');
+    console.log('✅ TAVIX balance removed from profile page');
 };
 </script>
 </body>
