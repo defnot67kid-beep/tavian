@@ -291,8 +291,8 @@ header{background:white;padding:15px 20px;border-bottom:1px solid #ddd;position:
 
 <script>
 // ============================================
-// TAVIAN PLATFORM - COMPLETE FIXED SCRIPT
-// Guest token properly overwritten on login
+// TAVIAN PLATFORM - NO GUEST TOKENS
+// Only authenticated users get tokens
 // ============================================
 
 // API Configuration
@@ -309,69 +309,40 @@ function formatTavix(amount){
 let currentUser = null;
 let allUsers = [];
 
-// ============ TOKEN MANAGEMENT - GUEST OVERWRITE FIX ============
-function isGuestToken(token) {
-    return token && (token.startsWith('guest_') || token.includes('guest'));
-}
+// ============ TOKEN MANAGEMENT - NO GUESTS ============
+// Only store authenticated tokens - NO GUEST TOKENS EVER
 
 function setAuthToken(token) {
     if (!token) return;
     
-    console.log('🔐 Setting new auth token, checking if guest...');
+    console.log('🔐 Setting auth token');
     
-    if (isGuestToken(token)) {
-        console.log('⚠️ Attempted to set guest token, ignoring...');
-        return;
-    }
-    
-    console.log('✅ Setting authenticated token, clearing all old tokens first...');
-    
-    // COMPLETELY CLEAR all old token formats
-    localStorage.removeItem('tavian_auth_token');
-    localStorage.removeItem('TAVIOSECURITY');
-    localStorage.removeItem('guest_token');
-    localStorage.removeItem('tavian_secure_token');
-    sessionStorage.removeItem('tavian_token');
-    
-    // Set the NEW authenticated token
+    // Store the authenticated token
     localStorage.setItem('tavian_auth_token', token);
     localStorage.setItem('TAVIOSECURITY', token);
     
-    // Also set as cookies
+    // Set cookies
     document.cookie = `tavian_token=${token}; path=/; max-age=2592000`;
     document.cookie = `TAVIOSECURITY=${token}; path=/; max-age=2592000`;
     
-    console.log('✅ Auth token stored successfully');
+    console.log('✅ Auth token stored');
 }
 
 function getAuthToken() {
-    // Priority: Check for authenticated token first (non-guest)
+    // Only return token if it exists (no guest tokens)
     let token = localStorage.getItem('TAVIOSECURITY');
-    if (token && !isGuestToken(token)) {
-        return token;
-    }
+    if (token) return token;
     
     token = localStorage.getItem('tavian_auth_token');
-    if (token && !isGuestToken(token)) {
-        return token;
-    }
-    
-    // Only return guest token if no authenticated token exists
-    token = localStorage.getItem('guest_token');
-    if (token && isGuestToken(token)) {
-        console.log('⚠️ Using guest token (unauthenticated)');
-        return token;
-    }
+    if (token) return token;
     
     return null;
 }
 
 function clearAuthToken() {
-    console.log('🗑️ Clearing ALL auth tokens...');
+    console.log('🗑️ Clearing auth token...');
     localStorage.removeItem('tavian_auth_token');
     localStorage.removeItem('TAVIOSECURITY');
-    localStorage.removeItem('guest_token');
-    localStorage.removeItem('tavian_secure_token');
     localStorage.removeItem('tavian_user_backup');
     sessionStorage.removeItem('tavian_token');
     
@@ -404,6 +375,10 @@ function getCookie(name) {
     return null;
 }
 
+function isLoggedIn() {
+    return currentUser !== null && getAuthToken() !== null;
+}
+
 // ============ API CALLS ============
 async function fetchAllUsers(){
     try{
@@ -419,8 +394,8 @@ async function fetchAllUsers(){
 async function getCurrentUserFromAPI(){
     try{
         const token = getAuthToken();
-        if (!token || isGuestToken(token)) {
-            console.log('No authenticated token found');
+        if (!token) {
+            console.log('No auth token found');
             return null;
         }
         
@@ -446,11 +421,11 @@ async function getCurrentUserFromAPI(){
 async function autoLogin(){
     console.log('🔍 Checking for existing session...');
     
-    // First check for authenticated token
+    // First check for existing token
     const savedToken = getAuthToken();
     
-    if (savedToken && !isGuestToken(savedToken)) {
-        console.log('🔑 Found authenticated token, validating...');
+    if (savedToken) {
+        console.log('🔑 Found auth token, validating...');
         
         try {
             const response = await fetch(`${API_URL}/me`, {
@@ -488,11 +463,11 @@ async function autoLogin(){
                 currentUser = data.user;
                 backupUserData(currentUser);
                 
-                if (data.token && !isGuestToken(data.token)) {
+                if (data.token) {
                     setAuthToken(data.token);
                 } else {
                     const token = getCookie('tavian_token') || getCookie('TAVIOSECURITY');
-                    if (token && !isGuestToken(token)) {
+                    if (token) {
                         setAuthToken(token);
                     }
                 }
@@ -520,7 +495,7 @@ async function autoLogin(){
 async function refreshUserData() {
     try {
         const token = getAuthToken();
-        if (!token || isGuestToken(token)) return;
+        if (!token) return;
         
         const response = await fetch(`${API_URL}/me`, {
             credentials: 'include',
@@ -548,7 +523,7 @@ async function loginAPI(username, password){
     try{
         console.log('🔐 Attempting login for:', username);
         
-        // CRITICAL: Clear ALL existing tokens BEFORE login
+        // Clear any existing tokens before login
         clearAuthToken();
         
         const response = await fetch(`${API_URL}/login`, {
@@ -575,7 +550,7 @@ async function loginAPI(username, password){
                 }
             }
             
-            if (token && !isGuestToken(token)) {
+            if (token) {
                 setAuthToken(token);
                 console.log('🔑 Auth token stored');
             }
@@ -627,7 +602,7 @@ async function registerAPI(username, email, password, displayName, hcaptchaRespo
                 }
             }
             
-            if (token && !isGuestToken(token)) {
+            if (token) {
                 setAuthToken(token);
                 console.log('🔑 Auth token stored');
             }
@@ -798,7 +773,7 @@ async function markRead(id){
     }
 }
 
-// SAVED ACCOUNTS
+// SAVED ACCOUNTS (local only - for quick login, NOT for authentication)
 function getSaved(){return JSON.parse(localStorage.getItem("savedAccounts"))||[];}
 function saveAccount(acc){let s=getSaved();if(!s.find(a=>a.username===acc.username)){s.push({username:acc.username,displayName:acc.displayName||acc.username,email:acc.email,lastLogin:new Date().toISOString(),color:'#'+Math.floor(Math.random()*16777215).toString(16)});localStorage.setItem("savedAccounts",JSON.stringify(s));}renderSaved();}
 function removeSaved(user){let s=getSaved().filter(a=>a.username!==user);localStorage.setItem("savedAccounts",JSON.stringify(s));renderSaved();}
@@ -1348,37 +1323,22 @@ window.addEventListener("hashchange", handleRoute);
 window.onload = async function(){
     await fetchAllUsers();
     
-    // On page load, check if we have a guest token and try to replace it
-    const hasGuestToken = (localStorage.getItem('guest_token') && localStorage.getItem('guest_token').startsWith('guest_')) ||
-                          (localStorage.getItem('TAVIOSECURITY') && localStorage.getItem('TAVIOSECURITY').startsWith('guest_'));
+    console.log('🔐 Tavian Auth System - NO GUEST TOKENS');
+    console.log('🔐 Only authenticated users get secure tokens');
     
-    if (hasGuestToken) {
-        console.log('🔄 Guest token detected, checking for real session...');
-        const response = await fetch(`${API_URL}/auto-login`, {
-            method: 'GET',
-            credentials: 'include'
-        });
-        
-        if (response.ok) {
-            const data = await response.json();
-            if (data.success && data.user) {
-                console.log('✅ Real session found, replacing guest token!');
-                if (data.token && !isGuestToken(data.token)) {
-                    setAuthToken(data.token);
-                }
-                currentUser = data.user;
-                backupUserData(currentUser);
-            }
-        }
+    // Clear any leftover guest tokens that might exist
+    const guestToken = localStorage.getItem('guest_token');
+    if (guestToken) {
+        console.log('🧹 Cleaning up leftover guest token...');
+        localStorage.removeItem('guest_token');
     }
     
-    console.log('🔐 Tavian Auth System - Checking for saved session...');
     const autoLoggedIn = await autoLogin();
     
     if(autoLoggedIn) {
         console.log('✅ Auto-login successful! User:', currentUser?.username);
     } else {
-        console.log('⚠️ No saved session found');
+        console.log('⚠️ No session found - user is not logged in');
     }
     
     if (currentUser) {
@@ -1390,8 +1350,8 @@ window.onload = async function(){
     handleRoute();
     
     console.log('✅ Tavian Platform Ready');
-    const currentToken = getAuthToken();
-    console.log('📍 Current token type:', currentToken ? (currentToken.startsWith('guest_') ? 'GUEST' : 'AUTHENTICATED') : 'NONE');
+    const hasToken = getAuthToken() !== null;
+    console.log('📍 Authenticated:', hasToken ? 'YES' : 'NO');
 };
 </script>
 </body>
