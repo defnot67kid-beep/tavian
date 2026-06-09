@@ -5,10 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tavian - Game Platform</title>
 
-<!-- Material Icons -->
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
-<!-- hCaptcha with forced image puzzle mode -->
 <script src="https://js.hcaptcha.com/1/api.js?hl=en" async defer></script>
 
 <style>
@@ -169,12 +167,22 @@ header{background:white;padding:15px 20px;border-bottom:1px solid #ddd;position:
 .green-box{background:#d1fae5;border-left:4px solid #10b981;padding:15px;border-radius:10px;margin:15px 0;color:#065f46;}
 .back-to-home{position:fixed;bottom:30px;right:30px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;border:none;padding:12px 24px;border-radius:50px;cursor:pointer;font-weight:bold;box-shadow:0 4px 12px rgba(0,0,0,0.2);z-index:100;}
 .back-to-home:hover{opacity:0.9;}
-@media (max-width:768px){.logo{font-size:28px;}.players-grid{grid-template-columns:1fr;}.display-name{font-size:42px;}}
+
+/* Owner Tool Utilities */
+.owner-panel { background: #fffbeb; border: 2px dashed #f59e0b; padding: 20px; border-radius: 16px; margin-bottom: 25px; text-align: left; }
+.owner-panel h3 { display: flex; align-items: center; gap: 8px; color: #b45309; font-size: 18px; margin-bottom: 12px; }
+.owner-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+.owner-card-tool { background: white; border: 1px solid #fde68a; padding: 12px; border-radius: 8px; }
+.owner-card-tool label { font-size: 12px; font-weight: bold; color: #78350f; display: block; margin-bottom: 5px; }
+.owner-card-tool input { width: 100%; padding: 8px; border: 1px solid #fcd34d; border-radius: 6px; font-size: 14px; margin-bottom: 8px; }
+.owner-action-btn { width: 100%; padding: 8px; background: #f59e0b; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
+.owner-action-btn:hover { background: #d97706; }
+
+@media (max-width:768px){.logo{font-size:28px;}.players-grid{grid-template-columns:1fr;}.display-name{font-size:42px;}.owner-grid { grid-template-columns: 1fr; }}
 </style>
 </head>
 <body>
 
-<!-- GLOBAL SEARCH OVERLAY -->
 <div id="searchOverlay" class="search-overlay">
     <div class="search-panel">
         <div class="search-header"><h2>🔍 Search</h2><button class="close-search-global" onclick="closeSearchGlobal()">✕</button></div>
@@ -183,15 +191,12 @@ header{background:white;padding:15px 20px;border-bottom:1px solid #ddd;position:
     </div>
 </div>
 
-<!-- NOTIFICATION DROPDOWN -->
 <div id="notificationDropdown" class="notification-dropdown"><div id="notificationList"></div></div>
 
-<!-- TAVIX MODALS -->
 <div id="buyModal" class="modal-overlay"><div class="modal-container"><h2>💰 Buy TAVIX</h2><p style="color:#666; margin-bottom:15px;">Select amount:</p><select id="buyAmount"><option value="100">100 TAVIX - $0.99</option><option value="500">500 TAVIX - $4.99</option><option value="1000">1000 TAVIX - $9.99</option><option value="5000">5000 TAVIX - $49.99</option></select><div class="modal-buttons"><button onclick="closeModals()">Cancel</button><button onclick="buyTAVIX()">Purchase</button></div></div></div>
 <div id="giftModal" class="modal-overlay"><div class="modal-container"><h2>🎁 Gift TAVIX</h2><input type="text" id="giftUsername" placeholder="Recipient username"><input type="number" id="giftAmount" placeholder="Amount to send" min="1"><div class="modal-buttons"><button onclick="closeModals()">Cancel</button><button onclick="sendGift()">Send Gift</button></div></div></div>
 <div id="transactionsModal" class="modal-overlay"><div class="modal-container"><h2>📜 Transaction History</h2><div id="transactionList" class="transaction-list"></div><div class="modal-buttons"><button onclick="closeModals()">Close</button></div></div></div>
 
-<!-- SETTINGS OVERLAY -->
 <div id="settingsOverlay" class="settings-overlay">
     <div class="settings-container">
         <div class="settings-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
@@ -208,16 +213,12 @@ header{background:white;padding:15px 20px;border-bottom:1px solid #ddd;position:
     </div>
 </div>
 
-<!-- DELETE PAGE -->
 <div id="deletePage" class="delete-page"><h1>⚠️ Delete Account</h1><p>This action is <strong>permanent</strong> and cannot be undone.</p><div class="warning-text">All your data will be erased.</div><p>Type <strong style="color:#dc2626;">DELETE</strong> to confirm:</p><input type="text" id="deleteConfirmInput" class="delete-input" placeholder="Type DELETE here"><div class="delete-buttons"><button class="cancel-delete" onclick="navigateTo('home')">Cancel</button><button class="confirm-delete" onclick="confirmDeleteAccount()">Permanently Delete</button></div></div>
 
-<!-- HOME PAGE -->
 <div id="homePage" style="display:none;"><header><div class="topbar"><div class="logo" onclick="navigateTo('home')">TAVIAN</div><div class="nav-icons"><button class="icon-btn search-btn" id="searchBtnHome"><span class="material-icons">search</span></button><div class="tavix-btn" id="tavixBtn"><span class="tavix-icon">⌬</span><span class="tavix-amount" id="tavixBalance">0</span></div><button class="icon-btn profile-btn" id="profileBtnHome"><span class="material-icons">person</span></button><button class="icon-btn notification-badge" id="notificationBtnHome"><span class="material-icons">notifications</span><span class="badge-count" id="notificationCount">0</span></button><button class="icon-btn settings-btn" id="settingsBtnHome"><span class="material-icons">settings</span></button></div></div></header><div id="tavixDropdown" class="tavix-dropdown"><div class="tavix-dropdown-header"><div class="balance" id="dropdownBalance">0 ⌬</div><div class="label">TAVIX Balance</div></div><div class="tavix-dropdown-item" onclick="openBuyModal()"><div class="icon">💰</div><div class="info"><div class="title">Buy TAVIX</div><div class="desc">Purchase TAVIX with real money</div></div></div><div class="tavix-dropdown-item" onclick="openGiftModal()"><div class="icon">🎁</div><div class="info"><div class="title">Gift TAVIX</div><div class="desc">Send TAVIX to a friend</div></div></div><div class="tavix-dropdown-item" onclick="openTransactionsModal()"><div class="icon">📜</div><div class="info"><div class="title">Transactions</div><div class="desc">View your TAVIX history</div></div></div></div><div id="welcomeBanner" class="welcome-message" style="display:none;"><span class="welcome-text" id="welcomeText"></span></div><div id="mainContent"><div class="section"><h2>FRIENDS</h2><div class="friends-box"><div>No friends 😭</div><button class="friend-arrow">&gt;</button></div></div><div class="section"><h2>GAMES</h2><div class="empty-games">No games available</div></div><footer style="margin-top:40px; background:white; padding:20px; text-align:center;"></footer></div></div>
 
-<!-- PROFILE PAGE -->
 <div id="profilePage" style="display:none;"><header><div class="topbar"><div class="logo" onclick="navigateTo('home')">TAVIAN</div><div class="nav-icons"><button class="icon-btn search-btn" id="searchBtnProfile"><span class="material-icons">search</span></button><div class="tavix-btn" id="tavixBtnProfile"><span class="tavix-icon">⌬</span><span class="tavix-amount" id="tavixBalanceProfile">0</span></div><button class="icon-btn profile-btn" id="profileBtnProfile"><span class="material-icons">person</span></button><button class="icon-btn notification-badge" id="notificationBtnProfile"><span class="material-icons">notifications</span><span class="badge-count" id="notificationCountProfile">0</span></button><button class="icon-btn settings-btn" id="settingsBtnProfile"><span class="material-icons">settings</span></button></div></div></header><div id="profileContent" class="profile-page"></div><footer style="margin-top:40px; background:white; padding:20px; text-align:center;"></footer></div>
 
-<!-- TERMS OF SERVICE PAGE -->
 <div id="tosPage" class="tos-page">
     <div class="tos-header"><h1>📜 TERMS OF SERVICE</h1><p>Updated: June 2026</p></div>
     <div class="tos-card"><h2>1. Acceptance</h2><p>By using Tavian, you agree to these terms.</p></div>
@@ -228,7 +229,6 @@ header{background:white;padding:15px 20px;border-bottom:1px solid #ddd;position:
     <button class="back-to-home" onclick="navigateTo('home')">← BACK</button>
 </div>
 
-<!-- AUTH PAGE -->
 <div id="authPage" style="display:none;">
     <header>
         <div class="topbar">
@@ -243,7 +243,6 @@ header{background:white;padding:15px 20px;border-bottom:1px solid #ddd;position:
         </div>
         <div id="authError" class="error"></div>
         
-        <!-- LOGIN FORM -->
         <form id="loginForm" class="auth-form active">
             <label>Username</label>
             <input type="text" id="loginUsername" required>
@@ -255,7 +254,6 @@ header{background:white;padding:15px 20px;border-bottom:1px solid #ddd;position:
             </div>
         </form>
         
-        <!-- SIGNUP FORM -->
         <form id="signupForm" class="auth-form">
             <label>Username</label>
             <input type="text" id="signupUsername" required>
@@ -265,14 +263,8 @@ header{background:white;padding:15px 20px;border-bottom:1px solid #ddd;position:
             <input type="password" id="signupPassword" required>
             <label>Confirm Password</label>
             <input type="password" id="signupConfirm" required>
-            
-            <div class="h-captcha" 
-                 data-sitekey="ca72f9a0-77d0-4a9c-af8e-e4748fe6a93c" 
-                 data-theme="light"
-                 data-s="image"
-                 data-size="normal"></div>
+            <div class="h-captcha" data-sitekey="ca72f9a0-77d0-4a9c-af8e-e4748fe6a93c" data-theme="light" data-s="image" data-size="normal"></div>
             <div class="captcha-note">🧩 Complete the image puzzle to verify you're human</div>
-            
             <div class="tos-container">
                 <div class="tos-checkbox">
                     <input type="checkbox" id="tosAgree">
@@ -281,7 +273,6 @@ header{background:white;padding:15px 20px;border-bottom:1px solid #ddd;position:
             </div>
             <button type="submit" class="submit-btn">Create Account</button>
         </form>
-        
         <div class="quick-login-section">
             <h3>📱 Quick Login</h3>
             <div id="savedAccountsList" class="saved-accounts-list"></div>
@@ -311,1016 +302,629 @@ let allUsers = [];
 
 // ============ TOKEN MANAGEMENT - NO GUESTS ============
 // Only store authenticated tokens - NO GUEST TOKENS EVER
-
 function setAuthToken(token) {
     if (!token) return;
-    
     console.log('🔐 Setting auth token');
-    
-    // Store the authenticated token
     localStorage.setItem('tavian_auth_token', token);
     localStorage.setItem('TAVIOSECURITY', token);
-    
-    // Set cookies
     document.cookie = `tavian_token=${token}; path=/; max-age=2592000`;
     document.cookie = `TAVIOSECURITY=${token}; path=/; max-age=2592000`;
-    
     console.log('✅ Auth token stored');
 }
 
 function getAuthToken() {
-    // Only return token if it exists (no guest tokens)
-    let token = localStorage.getItem('TAVIOSECURITY');
-    if (token) return token;
-    
-    token = localStorage.getItem('tavian_auth_token');
-    if (token) return token;
-    
-    return null;
+    return localStorage.getItem('tavian_auth_token') || localStorage.getItem('TAVIOSECURITY');
 }
 
 function clearAuthToken() {
-    console.log('🗑️ Clearing auth token...');
     localStorage.removeItem('tavian_auth_token');
     localStorage.removeItem('TAVIOSECURITY');
-    localStorage.removeItem('tavian_user_backup');
-    sessionStorage.removeItem('tavian_token');
-    
-    document.cookie = 'tavian_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-    document.cookie = 'TAVIOSECURITY=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+    document.cookie = "tavian_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    document.cookie = "TAVIOSECURITY=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
 }
 
-function backupUserData(user) {
-    if (user) {
-        localStorage.setItem('tavian_user_backup', JSON.stringify(user));
+// ============ API COMMUNICATIONS ============
+async function apiRequest(endpoint, options = {}) {
+    const token = getAuthToken();
+    options.headers = {
+        'Content-Type': 'application/json',
+        ...options.headers
+    };
+    if (token) {
+        options.headers['Authorization'] = `Bearer ${token}`;
+    }
+    try {
+        const response = await fetch(`${API_URL}${endpoint}`, options);
+        return await response.json();
+    } catch (err) {
+        console.error(`API Error on ${endpoint}:`, err);
+        return { success: false, error: 'Network error or backend offline' };
     }
 }
 
-function getBackupUser() {
-    const backup = localStorage.getItem('tavian_user_backup');
-    if (backup) {
-        try {
-            return JSON.parse(backup);
-        } catch(e) {
-            return null;
-        }
+async function loginAPI(username, password) {
+    return await apiRequest('/auth/login', {
+        method: 'POST',
+        body: JSON.stringify({ username, password })
+    });
+}
+
+async function registerAPI(username, email, password, captchaToken) {
+    return await apiRequest('/auth/register', {
+        method: 'POST',
+        body: JSON.stringify({ username, email, password, 'h-captcha-response': captchaToken })
+    });
+}
+
+async function fetchAllUsers() {
+    const res = await apiRequest('/users');
+    if (res.success) {
+        allUsers = res.users;
     }
-    return null;
-}
-
-function getCookie(name) {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(';').shift();
-    return null;
-}
-
-function isLoggedIn() {
-    return currentUser !== null && getAuthToken() !== null;
-}
-
-// ============ API CALLS ============
-async function fetchAllUsers(){
-    try{
-        const response = await fetch(`${API_URL}/users`, { credentials: 'include' });
-        if(response.ok){
-            allUsers = await response.json();
-            return allUsers;
-        }
-    }catch(e){console.error(e);}
-    return [];
-}
-
-async function getCurrentUserFromAPI(){
-    try{
-        const token = getAuthToken();
-        if (!token) {
-            console.log('No auth token found');
-            return null;
-        }
-        
-        const response = await fetch(`${API_URL}/me`, { 
-            credentials: 'include',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'X-Tavian-Token': token
-            }
-        });
-        if(response.ok){
-            currentUser = await response.json();
-            backupUserData(currentUser);
-            return currentUser;
-        } else {
-            // Token invalid, clear it
-            clearAuthToken();
-        }
-    }catch(e){}
-    return null;
-}
-
-async function autoLogin(){
-    console.log('🔍 Checking for existing session...');
-    
-    // First check for existing token
-    const savedToken = getAuthToken();
-    
-    if (savedToken) {
-        console.log('🔑 Found auth token, validating...');
-        
-        try {
-            const response = await fetch(`${API_URL}/me`, {
-                headers: {
-                    'Authorization': `Bearer ${savedToken}`,
-                    'X-Tavian-Token': savedToken
-                },
-                credentials: 'include'
-            });
-            
-            if (response.ok) {
-                currentUser = await response.json();
-                backupUserData(currentUser);
-                console.log('✅ Auto-login successful! User:', currentUser?.username);
-                return true;
-            } else {
-                console.log('⚠️ Token invalid, clearing...');
-                clearAuthToken();
-            }
-        } catch(e) {
-            console.log('Token validation failed:', e);
-        }
-    }
-    
-    // Try cookie-based auto-login
-    try{
-        const response = await fetch(`${API_URL}/auto-login`, {
-            method: 'GET',
-            credentials: 'include'
-        });
-        
-        if(response.ok){
-            const data = await response.json();
-            if(data.success && data.user){
-                currentUser = data.user;
-                backupUserData(currentUser);
-                
-                if (data.token) {
-                    setAuthToken(data.token);
-                } else {
-                    const token = getCookie('tavian_token') || getCookie('TAVIOSECURITY');
-                    if (token) {
-                        setAuthToken(token);
-                    }
-                }
-                console.log('✅ Auto-login successful via cookie! User:', currentUser?.username);
-                return true;
-            }
-        }
-    } catch(e){
-        console.log('Cookie auto-login failed:', e);
-    }
-    
-    // Load from backup as last resort
-    const backupUser = getBackupUser();
-    if (backupUser) {
-        currentUser = backupUser;
-        console.log('⚠️ Using cached user data');
-        refreshUserData();
-        return true;
-    }
-    
-    console.log('❌ No valid session found');
-    return false;
+    return allUsers;
 }
 
 async function refreshUserData() {
-    try {
-        const token = getAuthToken();
-        if (!token) return;
-        
-        const response = await fetch(`${API_URL}/me`, {
-            credentials: 'include',
-            headers: {
-                'Authorization': token ? `Bearer ${token}` : ''
-            }
-        });
-        if (response.ok) {
-            const freshUser = await response.json();
-            currentUser = freshUser;
-            backupUserData(freshUser);
-            updateTavixDisplay();
-            updateNotifications();
-            if (document.getElementById("profilePage").style.display === "block") {
-                renderProfile();
-            }
-            console.log('✅ User data refreshed');
-        }
-    } catch(e) {
-        console.log('Background refresh failed:', e);
-    }
-}
-
-async function loginAPI(username, password){
-    try{
-        console.log('🔐 Attempting login for:', username);
-        
-        // Clear any existing tokens before login
-        clearAuthToken();
-        
-        const response = await fetch(`${API_URL}/login`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
-            body: JSON.stringify({ username, password })
-        });
-        
-        if(response.ok){
-            currentUser = await response.json();
-            console.log('✅ Login successful! User:', currentUser.username);
-            
-            backupUserData(currentUser);
-            
-            // Get the token from cookies
-            let token = getCookie('tavian_token') || getCookie('TAVIOSECURITY');
-            
-            const setCookieHeader = response.headers.get('set-cookie');
-            if (setCookieHeader && !token) {
-                const tokenMatch = setCookieHeader.match(/tavian_token=([^;]+)/);
-                if (tokenMatch && tokenMatch[1]) {
-                    token = tokenMatch[1];
-                }
-            }
-            
-            if (token) {
-                setAuthToken(token);
-                console.log('🔑 Auth token stored');
-            }
-            
-            return { success: true, user: currentUser };
-        } else {
-            const error = await response.json();
-            console.log('❌ Login failed:', error.error);
-            return { success: false, error: error.error };
-        }
-    }catch(e){ 
-        console.log('❌ Login network error:', e);
-        return { success: false, error: "Network error" }; 
-    }
-}
-
-async function registerAPI(username, email, password, displayName, hcaptchaResponse){
-    try{
-        console.log('🔐 Registering new user:', username);
-        
-        clearAuthToken();
-        
-        const response = await fetch(`${API_URL}/register`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
-            body: JSON.stringify({ 
-                username, 
-                email, 
-                password, 
-                displayName,
-                hcaptchaResponse
-            })
-        });
-        
-        if(response.ok){
-            currentUser = await response.json();
-            console.log('✅ Registration successful! User:', currentUser.username);
-            
-            backupUserData(currentUser);
-            
-            let token = getCookie('tavian_token') || getCookie('TAVIOSECURITY');
-            
-            const setCookieHeader = response.headers.get('set-cookie');
-            if (setCookieHeader && !token) {
-                const tokenMatch = setCookieHeader.match(/tavian_token=([^;]+)/);
-                if (tokenMatch && tokenMatch[1]) {
-                    token = tokenMatch[1];
-                }
-            }
-            
-            if (token) {
-                setAuthToken(token);
-                console.log('🔑 Auth token stored');
-            }
-            
-            return { success: true, user: currentUser };
-        } else {
-            const error = await response.json();
-            console.log('❌ Registration failed:', error.error);
-            return { success: false, error: error.error };
-        }
-    }catch(e){ 
-        console.log('❌ Registration network error:', e);
-        return { success: false, error: "Network error" }; 
-    }
-}
-
-async function logoutAPI(){
-    console.log('🚪 Logging out, clearing all tokens...');
-    try{
-        await fetch(`${API_URL}/logout`, { method: 'POST', credentials: 'include' });
-    }catch(e){}
-    currentUser = null;
-    clearAuthToken();
-}
-
-async function updateUserAPI(updates){
-    if(!currentUser) return false;
-    try{
-        const token = getAuthToken();
-        const response = await fetch(`${API_URL}/user/${currentUser.username}`, {
-            method: 'PUT',
-            headers: { 
-                'Content-Type': 'application/json',
-                'Authorization': token ? `Bearer ${token}` : ''
-            },
-            credentials: 'include',
-            body: JSON.stringify(updates)
-        });
-        if(response.ok){
-            currentUser = await response.json();
-            backupUserData(currentUser);
-            return true;
-        }
-    }catch(e){}
-    return false;
-}
-
-async function addTransactionAPI(amount, reason, from=null){
-    if(!currentUser) return false;
-    try{
-        const token = getAuthToken();
-        const response = await fetch(`${API_URL}/transaction`, {
-            method: 'POST',
-            headers: { 
-                'Content-Type': 'application/json',
-                'Authorization': token ? `Bearer ${token}` : ''
-            },
-            credentials: 'include',
-            body: JSON.stringify({ username: currentUser.username, amount, reason, from })
-        });
-        if(response.ok){
-            const result = await response.json();
-            currentUser.tavix = result.newBalance;
-            backupUserData(currentUser);
-            return true;
-        }
-    }catch(e){}
-    return false;
-}
-
-async function addNotificationAPI(title, message){
-    if(!currentUser) return false;
-    try{
-        const token = getAuthToken();
-        await fetch(`${API_URL}/notification`, {
-            method: 'POST',
-            headers: { 
-                'Content-Type': 'application/json',
-                'Authorization': token ? `Bearer ${token}` : ''
-            },
-            credentials: 'include',
-            body: JSON.stringify({ username: currentUser.username, title, message })
-        });
+    if (!getAuthToken()) return false;
+    const res = await apiRequest('/auth/me');
+    if (res.success && res.user) {
+        currentUser = res.user;
+        updateUIBalances();
         return true;
-    }catch(e){ return false; }
-}
-
-async function deleteAccountAPI(){
-    if(!currentUser) return false;
-    try{
-        const token = getAuthToken();
-        const response = await fetch(`${API_URL}/user/${currentUser.username}`, {
-            method: 'DELETE',
-            headers: {
-                'Authorization': token ? `Bearer ${token}` : ''
-            },
-            credentials: 'include'
-        });
-        if(response.ok){
-            currentUser = null;
-            clearAuthToken();
-            return true;
-        }
-    }catch(e){}
-    return false;
-}
-
-// BADGE SYSTEM
-function getUserBadge(username){
-    const lowerUsername = username.toLowerCase();
-    if(lowerUsername === "realgysj") return { icon: "👑", class: "owner" };
-    if(lowerUsername === "plstealme2") return { icon: "🛡️", class: "admin" };
-    return null;
-}
-function renderBadge(username){
-    const badge = getUserBadge(username);
-    if(badge) return `<span class="badge ${badge.class}">${badge.icon}</span>`;
-    return "";
-}
-
-// UI Update Functions
-function updateTavixDisplay(){
-    const b = currentUser?.tavix || 0;
-    ["tavixBalance","tavixBalanceProfile","dropdownBalance","globalSettingsTAVIX"].forEach(id=>{
-        const e=document.getElementById(id);
-        if(e) e.innerHTML=id==="dropdownBalance"?`${formatTavix(b)} ⌬`:formatTavix(b);
-    });
-}
-
-async function addTransaction(amount, reason, from=null){
-    if(await addTransactionAPI(amount, reason, from)){
-        if(amount>0&&!from) addNotification("💰 TAVIX Purchased", `+${formatTavix(amount)} TAVIX`);
-        if(from) addNotification("🎁 Gift Received", `${from} sent you ${formatTavix(amount)} TAVIX!`);
-        updateTavixDisplay();
-        return true;
-    }
-    return false;
-}
-
-async function addNotification(title, message){
-    await addNotificationAPI(title, message);
-    updateNotifications();
-}
-
-function updateNotifications(){
-    if(!currentUser) return;
-    const unread = currentUser.notifications?.filter(n=>!n.read).length||0;
-    ["notificationCount","notificationCountProfile"].forEach(id=>{
-        const e=document.getElementById(id);
-        if(e) e.textContent=unread;
-    });
-    const container=document.getElementById("notificationList");
-    if(container){
-        if(!currentUser.notifications||currentUser.notifications.length===0){
-            container.innerHTML='<div class="empty-notifications">🔔 No notifications</div>';
-        }else{
-            container.innerHTML=currentUser.notifications.map(n=>`<div class="notification-item ${!n.read?'unread':''}" onclick="markRead(${n.id})"><div class="notification-icon">${n.title.includes("TAVIX")?"💰":"📢"}</div><div class="notification-content"><div class="notification-title">${escapeHtml(n.title)}</div><div class="notification-message">${escapeHtml(n.message)}</div><div class="notification-time">${new Date(n.time).toLocaleString()}</div></div></div>`).join('');
-        }
-    }
-}
-
-async function markRead(id){
-    if(currentUser && currentUser.notifications){
-        const n = currentUser.notifications.find(x=>x.id===id);
-        if(n) n.read=true;
-        await updateUserAPI({ notifications: currentUser.notifications });
-        updateNotifications();
-    }
-}
-
-// SAVED ACCOUNTS (local only - for quick login, NOT for authentication)
-function getSaved(){return JSON.parse(localStorage.getItem("savedAccounts"))||[];}
-function saveAccount(acc){let s=getSaved();if(!s.find(a=>a.username===acc.username)){s.push({username:acc.username,displayName:acc.displayName||acc.username,email:acc.email,lastLogin:new Date().toISOString(),color:'#'+Math.floor(Math.random()*16777215).toString(16)});localStorage.setItem("savedAccounts",JSON.stringify(s));}renderSaved();}
-function removeSaved(user){let s=getSaved().filter(a=>a.username!==user);localStorage.setItem("savedAccounts",JSON.stringify(s));renderSaved();}
-function quickLogin(user){document.getElementById("loginUsername").value=user;showAuthForm('login');}
-function renderSaved(){const c=document.getElementById("savedAccountsList");if(!c)return;const s=getSaved();if(s.length===0){c.innerHTML='<div style="color:#999">No saved accounts</div>';return;}c.innerHTML=s.map(acc=>`<div class="saved-account-btn" onclick="quickLogin('${escapeHtml(acc.username)}')"><div class="saved-account-avatar" style="background:${acc.color||'#667eea'}">${(acc.displayName.charAt(0)||acc.username.charAt(0)).toUpperCase()}</div><div class="saved-account-info"><div class="saved-account-name">${escapeHtml(acc.displayName)}</div><div class="saved-account-username">@${escapeHtml(acc.username)}</div></div><span class="remove-account" onclick="event.stopPropagation(); removeSaved('${escapeHtml(acc.username)}')">✕</span></div>`).join('');}
-
-function escapeHtml(s){if(!s)return '';return s.replace(/[&<>]/g,function(m){if(m==='&')return '&amp;';if(m==='<')return '&lt;';if(m==='>')return '&gt;';return m;});}
-function formatEmail(e){if(!e)return '-';const a=e.indexOf('@');if(a<=4)return e.substring(0,a)+'***'+e.substring(a);return e.substring(0,4)+'***'+e.substring(a);}
-
-// ============ PROFILE FUNCTIONS ============
-function navigateToUserProfile(userId) {
-    if (!userId) return;
-    updateHash(`#${userId}-profile`);
-    
-    if (currentUser && currentUser.id === userId) {
-        showProfile();
     } else {
-        showOtherUserProfile(userId);
+        clearAuthToken();
+        currentUser = null;
+        return false;
     }
 }
 
-async function showOtherUserProfile(userId) {
-    await fetchAllUsers();
-    const user = allUsers.find(u => u.id === userId);
-    
-    if (!user) {
-        alert("User not found");
-        navigateTo("home");
-        return;
-    }
-    
-    document.getElementById("authPage").style.display = "none";
-    document.getElementById("homePage").style.display = "none";
-    document.getElementById("tosPage").style.display = "none";
-    document.getElementById("deletePage").style.display = "none";
-    document.getElementById("profilePage").style.display = "block";
-    
-    renderOtherUserProfile(user);
-}
+// ============ ROUTING SYSTEM ============
+function handleRoute() {
+    const hash = window.location.hash.replace("#", "") || "home";
+    console.log("Navigating to view:", hash);
 
-function renderOtherUserProfile(user) {
-    const isOwner = currentUser && currentUser.id === user.id;
-    
-    const html = `
-        <div class="profile-header">
-            <img class="profile-pfp" src="https://ui-avatars.com/api/?background=667eea&color=fff&size=120&name=${encodeURIComponent(user.displayName || user.username)}">
-            <div>
-                <div class="display-name">${escapeHtml(user.displayName || user.username)} ${renderBadge(user.username)}</div>
-                <div class="username">@${escapeHtml(user.username)}</div>
-                <div class="social-stats">
-                    <span>0 Friends</span>
-                    <span>2 Followers</span>
-                </div>
-            </div>
-        </div>
-        <div class="about-card">
-            <div class="card-header">
-                <h2>ABOUT</h2>
-                ${isOwner ? '<button class="edit-btn" onclick="editAbout()">Edit</button>' : ''}
-            </div>
-            <p class="about-text">${escapeHtml(user.about || "This user hasn't written anything yet...")}</p>
-        </div>
-        <div class="profile-stats-grid">
-            <div class="stat-card">
-                <div class="stat-label">VISITS</div>
-                <div class="stat-value">${user.visits || 0}</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">JOINED</div>
-                <div class="stat-value">${new Date(user.createdAt || Date.now()).toLocaleDateString()}</div>
-            </div>
-        </div>
-        ${!isOwner && currentUser ? `<div style="margin-top:20px; text-align:center;">
-            <button class="submit-btn" style="padding:12px 24px; font-size:16px;" onclick="sendGiftToUser('${user.username}')">🎁 Send TAVIX</button>
-        </div>` : ''}
-    `;
-    document.getElementById("profileContent").innerHTML = html;
-}
-
-async function sendGiftToUser(username) {
-    const amount = prompt(`How much TAVIX to send to ${username}?`, "10");
-    if (!amount) return;
-    
-    const amt = parseInt(amount);
-    if (isNaN(amt) || amt <= 0) {
-        alert("Enter valid amount");
-        return;
-    }
-    
-    if (!currentUser) {
-        alert("You must be logged in to send TAVIX");
-        navigateTo("signin");
-        return;
-    }
-    
-    if ((currentUser.tavix || 0) < amt) {
-        alert("Insufficient TAVIX");
-        return;
-    }
-    
-    await fetchAllUsers();
-    const recipient = allUsers.find(x => x.username === username);
-    if (!recipient) {
-        alert("User not found");
-        return;
-    }
-    
-    if (await addTransactionAPI(-amt, `Gifted ${formatTavix(amt)} TAVIX to @${username}`)) {
-        await addTransactionAPI(amt, `Received ${formatTavix(amt)} TAVIX from @${currentUser.username}`, currentUser.username);
-        await addNotificationAPI("🎁 Gift Received", `@${currentUser.username} sent you ${formatTavix(amt)} TAVIX!`);
-        alert(`Sent ${formatTavix(amt)} TAVIX to @${username}!`);
-        updateTavixDisplay();
-        
-        if (window.location.hash === `#${recipient.id}-profile`) {
-            showOtherUserProfile(recipient.id);
-        }
-    } else {
-        alert("Failed to send gift");
-    }
-}
-
-function showProfile() {
-    if (!currentUser) {
-        navigateTo("signin");
-        return;
-    }
-    
-    document.getElementById("authPage").style.display = "none";
-    document.getElementById("homePage").style.display = "none";
-    document.getElementById("tosPage").style.display = "none";
-    document.getElementById("deletePage").style.display = "none";
-    document.getElementById("profilePage").style.display = "block";
-    
-    renderProfile();
-}
-
-function renderProfile(){
-    if(!currentUser) return;
-    const html = `
-        <div class="profile-header">
-            <img class="profile-pfp" src="https://ui-avatars.com/api/?background=667eea&color=fff&size=120&name=${encodeURIComponent(currentUser.displayName || currentUser.username)}">
-            <div>
-                <div class="display-name">${escapeHtml(currentUser.displayName || currentUser.username)} ${renderBadge(currentUser.username)}</div>
-                <div class="username">@${escapeHtml(currentUser.username)}</div>
-                <div class="social-stats">
-                    <span>0 Friends</span>
-                    <span>2 Followers</span>
-                </div>
-            </div>
-        </div>
-        <div class="about-card">
-            <div class="card-header">
-                <h2>ABOUT</h2>
-                <button class="edit-btn" onclick="editAbout()">Edit</button>
-            </div>
-            <p class="about-text">${escapeHtml(currentUser.about || "Tell people about yourself...")}</p>
-        </div>
-        <div class="profile-stats-grid">
-            <div class="stat-card">
-                <div class="stat-label">VISITS</div>
-                <div class="stat-value">${currentUser.visits || 0}</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">JOINED</div>
-                <div class="stat-value">${new Date(currentUser.createdAt || Date.now()).toLocaleDateString()}</div>
-            </div>
-        </div>
-    `;
-    document.getElementById("profileContent").innerHTML = html;
-}
-
-async function editAbout(){
-    const about = prompt("Edit about:", currentUser?.about || "");
-    if(about !== null){
-        if(await updateUserAPI({ about: about })){
-            renderProfile();
-        }
-    }
-}
-
-async function viewProfile(username){
-    const user = allUsers.find(u => u.username === username);
-    if(user){
-        navigateToUserProfile(user.id);
-    } else {
-        alert("User not found");
-    }
-}
-
-// ============ SEARCH FUNCTIONS ============
-function openSearch(){document.getElementById("searchOverlay").style.display="flex";document.getElementById("globalSearchInput").focus();}
-function closeSearchGlobal(){document.getElementById("searchOverlay").style.display="none";document.getElementById("globalSearchInput").value="";document.getElementById("globalSearchResults").style.display="none";document.getElementById("globalSearchDropdown").style.display="none";}
-function closeSearch(){closeSearchGlobal();}
-
-async function updateSearchDropdown(){
-    const q=document.getElementById("globalSearchInput").value.trim().toLowerCase();
-    const d=document.getElementById("globalSearchDropdown");
-    if(q===""){d.style.display="none";return;}
-    await fetchAllUsers();
-    const players=allUsers.filter(p=>p.username.toLowerCase().includes(q)||(p.displayName&&p.displayName.toLowerCase().includes(q)));
-    if(players.length===0){d.style.display="none";return;}
-    let html='<div class="dropdown-section"><h4>👥 PLAYERS</h4>';
-    players.forEach(p=>{html+=`<div class="dropdown-item" onclick="selectPlayer('${escapeHtml(p.username)}')"><img src="https://ui-avatars.com/api/?background=667eea&color=fff&size=40&name=${encodeURIComponent(p.displayName||p.username)}" style="width:40px;height:40px;border-radius:50%;"><div>${escapeHtml(p.displayName||p.username)} ${renderBadge(p.username)}<br><small>@${escapeHtml(p.username)}</small></div></div>`;});
-    html+=`</div>`;d.innerHTML=html;d.style.display="block";
-}
-
-function selectPlayer(user){closeSearch();viewProfile(user);}
-function handleSearchKey(e){if(e.key==="Enter")performSearch();}
-
-async function performSearch(){
-    const q=document.getElementById("globalSearchInput").value.trim().toLowerCase();
-    if(!q)return;
-    await fetchAllUsers();
-    const players=allUsers.filter(p=>p.username.toLowerCase().includes(q)||(p.displayName&&p.displayName.toLowerCase().includes(q)));
-    const r=document.getElementById("globalSearchResults");
-    if(players.length===0){
-        r.innerHTML='<div class="empty-games">No players found</div>';
-    }else{
-        r.innerHTML=`<div class="results-section"><h3>👥 PLAYERS</h3><div class="players-grid">${players.map(p=>`<div class="player-card" onclick="closeSearch();viewProfile('${escapeHtml(p.username)}')"><img class="player-avatar" src="https://ui-avatars.com/api/?background=667eea&color=fff&size=60&name=${encodeURIComponent(p.displayName||p.username)}"><div><div class="player-display-name">${escapeHtml(p.displayName||p.username)} ${renderBadge(p.username)}</div><div class="player-username">@${escapeHtml(p.username)}</div></div></div>`).join('')}</div></div>`;
-    }
-    r.style.display="block";
-    document.getElementById("globalSearchDropdown").style.display="none";
-}
-
-// ============ SETTINGS ============
-function openSettings(){
-    if(!currentUser){navigateTo("signin");return;}
-    document.getElementById("globalSettingsUsername").innerHTML=escapeHtml(currentUser.username)+" "+renderBadge(currentUser.username);
-    document.getElementById("globalSettingsDisplayName").innerHTML=escapeHtml(currentUser.displayName||currentUser.username);
-    document.getElementById("globalSettingsEmail").innerHTML=formatEmail(currentUser.email);
-    document.getElementById("globalSettingsTAVIX").innerHTML=formatTavix(currentUser.tavix||0)+" ⌬";
-    document.getElementById("settingsOverlay").style.display="flex";
-}
-function closeSettingsGlobal(){document.getElementById("settingsOverlay").style.display="none";}
-async function updateDisplayNameGlobal(){
-    const newName=document.getElementById("globalNewDisplayName").value.trim();
-    if(!newName){alert("Enter display name");return;}
-    if(await updateUserAPI({ displayName: newName })){
-        document.getElementById("globalSettingsDisplayName").innerHTML=escapeHtml(newName);
-        document.getElementById("globalNewDisplayName").value="";
-        updateWelcome();
-        if(document.getElementById("profilePage").style.display==="block") renderProfile();
-        alert("Display name updated!");
-    }else{alert("Failed to update");}
-}
-async function logoutGlobal(){
-    await logoutAPI();
-    currentUser=null;
+    // Dynamic views definition
+    const views = ["homePage", "profilePage", "authPage", "deletePage", "tosPage"];
+    views.forEach(v => document.getElementById(v).style.display = "none");
+    closeSearchGlobal();
     closeSettingsGlobal();
-    navigateTo("signin");
-}
-async function confirmDeleteAccount(){
-    if(document.getElementById("deleteConfirmInput").value==="DELETE"){
-        if(await deleteAccountAPI()){
-            alert("Account deleted.");
-            navigateTo("signin");
-        }else{alert("Failed to delete account");}
-    }else{alert('Type "DELETE" to confirm');}
-}
 
-// ============ WELCOME MESSAGE ============
-function updateWelcome(){
-    if(currentUser){
-        const username = currentUser.displayName || currentUser.username;
-        const greetings = [
-            `Sup ${username}, ready to play?`, `Yo ${username}, good to see you`,
-            `${username} back at it again`, `Hey ${username}, let's go`,
-            `What's good ${username}?`, `${username} in the building`,
-            `Ayy ${username}, welcome back`, `There he is, ${username}`,
-            `${username} returned for more`, `The legend is back, ${username}`,
-            `Let's go ${username}`, `${username} is here`,
-            `Back for more ${username}?`, `Welcome back playa`,
-            `The goat ${username} has arrived`, `${username} my guy!`,
-            `Yooo ${username} what's up`, `${username} pulling up again`,
-            `He's back... ${username}`, `${username} let's get it`
-        ];
-        const randomGreeting = greetings[Math.floor(Math.random() * greetings.length)];
-        document.getElementById("welcomeText").innerHTML = randomGreeting;
-        document.getElementById("welcomeBanner").style.display = "flex";
-        setTimeout(() => {
-            const banner = document.getElementById("welcomeBanner");
-            if(banner) banner.style.opacity = "0";
-            setTimeout(() => {
-                if(banner) {
-                    banner.style.display = "none";
-                    banner.style.opacity = "1";
-                }
-            }, 500);
-        }, 5000);
+    if (hash === "wiki-tos") {
+        document.getElementById("tosPage").style.display = "block";
+        return;
+    }
+
+    if (!getAuthToken()) {
+        window.location.hash = "auth";
+        document.getElementById("authPage").style.display = "block";
+        return;
+    }
+
+    if (hash === "auth") {
+        window.location.hash = "home";
+        return;
+    }
+
+    if (hash === "home") {
+        document.getElementById("homePage").style.display = "block";
+        renderHomeView();
+    } else if (hash === "delete") {
+        document.getElementById("deletePage").style.display = "block";
+    } else if (hash.startsWith("users/")) {
+        document.getElementById("profilePage").style.display = "block";
+        const targetUsername = hash.split("/")[1];
+        renderProfileView(targetUsername);
+    } else {
+        window.location.hash = "home";
     }
 }
 
-// ============ NAVIGATION ============
-function showHome(){
-    document.getElementById("authPage").style.display = "none";
-    document.getElementById("profilePage").style.display = "none";
-    document.getElementById("tosPage").style.display = "none";
-    document.getElementById("deletePage").style.display = "none";
-    document.getElementById("homePage").style.display = "block";
-    updateWelcome();
-    updateTavixDisplay();
-    updateNotifications();
+function navigateTo(route) {
+    if (route === "home") window.location.hash = "home";
+    else if (route === "auth") window.location.hash = "auth";
+    else if (route === "delete") window.location.hash = "delete";
+    else if (route === "wiki-tos") window.location.hash = "wiki-tos";
+    else if (route.startsWith("users/")) window.location.hash = route;
 }
 
-function showTOS(){
-    document.getElementById("authPage").style.display = "none";
-    document.getElementById("homePage").style.display = "none";
-    document.getElementById("profilePage").style.display = "none";
-    document.getElementById("deletePage").style.display = "none";
-    document.getElementById("tosPage").style.display = "block";
+// ============ INTERFACE UPDATES ============
+function updateUIBalances() {
+    if (!currentUser) return;
+    const elements = ["tavixBalance", "tavixBalanceProfile", "dropdownBalance", "globalSettingsTAVIX"];
+    elements.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = id === "dropdownBalance" ? `${currentUser.tavix || 0} ⌬` : formatTavix(currentUser.tavix || 0);
+    });
 }
 
-function showDelete(){
-    document.getElementById("authPage").style.display = "none";
-    document.getElementById("homePage").style.display = "none";
-    document.getElementById("profilePage").style.display = "none";
-    document.getElementById("tosPage").style.display = "none";
-    document.getElementById("deletePage").style.display = "block";
-    document.getElementById("deleteConfirmInput").value = "";
+function renderHomeView() {
+    if (!currentUser) return;
+    const banner = document.getElementById("welcomeBanner");
+    const text = document.getElementById("welcomeText");
+    text.innerHTML = `Welcome back, <strong>${currentUser.displayName || currentUser.username}</strong>!`;
+    banner.style.display = "flex";
+    updateUIBalances();
+    updateNotificationsUI();
 }
 
-function showAuth(){
-    document.getElementById("homePage").style.display = "none";
-    document.getElementById("profilePage").style.display = "none";
-    document.getElementById("tosPage").style.display = "none";
-    document.getElementById("deletePage").style.display = "none";
-    document.getElementById("authPage").style.display = "block";
-    renderSaved();
-}
+async function renderProfileView(username) {
+    const container = document.getElementById("profileContent");
+    container.innerHTML = `<div style="text-align:center; padding:50px; font-size:20px; color:#666;">🔄 Loading profile...</div>`;
 
-function navigateTo(p, userId = null){
-    if(p === "profile" && userId){
-        navigateToUserProfile(userId);
-    } else if(p === "profile" && !userId && currentUser){
-        navigateToUserProfile(currentUser.id);
-    } else if(p === "home"){
-        if(currentUser){
-            showHome();
-            updateHash("#home");
-        } else {
-            showAuth();
-            showAuthForm("login");
-            updateHash("#signin");
-        }
-    } else if(p === "settings"){
-        if(currentUser){
-            openSettings();
-        } else {
-            showAuth();
-            showAuthForm("login");
-            updateHash("#signin");
-        }
-    } else if(p === "wiki-tos"){
-        showTOS();
-        updateHash("#wiki-tos");
-    } else if(p === "delete"){
-        if(currentUser){
-            showDelete();
-        } else {
-            showAuth();
-            showAuthForm("login");
-            updateHash("#signin");
-        }
-    } else if(p === "signin"){
-        showAuth();
-        showAuthForm("login");
-        updateHash("#signin");
-    }
-}
-
-function updateHash(h){
-    history.pushState(null, null, h);
-}
-
-async function handleRoute(){
-    const h = window.location.hash;
     await fetchAllUsers();
-    
-    const profileMatch = h.match(/^#(\d+)-profile$/);
-    if(profileMatch){
-        const userId = parseInt(profileMatch[1]);
-        if(currentUser && currentUser.id === userId){
-            showProfile();
-        } else {
-            await showOtherUserProfile(userId);
-        }
+    const user = allUsers.find(u => u.username.toLowerCase() === username.toLowerCase());
+
+    if (!user) {
+        container.innerHTML = `<div style="text-align:center; padding:50px; font-size:24px; color:#dc2626;">❌ User not found</div>`;
         return;
     }
+
+    const isOwnProfile = currentUser && currentUser.username.toLowerCase() === user.username.toLowerCase();
     
-    if(h === "#wiki-tos"){ showTOS(); return; }
-    if(h === "#delete"){
-        if(currentUser){ showDelete(); }
-        else { showAuth(); showAuthForm("login"); updateHash("#signin"); }
-        return;
+    // Dynamic Role Badge rendering
+    let roleBadge = '';
+    if (user.role === 'owner') {
+        roleBadge = '<span class="badge owner" title="Owner">👑</span>';
+    } else if (user.role === 'admin') {
+        roleBadge = '<span class="badge admin" title="Admin">🛡️</span>';
     }
-    if(h === "#settings"){
-        if(currentUser){ showHome(); openSettings(); }
-        else { showAuth(); showAuthForm("login"); updateHash("#signin"); }
-        return;
+
+    // Owner Tool Panel rendering if current session user is the 'owner'
+    let ownerPanelHtml = '';
+    if (currentUser && currentUser.role === 'owner') {
+        ownerPanelHtml = `
+            <div class="owner-panel">
+                <h3><span class="material-icons">build</span> Owner Administrative Utilities</h3>
+                <div class="owner-grid">
+                    <div class="owner-card-tool">
+                        <label>Modify Tavix Currency Balance</label>
+                        <input type="number" id="ownerTavixAmt" placeholder="Set exact balance (e.g. 5000)">
+                        <button class="owner-action-btn" onclick="ownerModifyTavix('${user.username}')">Update Balance</button>
+                    </div>
+                    <div class="owner-card-tool">
+                        <label>Administrative Role Settings</label>
+                        <input type="text" id="ownerRoleVal" placeholder="Set target role (admin / user)">
+                        <button class="owner-action-btn" onclick="ownerModifyRole('${user.username}')">Assign Role</button>
+                    </div>
+                </div>
+            </div>
+        `;
     }
-    
-    if(currentUser){
-        showHome();
-        if(window.location.hash !== "#home") updateHash("#home");
+
+    // Handle bios cleanly
+    const displayedBio = user.bio || "This user hasn't written an about section yet.";
+
+    container.innerHTML = `
+        <div class="profile-header">
+            <div class="profile-pfp"></div>
+            <div>
+                <div class="display-name">${user.displayName || user.username} ${roleBadge}</div>
+                <div class="username">@${user.username}</div>
+                <div class="social-stats">
+                    <div><strong>0</strong> Friends</div>
+                    <div><strong>0</strong> Games Played</div>
+                </div>
+            </div>
+        </div>
+
+        ${ownerPanelHtml}
+
+        <div class="about-card">
+            <div class="card-header">
+                <h2>ABOUT ME</h2>
+                ${isOwnProfile ? `<button class="edit-btn" onclick="toggleBioEdit()">Edit Bio</button>` : ''}
+            </div>
+            <div id="bioDisplayContainer">
+                <div class="about-text" id="profileBioText">${displayedBio}</div>
+            </div>
+            ${isOwnProfile ? `
+            <div id="bioEditContainer" style="display:none; margin-top:10px;">
+                <textarea id="bioTextArea" style="width:100%; min-height:100px; padding:12px; border:2px solid #e0e0e0; border-radius:12px; font-size:16px; font-family:inherit; resize:vertical; margin-bottom:10px;">${user.bio || ''}</textarea>
+                <div style="display:flex; gap:10px; justify-content:flex-end;">
+                    <button class="edit-btn" onclick="toggleBioEdit()">Cancel</button>
+                    <button class="save-btn" style="width:auto; margin-top:0; padding:8px 20px;" onclick="saveProfileBio()">Save Changes</button>
+                </div>
+            </div>
+            ` : ''}
+        </div>
+
+        <div class="profile-stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">PLATFORM ACCOUNT IDENTITY</div>
+                <div class="stat-value">#${user.id || 'N/A'}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">TOTAL ACCOUNT CURRENCY</div>
+                <div class="stat-value">${user.tavix || 0} ⌬</div>
+            </div>
+        </div>
+    `;
+    updateUIBalances();
+}
+
+// ============ BIO MANAGEMENT ACTIONS ============
+function toggleBioEdit() {
+    const display = document.getElementById("bioDisplayContainer");
+    const edit = document.getElementById("bioEditContainer");
+    if (display.style.display === "none") {
+        display.style.display = "block";
+        edit.style.display = "none";
     } else {
-        showAuth();
-        showAuthForm("login");
-        if(window.location.hash !== "#signin") updateHash("#signin");
+        display.style.display = "none";
+        edit.style.display = "block";
     }
 }
 
-function showAuthForm(t){
-    const lf=document.getElementById("loginForm"),sf=document.getElementById("signupForm");
-    const lt=document.getElementById("loginTab"),st=document.getElementById("signupTab");
-    lf.classList.remove("active");sf.classList.remove("active");
-    lt.classList.remove("active");st.classList.remove("active");
-    if(t==="login"){lf.classList.add("active");lt.classList.add("active");}
-    else{sf.classList.add("active");st.classList.add("active");if(typeof hcaptcha !== 'undefined') hcaptcha.reset();}
-    document.getElementById("authError").textContent="";
-}
+async function saveProfileBio() {
+    const newBio = document.getElementById("bioTextArea").value;
+    const res = await apiRequest('/users/profile/bio', {
+        method: 'POST',
+        body: JSON.stringify({ bio: newBio })
+    });
 
-// ============ TAVIX MODAL FUNCTIONS ============
-let tavixDropdownOpen=false,notifDropdownOpen=false;
-document.addEventListener("click",function(e){const td=document.getElementById("tavixDropdown");const nd=document.getElementById("notificationDropdown");const tb=document.getElementById("tavixBtn")||document.getElementById("tavixBtnProfile");const nb=document.getElementById("notificationBtnHome")||document.getElementById("notificationBtnProfile");if(td&&tb&&!tb.contains(e.target)&&!td.contains(e.target)){td.style.display="none";tavixDropdownOpen=false;}if(nd&&nb&&!nb.contains(e.target)&&!nd.contains(e.target)){nd.style.display="none";notifDropdownOpen=false;}});
-function toggleTavix(){const d=document.getElementById("tavixDropdown");if(tavixDropdownOpen){d.style.display="none";tavixDropdownOpen=false;}else{updateTavixDisplay();d.style.display="block";tavixDropdownOpen=true;}}
-function toggleNotifications(){const d=document.getElementById("notificationDropdown");if(notifDropdownOpen){d.style.display="none";notifDropdownOpen=false;}else{updateNotifications();d.style.display="block";notifDropdownOpen=true;}}
-function openBuyModal(){closeModals();document.getElementById("buyModal").style.display="flex";}
-function openGiftModal(){closeModals();document.getElementById("giftModal").style.display="flex";}
-function openTransactionsModal(){
-    closeModals();
-    const t=currentUser?.transactions||[];
-    const c=document.getElementById("transactionList");
-    if(t.length===0){c.innerHTML='<p style="text-align:center;color:#888">No transactions</p>';
-    }else{c.innerHTML=t.map(tr=>`<div class="transaction-item"><span>${new Date(tr.date).toLocaleDateString()} - ${tr.reason}${tr.from?` from @${tr.from}`:""}</span><span class="transaction-amount ${tr.amount>0?"positive":"negative"}">${tr.amount>0?"+":""}${formatTavix(Math.abs(tr.amount))} ⌬</span></div>`).join('');}
-    document.getElementById("transactionsModal").style.display="flex";
-}
-async function buyTAVIX(){
-    const s=document.getElementById("buyAmount");
-    const a=parseInt(s.value);
-    if(await addTransaction(a,`Purchased ${a} TAVIX`)){
-        alert(`+${formatTavix(a)} TAVIX added!`);
-        closeModals();
-        updateTavixDisplay();
-    }else{alert("Purchase failed");}
-}
-async function sendGift(){
-    const un=document.getElementById("giftUsername").value.trim();
-    const amt=parseInt(document.getElementById("giftAmount").value);
-    if(!un){alert("Enter username");return;}
-    if(isNaN(amt)||amt<=0){alert("Enter valid amount");return;}
-    if(!currentUser){alert("Not logged in");return;}
-    if((currentUser.tavix||0)<amt){alert("Insufficient TAVIX");return;}
-    await fetchAllUsers();
-    const recipient=allUsers.find(x=>x.username===un);
-    if(!recipient){alert("User not found");return;}
-    if(await addTransactionAPI(-amt,`Gifted ${formatTavix(amt)} TAVIX to @${un}`)){
-        await addTransactionAPI(amt,`Received ${formatTavix(amt)} TAVIX from @${currentUser.username}`, currentUser.username);
-        await addNotificationAPI("🎁 Gift Received", `@${currentUser.username} sent you ${formatTavix(amt)} TAVIX!`);
-        alert(`Sent ${formatTavix(amt)} TAVIX to @${un}!`);
-        closeModals();
-        document.getElementById("giftUsername").value="";
-        document.getElementById("giftAmount").value="";
-        updateTavixDisplay();
-    }else{alert("Failed to send gift");}
-}
-function closeModals(){document.querySelectorAll(".modal-overlay").forEach(m=>m.style.display="none");}
-
-// ============ EVENT LISTENERS ============
-document.getElementById("searchBtnHome")?.addEventListener("click",openSearch);
-document.getElementById("searchBtnProfile")?.addEventListener("click",openSearch);
-
-document.getElementById("profileBtnHome")?.addEventListener("click", () => {
-    if(currentUser){
-        navigateToUserProfile(currentUser.id);
+    if (res.success) {
+        if (currentUser) currentUser.bio = newBio;
+        document.getElementById("profileBioText").textContent = newBio || "This user hasn't written an about section yet.";
+        toggleBioEdit();
+        console.log("✅ Bio updated successfully");
     } else {
-        navigateTo("signin");
+        alert(res.error || "Failed to update profile biography context.");
     }
-});
-document.getElementById("profileBtnProfile")?.addEventListener("click", () => {
-    if(currentUser){
-        navigateToUserProfile(currentUser.id);
+}
+
+// ============ OWNER ROLE UTILITY ACTIONS ============
+async function ownerModifyTavix(targetUser) {
+    const amount = document.getElementById("ownerTavixAmt").value;
+    if (!amount || isNaN(amount)) return alert("Please specify a real numeric balance assignment.");
+
+    const res = await apiRequest('/owner/modify-tavix', {
+        method: 'POST',
+        body: JSON.stringify({ username: targetUser, amount: parseInt(amount) })
+    });
+
+    if (res.success) {
+        alert(`Successfully set currency configuration for ${targetUser}.`);
+        renderProfileView(targetUser);
     } else {
-        navigateTo("signin");
+        alert(res.error || "Action failed.");
     }
-});
+}
 
-document.getElementById("settingsBtnHome")?.addEventListener("click",()=>navigateTo("settings"));
-document.getElementById("settingsBtnProfile")?.addEventListener("click",()=>navigateTo("settings"));
-document.getElementById("globalSearchInput")?.addEventListener("input",updateSearchDropdown);
-document.getElementById("globalSearchInput")?.addEventListener("keypress",handleSearchKey);
-document.getElementById("globalLogoutBtn")?.addEventListener("click",logoutGlobal);
-document.getElementById("searchOverlay")?.addEventListener("click",function(e){if(e.target===this)closeSearchGlobal();});
-document.getElementById("settingsOverlay")?.addEventListener("click",function(e){if(e.target===this)closeSettingsGlobal();});
-const tb1=document.getElementById("tavixBtn");if(tb1)tb1.onclick=toggleTavix;
-const tb2=document.getElementById("tavixBtnProfile");if(tb2)tb2.onclick=toggleTavix;
-const nb1=document.getElementById("notificationBtnHome");if(nb1)nb1.onclick=toggleNotifications;
-const nb2=document.getElementById("notificationBtnProfile");if(nb2)nb2.onclick=toggleNotifications;
+async function ownerModifyRole(targetUser) {
+    const role = document.getElementById("ownerRoleVal").value.trim().toLowerCase();
+    if (!role) return alert("Please type a valid target role configuration status.");
 
-// ============ FORMS ============
-document.getElementById("signupForm")?.addEventListener("submit", async function(e){
+    const res = await apiRequest('/owner/modify-role', {
+        method: 'POST',
+        body: JSON.stringify({ username: targetUser, role: role })
+    });
+
+    if (res.success) {
+        alert(`Successfully re-assigned administrative tier configuration rules for ${targetUser}.`);
+        renderProfileView(targetUser);
+    } else {
+        alert(res.error || "Action failed.");
+    }
+}
+
+// ============ AUTHENTICATION SUBMISSIONS ============
+showAuthForm = function(type) {
+    document.getElementById("authError").textContent = "";
+    if (type === 'login') {
+        document.getElementById("loginTab").classList.add("active");
+        document.getElementById("signupTab").classList.remove("active");
+        document.getElementById("loginForm").classList.add("active");
+        document.getElementById("signupForm").classList.remove("active");
+    } else {
+        document.getElementById("signupTab").classList.add("active");
+        document.getElementById("loginTab").classList.remove("active");
+        document.getElementById("signupForm").classList.add("active");
+        document.getElementById("loginForm").classList.remove("active");
+    }
+};
+
+document.getElementById("loginForm").addEventListener("submit", async function(e){
     e.preventDefault();
-    const un = document.getElementById("signupUsername").value.trim();
-    const em = document.getElementById("signupEmail").value.trim();
-    const pw = document.getElementById("signupPassword").value;
-    const cf = document.getElementById("signupConfirm").value;
-    const tos = document.getElementById("tosAgree").checked;
-    const err = document.getElementById("authError");
-    
-    if(!tos){ err.textContent = "You must agree to the Terms of Service"; return; }
-    
-    const hcaptchaResponse = hcaptcha.getResponse();
-    if(!hcaptchaResponse){
-        err.textContent = "Please complete the image puzzle to verify you're human";
-        return;
-    }
-    
-    if(un.length < 3){ err.textContent = "Username must be at least 3 characters"; return; }
-    if(pw.length < 8){ err.textContent = "Password must be at least 8 characters"; return; }
-    if(pw !== cf){ err.textContent = "Passwords don't match"; return; }
-    if(!em.includes("@")){ err.textContent = "Please enter a valid email address"; return; }
-    
-    const result = await registerAPI(un, em, pw, un, hcaptchaResponse);
-    if(result.success){
-        saveAccount({username: un, displayName: un, email: em});
-        navigateTo("home");
-    } else {
-        err.textContent = result.error;
-        hcaptcha.reset();
-    }
-});
-
-document.getElementById("loginForm")?.addEventListener("submit", async function(e){
-    e.preventDefault();
-    const un = document.getElementById("loginUsername").value.trim();
+    document.getElementById("authError").textContent = "";
+    const un = document.getElementById("loginUsername").value;
     const pw = document.getElementById("loginPassword").value;
     const result = await loginAPI(un, pw);
     if(result.success){
+        setAuthToken(result.token);
         saveAccount({username: un, displayName: result.user.displayName || un, email: result.user.email});
+        await refreshUserData();
         navigateTo("home");
     } else {
         document.getElementById("authError").textContent = result.error;
     }
 });
 
-// ============ PAGE LOAD ============
+document.getElementById("signupForm").addEventListener("submit", async function(e){
+    e.preventDefault();
+    document.getElementById("authError").textContent = "";
+    const un = document.getElementById("signupUsername").value;
+    const em = document.getElementById("signupEmail").value;
+    const pw = document.getElementById("signupPassword").value;
+    const cf = document.getElementById("signupConfirm").value;
+
+    if(pw !== cf) {
+        document.getElementById("authError").textContent = "Passwords must match.";
+        return;
+    }
+    if(!document.getElementById("tosAgree").checked) {
+        document.getElementById("authError").textContent = "You must agree to the platform terms.";
+        return;
+    }
+
+    const captchaToken = hcaptcha.getResponse();
+    if(!captchaToken) {
+        document.getElementById("authError").textContent = "Please fulfill the human validation test puzzle.";
+        return;
+    }
+
+    const result = await registerAPI(un, em, pw, captchaToken);
+    if(result.success) {
+        setAuthToken(result.token);
+        saveAccount({username: un, displayName: un, email: em});
+        await refreshUserData();
+        navigateTo("home");
+    } else {
+        document.getElementById("authError").textContent = result.error;
+        hcaptcha.reset();
+    }
+});
+
+// ============ SAVED ACCOUNTS UTILITIES ============
+function getSavedAccounts() {
+    try { return JSON.parse(localStorage.getItem("tavian_saved_slots")) || []; } catch { return []; }
+}
+function saveAccount(acc) {
+    let list = getSavedAccounts().filter(a => a.username.toLowerCase() !== acc.username.toLowerCase());
+    list.unshift(acc);
+    localStorage.setItem("tavian_saved_slots", JSON.stringify(list.slice(0, 4)));
+    renderSavedAccounts();
+}
+function removeAccountSlot(username, e) {
+    if(e) e.stopPropagation();
+    let list = getSavedAccounts().filter(a => a.username.toLowerCase() !== username.toLowerCase());
+    localStorage.setItem("tavian_saved_slots", JSON.stringify(list));
+    renderSavedAccounts();
+}
+function renderSavedAccounts() {
+    const container = document.getElementById("savedAccountsList");
+    if(!container) return;
+    const list = getSavedAccounts();
+    if(list.length === 0) {
+        container.innerHTML = `<div style="font-size:13px; color:#888;">No saved credentials accounts detected locally.</div>`;
+        return;
+    }
+    container.innerHTML = list.map(acc => `
+        <div class="saved-account-btn" onclick="triggerQuickLogin('${acc.username}')">
+            <div class="saved-account-avatar">${acc.username.substring(0,2).toUpperCase()}</div>
+            <div class="saved-account-info">
+                <div class="saved-account-name">${acc.displayName}</div>
+                <div class="saved-account-username">@${acc.username}</div>
+            </div>
+            <span class="remove-account" onclick="removeAccountSlot('${acc.username}', event)">✕</span>
+        </div>
+    `).join('');
+}
+function triggerQuickLogin(username) {
+    document.getElementById("loginUsername").value = username;
+    document.getElementById("loginPassword").value = "";
+    showAuthForm('login');
+    document.getElementById("loginPassword").focus();
+}
+
+// ============ SETTINGS HANDLERS ============
+function openSettingsGlobal() {
+    if(!currentUser) return;
+    document.getElementById("globalSettingsUsername").textContent = `@${currentUser.username}`;
+    document.getElementById("globalSettingsDisplayName").textContent = currentUser.displayName || currentUser.username;
+    document.getElementById("globalSettingsEmail").textContent = currentUser.email || '-';
+    document.getElementById("globalSettingsTAVIX").textContent = `${currentUser.tavix || 0} ⌬`;
+    document.getElementById("globalNewDisplayName").value = currentUser.displayName || '';
+    document.getElementById("settingsOverlay").style.display = "flex";
+}
+function closeSettingsGlobal() {
+    document.getElementById("settingsOverlay").style.display = "none";
+}
+async function updateDisplayNameGlobal() {
+    const val = document.getElementById("globalNewDisplayName").value.trim();
+    if(!val) return;
+    const res = await apiRequest('/users/profile/displayname', {
+        method: 'POST',
+        body: JSON.stringify({ displayName: val })
+    });
+    if(res.success) {
+        if(currentUser) currentUser.displayName = val;
+        document.getElementById("globalSettingsDisplayName").textContent = val;
+        renderHomeView();
+        console.log("✅ Display Name update submitted successfully.");
+    } else {
+        alert(res.error || "Display name transformation failed.");
+    }
+}
+async function confirmDeleteAccount() {
+    const confirmation = document.getElementById("deleteConfirmInput").value;
+    if(confirmation !== "DELETE") { alert("Type confirmation keyword exactly."); return; }
+    const res = await apiRequest('/auth/delete', { method: 'DELETE' });
+    if(res.success) {
+        if(currentUser) removeAccountSlot(currentUser.username);
+        clearAuthToken();
+        currentUser = null;
+        alert("Your account profile data has successfully been systematically expunged.");
+        navigateTo("auth");
+    } else {
+        alert(res.error || "Expungement failure error.");
+    }
+}
+
+// ============ TAVIX STORE ACTIONS ============
+function openBuyModal() { closeModals(); document.getElementById("buyModal").style.display = "flex"; }
+function openGiftModal() { closeModals(); document.getElementById("giftModal").style.display = "flex"; }
+async function openTransactionsModal() { 
+    closeModals(); 
+    document.getElementById("transactionsModal").style.display = "flex"; 
+    const listEl = document.getElementById("transactionList");
+    listEl.innerHTML = `<div style="padding:15px; color:#888;">Loading ledger balances...</div>`;
+    
+    const res = await apiRequest('/tavix/transactions');
+    if(res.success && res.transactions && res.transactions.length > 0) {
+        listEl.innerHTML = res.transactions.map(t => {
+            const isPositive = t.type === 'buy' || (t.type === 'gift' && t.recipient === currentUser?.username);
+            const amtClass = isPositive ? 'positive' : 'negative';
+            const amtPrefix = isPositive ? '+' : '-';
+            let description = t.type === 'buy' ? 'Purchased Store Tavix' : `Gift transfer transaction`;
+            if(t.type === 'gift') {
+                description = t.sender === currentUser?.username ? `Sent gift to @${t.recipient}` : `Received gift from @${t.sender}`;
+            }
+            return `
+                <div class="transaction-item">
+                    <div>
+                        <div style="font-weight:600; font-size:14px; color:#333;">${description}</div>
+                        <div style="font-size:11px; color:#999;">${new Date(t.timestamp).toLocaleString()}</div>
+                    </div>
+                    <div class="transaction-amount ${amtClass}">${amtPrefix}${t.amount} ⌬</div>
+                </div>
+            `;
+        }).join('');
+    } else {
+        listEl.innerHTML = `<div style="padding:30px; text-align:center; color:#999;">No logged transactions items located.</div>`;
+    }
+}
+function closeModals() {
+    ["buyModal", "giftModal", "transactionsModal"].forEach(id => document.getElementById(id).style.display = "none");
+}
+async function buyTAVIX() {
+    const amt = document.getElementById("buyAmount").value;
+    const res = await apiRequest('/tavix/buy', { method: 'POST', body: JSON.stringify({ amount: parseInt(amt) }) });
+    if(res.success) {
+        alert(`Successfully acquired asset block parameters!`);
+        await refreshUserData();
+        closeModals();
+    } else { alert(res.error || "Asset processing pipeline error."); }
+}
+async function sendGift() {
+    const target = document.getElementById("giftUsername").value.trim();
+    const amt = document.getElementById("giftAmount").value;
+    if(!target || !amt) return;
+    const res = await apiRequest('/tavix/gift', { method: 'POST', body: JSON.stringify({ recipient: target, amount: parseInt(amt) }) });
+    if(res.success) {
+        alert("Tavix configuration transfer block dispatched!");
+        await refreshUserData();
+        closeModals();
+    } else { alert(res.error || "Failed asset configuration pipeline transaction."); }
+}
+
+// ============ NOTIFICATIONS SYSTEM ============
+async function updateNotificationsUI() {
+    const countEl = document.getElementById("notificationCount");
+    const countElProfile = document.getElementById("notificationCountProfile");
+    const listEl = document.getElementById("notificationList");
+    
+    const res = await apiRequest('/notifications');
+    if(res.success && res.notifications) {
+        const unreadCount = res.notifications.filter(n => !n.read).length;
+        if(countEl) countEl.textContent = unreadCount;
+        if(countElProfile) countElProfile.textContent = unreadCount;
+        
+        if(res.notifications.length === 0) {
+            listEl.innerHTML = `<div class="empty-notifications">No notification packages discovered.</div>`;
+            return;
+        }
+        
+        listEl.innerHTML = res.notifications.map(n => `
+            <div class="notification-item ${n.read ? '' : 'unread'}" onclick="markNotificationRead('${n.id}')">
+                <div class="notification-icon">${n.type === 'gift' ? '🎁' : '🔔'}</div>
+                <div class="notification-content">
+                    <div class="notification-title">${n.title || 'System Broadcast'}</div>
+                    <div class="notification-message">${n.message}</div>
+                    <div class="notification-time">${new Date(n.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+                </div>
+            </div>
+        `).join('');
+    }
+}
+async function markNotificationRead(id) {
+    await apiRequest(`/notifications/${id}/read`, { method: 'POST' });
+    updateNotificationsUI();
+}
+
+// ============ PLAYERS SEARCH SYSTEM ============
+function openSearchGlobal() { document.getElementById("searchOverlay").style.display = "flex"; document.getElementById("globalSearchInput").focus(); }
+function closeSearchGlobal() { document.getElementById("searchOverlay").style.display = "none"; document.getElementById("globalSearchInput").value = ""; document.getElementById("globalSearchDropdown").style.display = "none"; }
+
+document.getElementById("globalSearchInput").addEventListener("input", async function(e){
+    const query = e.target.value.trim().toLowerCase();
+    const dropdown = document.getElementById("globalSearchDropdown");
+    if(!query) { dropdown.style.display = "none"; return; }
+    
+    await fetchAllUsers();
+    const filtered = allUsers.filter(u => u.username.toLowerCase().includes(query) || (u.displayName && u.displayName.toLowerCase().includes(query)));
+    
+    if(filtered.length === 0) {
+        dropdown.innerHTML = `<div style="padding:15px; color:#999; text-align:center;">No identities matched...</div>`;
+    } else {
+        dropdown.innerHTML = filtered.map(u => `
+            <div class="tavix-dropdown-item" onclick="navigateTo('users/${u.username}')">
+                <div class="player-avatar" style="width:36px; height:36px;"></div>
+                <div class="info">
+                    <div class="title" style="font-size:14px;">${u.displayName || u.username}</div>
+                    <div class="desc" style="font-size:11px;">@${u.username}</div>
+                </div>
+            </div>
+        `).join('');
+    }
+    dropdown.style.display = "block";
+});
+
+// ============ UI DROPDOWN AND EVENT TOGGLES ============
+function setupClickToggles() {
+    const bindToggle = (btnId, panelId) => {
+        const btn = document.getElementById(btnId);
+        if(btn) {
+            btn.addEventListener("click", function(e) {
+                e.stopPropagation();
+                const p = document.getElementById(panelId);
+                p.style.display = p.style.display === "block" ? "none" : "block";
+            });
+        }
+    };
+    
+    bindToggle("tavixBtn", "tavixDropdown");
+    bindToggle("tavixBtnProfile", "tavixDropdown");
+    bindToggle("notificationBtnHome", "notificationDropdown");
+    bindToggle("notificationBtnProfile", "notificationDropdown");
+    
+    const bindSearch = (id) => { const b = document.getElementById(id); if(b) b.onclick = openSearchGlobal; };
+    bindSearch("searchBtnHome"); bindSearch("searchBtnProfile");
+    
+    const bindSettings = (id) => { const b = document.getElementById(id); if(b) b.onclick = openSettingsGlobal; };
+    bindSettings("settingsBtnHome"); bindSettings("settingsBtnProfile");
+    
+    const bindProfile = (id) => { const b = document.getElementById(id); if(b) b.onclick = () => { if(currentUser) navigateTo(`users/${currentUser.username}`); }; };
+    bindProfile("profileBtnHome"); bindProfile("profileBtnProfile");
+
+    document.getElementById("globalLogoutBtn").onclick = () => { clearAuthToken(); currentUser = null; navigateTo("auth"); };
+
+    document.addEventListener("click", function(){
+        const d = document.getElementById("tavixDropdown"); if(d) d.style.display = "none";
+        const n = document.getElementById("notificationDropdown"); if(n) n.style.display = "none";
+    });
+    
+    const drops = ["tavixDropdown", "notificationDropdown"];
+    drops.forEach(id => {
+        const el = document.getElementById(id);
+        if(el) el.addEventListener("click", e => e.stopPropagation());
+    });
+}
+
+// ============ PAGE INITIAL LOAD INITIALIZER ============
 window.addEventListener("hashchange", handleRoute);
 window.onload = async function(){
+    setupClickToggles();
+    renderSavedAccounts();
     await fetchAllUsers();
     
     console.log('🔐 Tavian Auth System - NO GUEST TOKENS');
@@ -1333,8 +937,7 @@ window.onload = async function(){
         localStorage.removeItem('guest_token');
     }
     
-    const autoLoggedIn = await autoLogin();
-    
+    const autoLoggedIn = await refreshUserData();
     if(autoLoggedIn) {
         console.log('✅ Auto-login successful! User:', currentUser?.username);
     } else {
@@ -1348,10 +951,6 @@ window.onload = async function(){
     }
     
     handleRoute();
-    
-    console.log('✅ Tavian Platform Ready');
-    const hasToken = getAuthToken() !== null;
-    console.log('📍 Authenticated:', hasToken ? 'YES' : 'NO');
 };
 </script>
 </body>
