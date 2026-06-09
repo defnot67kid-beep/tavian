@@ -228,7 +228,7 @@ header{background:white;padding:15px 20px;border-bottom:1px solid #ddd;position:
     <button class="back-to-home" onclick="navigateTo('home')">← BACK</button>
 </div>
 
-<!-- AUTH PAGE - FIXED VERSION -->
+<!-- AUTH PAGE -->
 <div id="authPage" style="display:none;">
     <header>
         <div class="topbar">
@@ -266,7 +266,6 @@ header{background:white;padding:15px 20px;border-bottom:1px solid #ddd;position:
             <label>Confirm Password</label>
             <input type="password" id="signupConfirm" required>
             
-            <!-- hCaptcha - FORCED IMAGE PUZZLE MODE (no checkbox bypass!) -->
             <div class="h-captcha" 
                  data-sitekey="ca72f9a0-77d0-4a9c-af8e-e4748fe6a93c" 
                  data-theme="light"
@@ -292,8 +291,8 @@ header{background:white;padding:15px 20px;border-bottom:1px solid #ddd;position:
 
 <script>
 // ============================================
-// TAVIAN PLATFORM - COMPLETE FIXED SCRIPT
-// Fixed: Auto-redirect bug, Hard-mode CAPTCHA
+// TAVIAN PLATFORM - COMPLETE SCRIPT
+// URL Structure: #username-profile (userid-profile style)
 // ============================================
 
 // API Configuration
@@ -492,7 +491,6 @@ async function addTransaction(amount, reason, from=null){
         if(amount>0&&!from) addNotification("💰 TAVIX Purchased", `+${formatTavix(amount)} TAVIX`);
         if(from) addNotification("🎁 Gift Received", `${from} sent you ${formatTavix(amount)} TAVIX!`);
         updateTavixDisplay();
-        if(document.getElementById("profilePage").style.display === "block") renderProfile();
         return true;
     }
     return false;
@@ -539,20 +537,208 @@ function renderSaved(){const c=document.getElementById("savedAccountsList");if(!
 function escapeHtml(s){if(!s)return '';return s.replace(/[&<>]/g,function(m){if(m==='&')return '&amp;';if(m==='<')return '&lt;';if(m==='>')return '&gt;';return m;});}
 function formatEmail(e){if(!e)return '-';const a=e.indexOf('@');if(a<=4)return e.substring(0,a)+'***'+e.substring(a);return e.substring(0,4)+'***'+e.substring(a);}
 
-// VIEW PROFILE
-async function viewProfile(user){
-    await fetchAllUsers();
-    const u = allUsers.find(x=>x.username===user);
-    if(u){
-        if(currentUser && currentUser.username===user) navigateTo("profile");
-        else alert(`👤 ${u.displayName||u.username}\n@${u.username}\n💰 ${formatTavix(u.tavix||0)} TAVIX`);
-    } else alert("User not found");
+// ============================================
+// NEW: USER ID-BASED PROFILE URLs (#username-profile)
+// ============================================
+
+// Navigate to specific user profile by username
+function navigateToUserProfile(username) {
+    if (!username) return;
+    updateHash(`#${username}-profile`);
+    
+    // Check if it's the current user
+    if (currentUser && currentUser.username === username) {
+        showProfile();
+    } else {
+        showOtherUserProfile(username);
+    }
 }
 
-// SEARCH
+// Show other user's profile (not the logged-in user)
+async function showOtherUserProfile(username) {
+    await fetchAllUsers();
+    const user = allUsers.find(u => u.username === username);
+    
+    if (!user) {
+        alert("User not found");
+        navigateTo("home");
+        return;
+    }
+    
+    // Hide all pages
+    document.getElementById("authPage").style.display = "none";
+    document.getElementById("homePage").style.display = "none";
+    document.getElementById("tosPage").style.display = "none";
+    document.getElementById("deletePage").style.display = "none";
+    document.getElementById("profilePage").style.display = "block";
+    
+    // Render other user's profile (read-only)
+    renderOtherUserProfile(user);
+}
+
+// Render someone else's profile
+function renderOtherUserProfile(user) {
+    const isOwner = currentUser && currentUser.username === user.username;
+    
+    const html = `
+        <div class="profile-header">
+            <img class="profile-pfp" src="https://ui-avatars.com/api/?background=667eea&color=fff&size=120&name=${encodeURIComponent(user.displayName || user.username)}">
+            <div>
+                <div class="display-name">${escapeHtml(user.displayName || user.username)} ${renderBadge(user.username)}</div>
+                <div class="username">@${escapeHtml(user.username)}</div>
+                <div class="social-stats">
+                    <span>0 Friends</span>
+                    <span>2 Followers</span>
+                </div>
+            </div>
+        </div>
+        <div class="about-card">
+            <div class="card-header">
+                <h2>ABOUT</h2>
+                ${isOwner ? '<button class="edit-btn" onclick="editAbout()">Edit</button>' : ''}
+            </div>
+            <p class="about-text">${escapeHtml(user.about || "This user hasn't written anything yet...")}</p>
+        </div>
+        <div class="profile-stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">VISITS</div>
+                <div class="stat-value">${user.visits || 0}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">JOINED</div>
+                <div class="stat-value">${new Date(user.createdAt || Date.now()).toLocaleDateString()}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">TAVIX</div>
+                <div class="stat-value">${formatTavix(user.tavix || 0)} ⌬</div>
+            </div>
+        </div>
+        ${!isOwner && currentUser ? `<div style="margin-top:20px; text-align:center;">
+            <button class="submit-btn" style="padding:12px 24px; font-size:16px;" onclick="sendGiftToUser('${user.username}')">🎁 Send TAVIX</button>
+        </div>` : ''}
+    `;
+    document.getElementById("profileContent").innerHTML = html;
+}
+
+// Send gift from profile page
+async function sendGiftToUser(username) {
+    const amount = prompt(`How much TAVIX to send to ${username}?`, "10");
+    if (!amount) return;
+    
+    const amt = parseInt(amount);
+    if (isNaN(amt) || amt <= 0) {
+        alert("Enter valid amount");
+        return;
+    }
+    
+    if (!currentUser) {
+        alert("You must be logged in to send TAVIX");
+        navigateTo("signin");
+        return;
+    }
+    
+    if ((currentUser.tavix || 0) < amt) {
+        alert("Insufficient TAVIX");
+        return;
+    }
+    
+    await fetchAllUsers();
+    const recipient = allUsers.find(x => x.username === username);
+    if (!recipient) {
+        alert("User not found");
+        return;
+    }
+    
+    if (await addTransactionAPI(-amt, `Gifted ${formatTavix(amt)} TAVIX to @${username}`)) {
+        await addTransactionAPI(amt, `Received ${formatTavix(amt)} TAVIX from @${currentUser.username}`, currentUser.username);
+        await addNotificationAPI("🎁 Gift Received", `@${currentUser.username} sent you ${formatTavix(amt)} TAVIX!`);
+        alert(`Sent ${formatTavix(amt)} TAVIX to @${username}!`);
+        updateTavixDisplay();
+        
+        // If viewing the recipient's profile, refresh it
+        if (window.location.hash === `#${username}-profile`) {
+            showOtherUserProfile(username);
+        }
+    } else {
+        alert("Failed to send gift");
+    }
+}
+
+// Show current user's own profile (editable)
+function showProfile() {
+    if (!currentUser) {
+        navigateTo("signin");
+        return;
+    }
+    
+    document.getElementById("authPage").style.display = "none";
+    document.getElementById("homePage").style.display = "none";
+    document.getElementById("tosPage").style.display = "none";
+    document.getElementById("deletePage").style.display = "none";
+    document.getElementById("profilePage").style.display = "block";
+    
+    renderProfile();
+}
+
+// Render current user's profile (editable)
+function renderProfile(){
+    if(!currentUser) return;
+    const html = `
+        <div class="profile-header">
+            <img class="profile-pfp" src="https://ui-avatars.com/api/?background=667eea&color=fff&size=120&name=${encodeURIComponent(currentUser.displayName || currentUser.username)}">
+            <div>
+                <div class="display-name">${escapeHtml(currentUser.displayName || currentUser.username)} ${renderBadge(currentUser.username)}</div>
+                <div class="username">@${escapeHtml(currentUser.username)}</div>
+                <div class="social-stats">
+                    <span>0 Friends</span>
+                    <span>2 Followers</span>
+                </div>
+            </div>
+        </div>
+        <div class="about-card">
+            <div class="card-header">
+                <h2>ABOUT</h2>
+                <button class="edit-btn" onclick="editAbout()">Edit</button>
+            </div>
+            <p class="about-text">${escapeHtml(currentUser.about || "Tell people about yourself...")}</p>
+        </div>
+        <div class="profile-stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">VISITS</div>
+                <div class="stat-value">${currentUser.visits || 0}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">JOINED</div>
+                <div class="stat-value">${new Date(currentUser.createdAt || Date.now()).toLocaleDateString()}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">TAVIX</div>
+                <div class="stat-value">${formatTavix(currentUser.tavix || 0)} ⌬</div>
+            </div>
+        </div>
+    `;
+    document.getElementById("profileContent").innerHTML = html;
+}
+
+async function editAbout(){
+    const about = prompt("Edit about:", currentUser?.about || "");
+    if(about !== null){
+        if(await updateUserAPI({ about: about })){
+            renderProfile();
+        }
+    }
+}
+
+// VIEW PROFILE (called from search)
+async function viewProfile(username){
+    navigateToUserProfile(username);
+}
+
+// SEARCH FUNCTIONS
 function openSearch(){document.getElementById("searchOverlay").style.display="flex";document.getElementById("globalSearchInput").focus();}
 function closeSearchGlobal(){document.getElementById("searchOverlay").style.display="none";document.getElementById("globalSearchInput").value="";document.getElementById("globalSearchResults").style.display="none";document.getElementById("globalSearchDropdown").style.display="none";}
 function closeSearch(){closeSearchGlobal();}
+
 async function updateSearchDropdown(){
     const q=document.getElementById("globalSearchInput").value.trim().toLowerCase();
     const d=document.getElementById("globalSearchDropdown");
@@ -564,16 +750,24 @@ async function updateSearchDropdown(){
     players.forEach(p=>{html+=`<div class="dropdown-item" onclick="selectPlayer('${escapeHtml(p.username)}')"><img src="https://ui-avatars.com/api/?background=667eea&color=fff&size=40&name=${encodeURIComponent(p.displayName||p.username)}" style="width:40px;height:40px;border-radius:50%;"><div>${escapeHtml(p.displayName||p.username)} ${renderBadge(p.username)}<br><small>@${escapeHtml(p.username)}</small></div></div>`;});
     html+=`</div>`;d.innerHTML=html;d.style.display="block";
 }
-function selectPlayer(user){closeSearch();viewProfile(user);}
+
+function selectPlayer(user){closeSearch();navigateToUserProfile(user);}
+
 function handleSearchKey(e){if(e.key==="Enter")performSearch();}
+
 async function performSearch(){
     const q=document.getElementById("globalSearchInput").value.trim().toLowerCase();
     if(!q)return;
     await fetchAllUsers();
     const players=allUsers.filter(p=>p.username.toLowerCase().includes(q)||(p.displayName&&p.displayName.toLowerCase().includes(q)));
     const r=document.getElementById("globalSearchResults");
-    if(players.length===0){r.innerHTML='<div class="empty-games">No players found</div>';
-    }else{r.innerHTML=`<div class="results-section"><h3>👥 PLAYERS</h3><div class="players-grid">${players.map(p=>`<div class="player-card" onclick="closeSearch();viewProfile('${escapeHtml(p.username)}')"><img class="player-avatar" src="https://ui-avatars.com/api/?background=667eea&color=fff&size=60&name=${encodeURIComponent(p.displayName||p.username)}"><div><div class="player-display-name">${escapeHtml(p.displayName||p.username)} ${renderBadge(p.username)}</div><div class="player-username">@${escapeHtml(p.username)}</div></div></div>`).join('')}</div></div>`;}r.style.display="block";document.getElementById("globalSearchDropdown").style.display="none";
+    if(players.length===0){
+        r.innerHTML='<div class="empty-games">No players found</div>';
+    }else{
+        r.innerHTML=`<div class="results-section"><h3>👥 PLAYERS</h3><div class="players-grid">${players.map(p=>`<div class="player-card" onclick="closeSearch();navigateToUserProfile('${escapeHtml(p.username)}')"><img class="player-avatar" src="https://ui-avatars.com/api/?background=667eea&color=fff&size=60&name=${encodeURIComponent(p.displayName||p.username)}"><div><div class="player-display-name">${escapeHtml(p.displayName||p.username)} ${renderBadge(p.username)}</div><div class="player-username">@${escapeHtml(p.username)}</div></div></div>`).join('')}</div></div>`;
+    }
+    r.style.display="block";
+    document.getElementById("globalSearchDropdown").style.display="none";
 }
 
 // SETTINGS
@@ -583,9 +777,9 @@ function openSettings(){
     document.getElementById("globalSettingsDisplayName").innerHTML=escapeHtml(currentUser.displayName||currentUser.username);
     document.getElementById("globalSettingsEmail").innerHTML=formatEmail(currentUser.email);
     document.getElementById("globalSettingsTAVIX").innerHTML=formatTavix(currentUser.tavix||0)+" ⌬";
-    document.getElementById("settingsOverlay").style.display="flex";updateHash("#settings");
+    document.getElementById("settingsOverlay").style.display="flex";
 }
-function closeSettingsGlobal(){document.getElementById("settingsOverlay").style.display="none";if(window.location.hash==="#settings")updateHash("#home");}
+function closeSettingsGlobal(){document.getElementById("settingsOverlay").style.display="none";}
 async function updateDisplayNameGlobal(){
     const newName=document.getElementById("globalNewDisplayName").value.trim();
     if(!newName){alert("Enter display name");return;}
@@ -610,21 +804,6 @@ async function confirmDeleteAccount(){
             navigateTo("signin");
         }else{alert("Failed to delete account");}
     }else{alert('Type "DELETE" to confirm');}
-}
-
-// PAGE RENDERING
-function renderProfile(){
-    if(!currentUser) return;
-    const html=`<div class="profile-header"><img class="profile-pfp" src="https://ui-avatars.com/api/?background=667eea&color=fff&size=120&name=${encodeURIComponent(currentUser.displayName||currentUser.username)}"><div><div class="display-name">${escapeHtml(currentUser.displayName||currentUser.username)} ${renderBadge(currentUser.username)}</div><div class="username">@${escapeHtml(currentUser.username)}</div><div class="social-stats"><span>0 Friends</span><span>2 Followers</span></div></div></div><div class="about-card"><div class="card-header"><h2>ABOUT</h2><button class="edit-btn" onclick="editAbout()">Edit</button></div><p class="about-text">${escapeHtml(currentUser.about||"Tell people about yourself...")}</p></div><div class="profile-stats-grid"><div class="stat-card"><div class="stat-label">VISITS</div><div class="stat-value">${currentUser.visits||0}</div></div><div class="stat-card"><div class="stat-label">JOINED</div><div class="stat-value">${new Date(currentUser.createdAt||Date.now()).toLocaleDateString()}</div></div></div>`;
-    document.getElementById("profileContent").innerHTML=html;
-}
-async function editAbout(){
-    const about=prompt("Edit about:",currentUser?.about||"");
-    if(about!==null){
-        if(await updateUserAPI({ about: about })){
-            renderProfile();
-        }
-    }
 }
 
 // WELCOME MESSAGE
@@ -669,27 +848,58 @@ function updateWelcome(){
     }
 }
 
-// NAVIGATION - FIXED! No more auto-redirect bugs
-function showHome(){document.getElementById("authPage").style.display="none";document.getElementById("profilePage").style.display="none";document.getElementById("tosPage").style.display="none";document.getElementById("deletePage").style.display="none";document.getElementById("homePage").style.display="block";updateWelcome();updateTavixDisplay();updateNotifications();}
-function showProfile(){document.getElementById("authPage").style.display="none";document.getElementById("homePage").style.display="none";document.getElementById("tosPage").style.display="none";document.getElementById("deletePage").style.display="none";document.getElementById("profilePage").style.display="block";renderProfile();updateTavixDisplay();updateNotifications();}
-function showTOS(){document.getElementById("authPage").style.display="none";document.getElementById("homePage").style.display="none";document.getElementById("profilePage").style.display="none";document.getElementById("deletePage").style.display="none";document.getElementById("tosPage").style.display="block";}
-function showDelete(){document.getElementById("authPage").style.display="none";document.getElementById("homePage").style.display="none";document.getElementById("profilePage").style.display="none";document.getElementById("tosPage").style.display="none";document.getElementById("deletePage").style.display="block";document.getElementById("deleteConfirmInput").value="";updateHash("#delete");}
-function showAuth(){document.getElementById("homePage").style.display="none";document.getElementById("profilePage").style.display="none";document.getElementById("tosPage").style.display="none";document.getElementById("deletePage").style.display="none";document.getElementById("authPage").style.display="block";renderSaved();}
+// ============================================
+// NAVIGATION - FIXED with #username-profile URLs
+// ============================================
 
-function navigateTo(p){
-    if(p === "home"){
+function showHome(){
+    document.getElementById("authPage").style.display = "none";
+    document.getElementById("profilePage").style.display = "none";
+    document.getElementById("tosPage").style.display = "none";
+    document.getElementById("deletePage").style.display = "none";
+    document.getElementById("homePage").style.display = "block";
+    updateWelcome();
+    updateTavixDisplay();
+    updateNotifications();
+}
+
+function showTOS(){
+    document.getElementById("authPage").style.display = "none";
+    document.getElementById("homePage").style.display = "none";
+    document.getElementById("profilePage").style.display = "none";
+    document.getElementById("deletePage").style.display = "none";
+    document.getElementById("tosPage").style.display = "block";
+}
+
+function showDelete(){
+    document.getElementById("authPage").style.display = "none";
+    document.getElementById("homePage").style.display = "none";
+    document.getElementById("profilePage").style.display = "none";
+    document.getElementById("tosPage").style.display = "none";
+    document.getElementById("deletePage").style.display = "block";
+    document.getElementById("deleteConfirmInput").value = "";
+}
+
+function showAuth(){
+    document.getElementById("homePage").style.display = "none";
+    document.getElementById("profilePage").style.display = "none";
+    document.getElementById("tosPage").style.display = "none";
+    document.getElementById("deletePage").style.display = "none";
+    document.getElementById("authPage").style.display = "block";
+    renderSaved();
+}
+
+function navigateTo(p, username = null){
+    if(p === "profile" && username){
+        // Navigate to specific user profile: #username-profile
+        navigateToUserProfile(username);
+    } else if(p === "profile" && !username && currentUser){
+        // Current user's own profile
+        navigateToUserProfile(currentUser.username);
+    } else if(p === "home"){
         if(currentUser){
             showHome();
             updateHash("#home");
-        } else {
-            showAuth();
-            showAuthForm("login");
-            updateHash("#signin");
-        }
-    } else if(p === "profile"){
-        if(currentUser){
-            showProfile();
-            updateHash("#profile");
         } else {
             showAuth();
             showAuthForm("login");
@@ -721,20 +931,35 @@ function navigateTo(p){
     }
 }
 
-function updateHash(h){history.pushState(null,null,h);}
+function updateHash(h){
+    history.pushState(null, null, h);
+}
 
-// FIXED handleRoute - no more random redirects!
+// FIXED handleRoute - supports #username-profile pattern
 async function handleRoute(){
     const h = window.location.hash;
     await fetchAllUsers();
     
-    // Handle special pages first (don't check auth for these)
+    // Check for user profile pattern: #username-profile
+    const profileMatch = h.match(/^#([a-zA-Z0-9_-]+)-profile$/);
+    if(profileMatch){
+        const username = profileMatch[1];
+        // If it's the current user, show editable profile
+        if(currentUser && currentUser.username === username){
+            showProfile();
+        } else {
+            // Show other user's profile
+            await showOtherUserProfile(username);
+        }
+        return;
+    }
+    
+    // Handle special pages
     if(h === "#wiki-tos"){
         showTOS();
         return;
     }
     
-    // For delete page
     if(h === "#delete"){
         if(currentUser){
             showDelete();
@@ -746,7 +971,6 @@ async function handleRoute(){
         return;
     }
     
-    // For settings page
     if(h === "#settings"){
         if(currentUser){
             showHome();
@@ -759,26 +983,14 @@ async function handleRoute(){
         return;
     }
     
-    // For profile page
-    if(h === "#profile"){
-        if(currentUser){
-            showProfile();
-        } else {
-            showAuth();
-            showAuthForm("login");
-            updateHash("#signin");
-        }
-        return;
-    }
-    
     // Default: if logged in go home, else go to auth
     if(currentUser){
         showHome();
-        updateHash("#home");
+        if(window.location.hash !== "#home") updateHash("#home");
     } else {
         showAuth();
         showAuthForm("login");
-        updateHash("#signin");
+        if(window.location.hash !== "#signin") updateHash("#signin");
     }
 }
 
@@ -841,8 +1053,23 @@ function closeModals(){document.querySelectorAll(".modal-overlay").forEach(m=>m.
 // EVENT LISTENERS
 document.getElementById("searchBtnHome")?.addEventListener("click",openSearch);
 document.getElementById("searchBtnProfile")?.addEventListener("click",openSearch);
-document.getElementById("profileBtnHome")?.addEventListener("click",()=>navigateTo("profile"));
-document.getElementById("profileBtnProfile")?.addEventListener("click",()=>navigateTo("profile"));
+
+// Profile button handlers - now navigate to #username-profile
+document.getElementById("profileBtnHome")?.addEventListener("click", () => {
+    if(currentUser){
+        navigateToUserProfile(currentUser.username);
+    } else {
+        navigateTo("signin");
+    }
+});
+document.getElementById("profileBtnProfile")?.addEventListener("click", () => {
+    if(currentUser){
+        navigateToUserProfile(currentUser.username);
+    } else {
+        navigateTo("signin");
+    }
+});
+
 document.getElementById("settingsBtnHome")?.addEventListener("click",()=>navigateTo("settings"));
 document.getElementById("settingsBtnProfile")?.addEventListener("click",()=>navigateTo("settings"));
 document.getElementById("globalSearchInput")?.addEventListener("input",updateSearchDropdown);
@@ -855,7 +1082,7 @@ const tb2=document.getElementById("tavixBtnProfile");if(tb2)tb2.onclick=toggleTa
 const nb1=document.getElementById("notificationBtnHome");if(nb1)nb1.onclick=toggleNotifications;
 const nb2=document.getElementById("notificationBtnProfile");if(nb2)nb2.onclick=toggleNotifications;
 
-// SIGNUP with FORCED IMAGE PUZZLE CAPTCHA
+// SIGNUP with hCaptcha
 document.getElementById("signupForm")?.addEventListener("submit", async function(e){
     e.preventDefault();
     const un = document.getElementById("signupUsername").value.trim();
@@ -867,7 +1094,6 @@ document.getElementById("signupForm")?.addEventListener("submit", async function
     
     if(!tos){ err.textContent = "You must agree to the Terms of Service"; return; }
     
-    // Get hCaptcha response - user MUST complete image puzzle
     const hcaptchaResponse = hcaptcha.getResponse();
     if(!hcaptchaResponse){
         err.textContent = "Please complete the image puzzle to verify you're human";
@@ -917,9 +1143,8 @@ window.onload = async function(){
     handleRoute();
     
     console.log('🔐 Tavian Auth System Ready');
-    console.log('✅ hCaptcha FORCED IMAGE PUZZLE mode enabled');
-    console.log('🔒 Secret key is on backend server only!');
-    console.log('📌 Users MUST complete image puzzles to register');
+    console.log('✅ URL Structure: #username-profile (userid-profile style)');
+    console.log('📌 Example: https://tavian.netlify.app/#realgysj-profile');
 };
 </script>
 </body>
