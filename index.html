@@ -291,8 +291,8 @@ header{background:white;padding:15px 20px;border-bottom:1px solid #ddd;position:
 
 <script>
 // ============================================
-// TAVIAN PLATFORM - COMPLETE SCRIPT WITH PERSISTENT LOGIN
-// URL Structure: #userid-profile (numeric ID)
+// TAVIAN PLATFORM - FIXED PERSISTENT LOGIN
+// Supports: TAVIOSECURITY cookie format
 // ============================================
 
 // API Configuration
@@ -309,35 +309,49 @@ function formatTavix(amount){
 let currentUser = null;
 let allUsers = [];
 
-// SECURE TOKEN MANAGEMENT - Store token in both cookie and localStorage as backup
-function setSecureToken(token) {
+// ============ IMPROVED TOKEN MANAGEMENT ============
+// Store the token in multiple formats for compatibility
+const TOKEN_KEYS = {
+    TAVIAN: 'tavian_token',
+    TAVIOSECURITY: 'TAVIOSECURITY',
+    GUEST: 'guest_token'
+};
+
+function setAuthToken(token) {
     if (!token) return;
-    // Store in localStorage as backup (encrypted/encoded)
-    localStorage.setItem('tavian_secure_token', btoa(token));
-    // Also set a flag that we have a session
-    localStorage.setItem('tavian_has_session', 'true');
+    
+    // Store the raw token
+    localStorage.setItem('tavian_auth_token', token);
+    
+    // Also store as TAVIOSECURITY for compatibility
+    localStorage.setItem('TAVIOSECURITY', token);
+    
+    console.log('✅ Auth token stored');
 }
 
-function getSecureToken() {
-    // First try to get from localStorage
-    const encoded = localStorage.getItem('tavian_secure_token');
-    if (encoded) {
-        try {
-            return atob(encoded);
-        } catch(e) {
-            return null;
-        }
-    }
+function getAuthToken() {
+    // Try TAVIOSECURITY first (for guest key compatibility)
+    let token = localStorage.getItem('TAVIOSECURITY');
+    if (token) return token;
+    
+    // Fall back to tavian_token
+    token = localStorage.getItem('tavian_auth_token');
+    if (token) return token;
+    
+    // Check for guest token format
+    token = localStorage.getItem('guest_token');
+    if (token) return token;
+    
     return null;
 }
 
-function clearSecureToken() {
-    localStorage.removeItem('tavian_secure_token');
-    localStorage.removeItem('tavian_has_session');
+function clearAuthToken() {
+    localStorage.removeItem('tavian_auth_token');
+    localStorage.removeItem('TAVIOSECURITY');
+    localStorage.removeItem('guest_token');
     localStorage.removeItem('tavian_user_backup');
 }
 
-// Backup user data to localStorage for offline display
 function backupUserData(user) {
     if (user) {
         localStorage.setItem('tavian_user_backup', JSON.stringify(user));
@@ -356,6 +370,28 @@ function getBackupUser() {
     return null;
 }
 
+// ============ API CALLS WITH PROPER AUTH ============
+async function fetchWithAuth(url, options = {}) {
+    const token = getAuthToken();
+    const headers = {
+        'Content-Type': 'application/json',
+        ...options.headers
+    };
+    
+    if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+        headers['X-Tavian-Token'] = token;
+    }
+    
+    const response = await fetch(url, {
+        ...options,
+        headers,
+        credentials: 'include'
+    });
+    
+    return response;
+}
+
 async function fetchAllUsers(){
     try{
         const response = await fetch(`${API_URL}/users`, { credentials: 'include' });
@@ -369,10 +405,12 @@ async function fetchAllUsers(){
 
 async function getCurrentUserFromAPI(){
     try{
+        const token = getAuthToken();
         const response = await fetch(`${API_URL}/me`, { 
             credentials: 'include',
             headers: {
-                'Authorization': getSecureToken() ? `Bearer ${getSecureToken()}` : ''
+                'Authorization': token ? `Bearer ${token}` : '',
+                'X-Tavian-Token': token || ''
             }
         });
         if(response.ok){
@@ -384,9 +422,39 @@ async function getCurrentUserFromAPI(){
     return null;
 }
 
-// Enhanced auto-login with multiple fallback methods
+// Enhanced auto-login with guest token support
 async function autoLogin(){
-    // Method 1: Try cookie-based auto-login
+    // Check for existing token in localStorage (TAVIOSECURITY or guest format)
+    const savedToken = getAuthToken();
+    
+    if (savedToken) {
+        console.log('🔑 Found saved token, attempting auto-login...');
+        
+        try {
+            // Try to use the token to get user info
+            const response = await fetch(`${API_URL}/me`, {
+                headers: {
+                    'Authorization': `Bearer ${savedToken}`,
+                    'X-Tavian-Token': savedToken
+                },
+                credentials: 'include'
+            });
+            
+            if (response.ok) {
+                currentUser = await response.json();
+                backupUserData(currentUser);
+                console.log('✅ Auto-login successful with saved token!');
+                return true;
+            } else {
+                console.log('⚠️ Saved token invalid, clearing...');
+                clearAuthToken();
+            }
+        } catch(e) {
+            console.log('Token validation failed:', e);
+        }
+    }
+    
+    // Try cookie-based auto-login as fallback
     try{
         const response = await fetch(`${API_URL}/auto-login`, {
             method: 'GET',
@@ -398,15 +466,16 @@ async function autoLogin(){
             if(data.success && data.user){
                 currentUser = data.user;
                 backupUserData(currentUser);
-                // Extract and store the new token if available
+                
+                // Extract token from response
                 const setCookieHeader = response.headers.get('set-cookie');
                 if (setCookieHeader) {
                     const tokenMatch = setCookieHeader.match(/tavian_token=([^;]+)/);
                     if (tokenMatch && tokenMatch[1]) {
-                        setSecureToken(tokenMatch[1]);
+                        setAuthToken(tokenMatch[1]);
                     }
                 }
-                console.log('✅ Auto-login successful via secure cookie!');
+                console.log('✅ Auto-login successful via cookie!');
                 return true;
             }
         }
@@ -414,38 +483,12 @@ async function autoLogin(){
         console.log('Cookie auto-login failed:', e);
     }
     
-    // Method 2: Try token-based authentication from localStorage
-    try {
-        const savedToken = getSecureToken();
-        if (savedToken) {
-            const response = await fetch(`${API_URL}/me`, {
-                credentials: 'include',
-                headers: {
-                    'Authorization': `Bearer ${savedToken}`
-                }
-            });
-            
-            if (response.ok) {
-                currentUser = await response.json();
-                backupUserData(currentUser);
-                console.log('✅ Auto-login successful via stored token!');
-                return true;
-            } else {
-                // Token invalid, clear it
-                clearSecureToken();
-            }
-        }
-    } catch(e) {
-        console.log('Token auto-login failed:', e);
-    }
-    
-    // Method 3: Load from backup (offline fallback - shows cached data)
+    // Load from backup (offline fallback)
     const backupUser = getBackupUser();
     if (backupUser) {
         currentUser = backupUser;
-        console.log('⚠️ Using cached user data (offline mode)');
-        // Still try to refresh in background
-        refreshUserData();
+        console.log('⚠️ Using cached user data');
+        refreshUserData(); // Try to refresh in background
         return true;
     }
     
@@ -455,10 +498,11 @@ async function autoLogin(){
 // Background refresh of user data
 async function refreshUserData() {
     try {
+        const token = getAuthToken();
         const response = await fetch(`${API_URL}/me`, {
             credentials: 'include',
             headers: {
-                'Authorization': getSecureToken() ? `Bearer ${getSecureToken()}` : ''
+                'Authorization': token ? `Bearer ${token}` : ''
             }
         });
         if (response.ok) {
@@ -470,7 +514,7 @@ async function refreshUserData() {
             if (document.getElementById("profilePage").style.display === "block") {
                 renderProfile();
             }
-            console.log('✅ User data refreshed in background');
+            console.log('✅ User data refreshed');
         }
     } catch(e) {
         console.log('Background refresh failed:', e);
@@ -488,12 +532,13 @@ async function loginAPI(username, password){
         if(response.ok){
             currentUser = await response.json();
             backupUserData(currentUser);
+            
             // Extract and store token from cookie
             const setCookieHeader = response.headers.get('set-cookie');
             if (setCookieHeader) {
                 const tokenMatch = setCookieHeader.match(/tavian_token=([^;]+)/);
                 if (tokenMatch && tokenMatch[1]) {
-                    setSecureToken(tokenMatch[1]);
+                    setAuthToken(tokenMatch[1]);
                 }
             }
             return { success: true, user: currentUser };
@@ -521,12 +566,12 @@ async function registerAPI(username, email, password, displayName, hcaptchaRespo
         if(response.ok){
             currentUser = await response.json();
             backupUserData(currentUser);
-            // Extract and store token from cookie
+            
             const setCookieHeader = response.headers.get('set-cookie');
             if (setCookieHeader) {
                 const tokenMatch = setCookieHeader.match(/tavian_token=([^;]+)/);
                 if (tokenMatch && tokenMatch[1]) {
-                    setSecureToken(tokenMatch[1]);
+                    setAuthToken(tokenMatch[1]);
                 }
             }
             return { success: true, user: currentUser };
@@ -542,17 +587,18 @@ async function logoutAPI(){
         await fetch(`${API_URL}/logout`, { method: 'POST', credentials: 'include' });
     }catch(e){}
     currentUser = null;
-    clearSecureToken();
+    clearAuthToken();
 }
 
 async function updateUserAPI(updates){
     if(!currentUser) return false;
     try{
+        const token = getAuthToken();
         const response = await fetch(`${API_URL}/user/${currentUser.username}`, {
             method: 'PUT',
             headers: { 
                 'Content-Type': 'application/json',
-                'Authorization': getSecureToken() ? `Bearer ${getSecureToken()}` : ''
+                'Authorization': token ? `Bearer ${token}` : ''
             },
             credentials: 'include',
             body: JSON.stringify(updates)
@@ -569,11 +615,12 @@ async function updateUserAPI(updates){
 async function addTransactionAPI(amount, reason, from=null){
     if(!currentUser) return false;
     try{
+        const token = getAuthToken();
         const response = await fetch(`${API_URL}/transaction`, {
             method: 'POST',
             headers: { 
                 'Content-Type': 'application/json',
-                'Authorization': getSecureToken() ? `Bearer ${getSecureToken()}` : ''
+                'Authorization': token ? `Bearer ${token}` : ''
             },
             credentials: 'include',
             body: JSON.stringify({ username: currentUser.username, amount, reason, from })
@@ -591,11 +638,12 @@ async function addTransactionAPI(amount, reason, from=null){
 async function addNotificationAPI(title, message){
     if(!currentUser) return false;
     try{
+        const token = getAuthToken();
         await fetch(`${API_URL}/notification`, {
             method: 'POST',
             headers: { 
                 'Content-Type': 'application/json',
-                'Authorization': getSecureToken() ? `Bearer ${getSecureToken()}` : ''
+                'Authorization': token ? `Bearer ${token}` : ''
             },
             credentials: 'include',
             body: JSON.stringify({ username: currentUser.username, title, message })
@@ -607,16 +655,17 @@ async function addNotificationAPI(title, message){
 async function deleteAccountAPI(){
     if(!currentUser) return false;
     try{
+        const token = getAuthToken();
         const response = await fetch(`${API_URL}/user/${currentUser.username}`, {
             method: 'DELETE',
             headers: {
-                'Authorization': getSecureToken() ? `Bearer ${getSecureToken()}` : ''
+                'Authorization': token ? `Bearer ${token}` : ''
             },
             credentials: 'include'
         });
         if(response.ok){
             currentUser = null;
-            clearSecureToken();
+            clearAuthToken();
             return true;
         }
     }catch(e){}
@@ -700,12 +749,10 @@ function formatEmail(e){if(!e)return '-';const a=e.indexOf('@');if(a<=4)return e
 // USER ID-BASED PROFILE URLs (#userid-profile)
 // ============================================
 
-// Navigate to specific user profile by ID
 function navigateToUserProfile(userId) {
     if (!userId) return;
     updateHash(`#${userId}-profile`);
     
-    // Check if it's the current user
     if (currentUser && currentUser.id === userId) {
         showProfile();
     } else {
@@ -713,7 +760,6 @@ function navigateToUserProfile(userId) {
     }
 }
 
-// Show other user's profile (not the logged-in user)
 async function showOtherUserProfile(userId) {
     await fetchAllUsers();
     const user = allUsers.find(u => u.id === userId);
@@ -724,18 +770,15 @@ async function showOtherUserProfile(userId) {
         return;
     }
     
-    // Hide all pages
     document.getElementById("authPage").style.display = "none";
     document.getElementById("homePage").style.display = "none";
     document.getElementById("tosPage").style.display = "none";
     document.getElementById("deletePage").style.display = "none";
     document.getElementById("profilePage").style.display = "block";
     
-    // Render other user's profile (read-only)
     renderOtherUserProfile(user);
 }
 
-// Render someone else's profile (NO "TAVIX Platform" text)
 function renderOtherUserProfile(user) {
     const isOwner = currentUser && currentUser.id === user.id;
     
@@ -775,7 +818,6 @@ function renderOtherUserProfile(user) {
     document.getElementById("profileContent").innerHTML = html;
 }
 
-// Send gift from profile page
 async function sendGiftToUser(username) {
     const amount = prompt(`How much TAVIX to send to ${username}?`, "10");
     if (!amount) return;
@@ -810,7 +852,6 @@ async function sendGiftToUser(username) {
         alert(`Sent ${formatTavix(amt)} TAVIX to @${username}!`);
         updateTavixDisplay();
         
-        // If viewing the recipient's profile, refresh it
         if (window.location.hash === `#${recipient.id}-profile`) {
             showOtherUserProfile(recipient.id);
         }
@@ -819,7 +860,6 @@ async function sendGiftToUser(username) {
     }
 }
 
-// Show current user's own profile (NO "TAVIX Platform" text)
 function showProfile() {
     if (!currentUser) {
         navigateTo("signin");
@@ -835,7 +875,6 @@ function showProfile() {
     renderProfile();
 }
 
-// Render current user's profile
 function renderProfile(){
     if(!currentUser) return;
     const html = `
@@ -880,7 +919,6 @@ async function editAbout(){
     }
 }
 
-// VIEW PROFILE (called from search)
 async function viewProfile(username){
     const user = allUsers.find(u => u.username === username);
     if(user){
@@ -1005,7 +1043,7 @@ function updateWelcome(){
 }
 
 // ============================================
-// NAVIGATION - with #userid-profile URLs
+// NAVIGATION
 // ============================================
 
 function showHome(){
@@ -1089,26 +1127,21 @@ function updateHash(h){
     history.pushState(null, null, h);
 }
 
-// handleRoute - supports #userid-profile pattern
 async function handleRoute(){
     const h = window.location.hash;
     await fetchAllUsers();
     
-    // Check for user profile pattern: #userid-profile (numeric ID)
     const profileMatch = h.match(/^#(\d+)-profile$/);
     if(profileMatch){
         const userId = parseInt(profileMatch[1]);
-        // If it's the current user, show editable profile
         if(currentUser && currentUser.id === userId){
             showProfile();
         } else {
-            // Show other user's profile
             await showOtherUserProfile(userId);
         }
         return;
     }
     
-    // Handle special pages
     if(h === "#wiki-tos"){
         showTOS();
         return;
@@ -1137,7 +1170,6 @@ async function handleRoute(){
         return;
     }
     
-    // Default: if logged in go home, else go to auth
     if(currentUser){
         showHome();
         if(window.location.hash !== "#home") updateHash("#home");
@@ -1208,7 +1240,6 @@ function closeModals(){document.querySelectorAll(".modal-overlay").forEach(m=>m.
 document.getElementById("searchBtnHome")?.addEventListener("click",openSearch);
 document.getElementById("searchBtnProfile")?.addEventListener("click",openSearch);
 
-// Profile button handlers - navigate to #userid-profile
 document.getElementById("profileBtnHome")?.addEventListener("click", () => {
     if(currentUser){
         navigateToUserProfile(currentUser.id);
@@ -1283,31 +1314,32 @@ document.getElementById("loginForm")?.addEventListener("submit", async function(
     }
 });
 
-// AUTO-LOGIN ON PAGE LOAD with persistent session
+// AUTO-LOGIN ON PAGE LOAD
 window.addEventListener("hashchange", handleRoute);
 window.onload = async function(){
     await fetchAllUsers();
     
-    // Try multiple auto-login methods
+    console.log('🔐 Tavian Auth System - Checking for saved session...');
     const autoLoggedIn = await autoLogin();
     
-    if(!autoLoggedIn){
-        await getCurrentUserFromAPI();
+    if(autoLoggedIn) {
+        console.log('✅ Auto-login successful! User:', currentUser?.username);
+    } else {
+        console.log('⚠️ No saved session found');
     }
     
-    // Set up periodic session refresh (every 5 minutes)
+    // Set up periodic session refresh every 10 minutes
     if (currentUser) {
         setInterval(async () => {
             await refreshUserData();
-        }, 5 * 60 * 1000);
+        }, 10 * 60 * 1000);
     }
     
     handleRoute();
     
-    console.log('🔐 Tavian Auth System Ready with Persistent Login');
-    console.log('✅ URL Structure: #userid-profile (numeric ID)');
-    console.log('✅ Session persists across page refreshes');
-    console.log('✅ Token-based authentication enabled');
+    console.log('✅ Tavian Platform Ready');
+    console.log('✅ Supports TAVIOSECURITY and guest token formats');
+    console.log('✅ Persistent login across page refreshes');
 };
 </script>
 </body>
