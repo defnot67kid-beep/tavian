@@ -110,7 +110,6 @@ header{background:white;padding:15px 20px;border-bottom:1px solid #ddd;position:
 .profile-action-btn{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;border:none;padding:12px 24px;border-radius:12px;cursor:pointer;font-size:16px;transition:0.2s;}
 .profile-action-btn:hover{opacity:0.9;transform:translateY(-2px);}
 .profile-action-btn.secondary{background:#e0e0e0;color:#333;}
-.profile-action-btn.danger{background:#dc2626;color:white;}
 .auth-container{max-width:550px;margin:40px auto;padding:20px;}
 .tabs{display:flex;margin-bottom:40px;border-radius:10px;overflow:hidden;border:1px solid #ddd;}
 .tab{flex:1;padding:15px;border:none;background:white;cursor:pointer;font-size:18px;}
@@ -189,16 +188,12 @@ header{background:white;padding:15px 20px;border-bottom:1px solid #ddd;position:
 .decline-btn{background:#dc2626;color:white;}
 .remove-btn{background:#ef4444;color:white;}
 .view-btn{background:#667eea;color:white;}
-.follow-btn{background:#667eea;color:white;}
-.unfollow-btn{background:#ef4444;color:white;}
 .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:4000;justify-content:center;align-items:center;}
 .modal-content{background:white;border-radius:24px;padding:30px;max-width:500px;width:90%;max-height:80vh;overflow-y:auto;}
 .role-badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:bold;margin-left:8px;}
 .status-text{color:#888;font-size:14px;margin-top:5px;}
 .discord-link{color:#5865F2;text-decoration:none;}
 .discord-link:hover{text-decoration:underline;}
-
-/* Enhanced Edit Profile Modal */
 .edit-profile-modal .modal-content{max-width:550px;}
 .edit-profile-header{text-align:center;margin-bottom:25px;}
 .edit-profile-header h2{font-size:28px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
@@ -220,11 +215,6 @@ header{background:white;padding:15px 20px;border-bottom:1px solid #ddd;position:
 .edit-profile-actions button:first-child{background:#e0e0e0;color:#333;}
 .edit-profile-actions button:last-child{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;}
 .edit-profile-actions button:last-child:hover{opacity:0.9;transform:translateY(-2px);}
-
-.discord-field input{padding-left:45px;background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="%235865F2"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515a.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0c-.164-.386-.398-.875-.608-1.25a.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057a19.9 19.9 0 0 0 5.993 3.03a.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106a13.107 13.107 0 0 1-1.872-.892a.077.077 0 0 1-.008-.128c.126-.094.251-.192.372-.291a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.099.245.197.372.291a.077.077 0 0 1-.006.128a12.86 12.86 0 0 1-1.873.892a.077.077 0 0 0-.041.106c.352.699.764 1.364 1.226 1.994a.076.076 0 0 0 .084.028c2.108-.638 4.078-1.582 5.993-3.03a.077.077 0 0 0 .031-.057c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.027zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.956-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.955-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.946 2.418-2.157 2.418z"/></svg>');background-repeat:no-repeat;background-position:15px center;background-size:20px;}
-.status-field input{padding-left:45px;background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="%23667eea"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>');background-repeat:no-repeat;background-position:15px center;background-size:20px;}
-.about-field textarea{background:#fafafa;}
-
 @media (max-width:768px){.logo{font-size:28px;}.players-grid{grid-template-columns:1fr;}.display-name{font-size:42px;}}
 </style>
 </head>
@@ -256,7 +246,7 @@ header{background:white;padding:15px 20px;border-bottom:1px solid #ddd;position:
 <!-- FOLLOWING MODAL -->
 <div id="followingModal" class="modal"><div class="modal-content"><h2>📌 Following</h2><div id="followingList" class="following-list"></div><button onclick="closeFollowingModal()" class="submit-btn" style="margin-top:20px;">Close</button></div></div>
 
-<!-- ENHANCED EDIT PROFILE MODAL -->
+<!-- EDIT PROFILE MODAL -->
 <div id="editProfileModal" class="modal edit-profile-modal">
     <div class="modal-content">
         <div class="edit-profile-header">
@@ -306,10 +296,10 @@ header{background:white;padding:15px 20px;border-bottom:1px solid #ddd;position:
     </div>
 </div>
 
-<!-- CREATE ROLE MODAL (Owner Only) -->
+<!-- CREATE ROLE MODAL -->
 <div id="createRoleModal" class="modal"><div class="modal-content"><h2>👑 Create New Role</h2><input type="text" id="roleName" placeholder="Role Name (e.g., Developer)"><input type="text" id="roleBadge" placeholder="Badge (e.g., 🛠️)"><input type="color" id="roleColor" value="#00AAFF"><div class="modal-buttons"><button onclick="closeCreateRoleModal()">Cancel</button><button onclick="createRole()">Create Role</button></div></div></div>
 
-<!-- ASSIGN ROLE MODAL (Owner Only) -->
+<!-- ASSIGN ROLE MODAL -->
 <div id="assignRoleModal" class="modal"><div class="modal-content"><h2>👑 Assign Role</h2><input type="text" id="assignUsername" placeholder="Username"><select id="assignRoleSelect"></select><div class="modal-buttons"><button onclick="closeAssignRoleModal()">Cancel</button><button onclick="assignRole()">Assign Role</button></div></div></div>
 
 <!-- SETTINGS OVERLAY -->
@@ -366,7 +356,6 @@ header{background:white;padding:15px 20px;border-bottom:1px solid #ddd;position:
         </div>
         <div id="authError" class="error"></div>
         
-        <!-- LOGIN FORM -->
         <form id="loginForm" class="auth-form active">
             <label>Username</label>
             <input type="text" id="loginUsername" required>
@@ -378,7 +367,6 @@ header{background:white;padding:15px 20px;border-bottom:1px solid #ddd;position:
             </div>
         </form>
         
-        <!-- SIGNUP FORM -->
         <form id="signupForm" class="auth-form">
             <label>Username</label>
             <input type="text" id="signupUsername" required>
@@ -389,11 +377,7 @@ header{background:white;padding:15px 20px;border-bottom:1px solid #ddd;position:
             <label>Confirm Password</label>
             <input type="password" id="signupConfirm" required>
             
-            <div class="h-captcha" 
-                 data-sitekey="ca72f9a0-77d0-4a9c-af8e-e4748fe6a93c" 
-                 data-theme="light"
-                 data-s="image"
-                 data-size="normal"></div>
+            <div class="h-captcha" data-sitekey="ca72f9a0-77d0-4a9c-af8e-e4748fe6a93c" data-theme="light" data-s="image" data-size="normal"></div>
             <div class="captcha-note">🧩 Complete the image puzzle to verify you're human</div>
             
             <div class="tos-container">
@@ -418,10 +402,8 @@ header{background:white;padding:15px 20px;border-bottom:1px solid #ddd;position:
 // Owner: realgysj 👑 | Moderator: plstealme2 🔨
 // ============================================
 
-// API Configuration
-const API_URL = 'https://tavian-api.onrender.com/api';
+const API_URL = 'http://localhost:3000/api';
 
-// Global variables
 let currentUser = null;
 let allUsers = [];
 let currentViewingUser = null;
@@ -455,24 +437,19 @@ function setAuthToken(token) {
     if (!token) return;
     localStorage.setItem('tavian_auth_token', token);
     localStorage.setItem('TAVIOSECURITY', token);
-    document.cookie = `tavian_token=${token}; path=/; max-age=2592000`;
-    document.cookie = `TAVIOSECURITY=${token}; path=/; max-age=2592000`;
 }
 
 function getAuthToken() {
     let token = localStorage.getItem('TAVIOSECURITY');
     if (token) return token;
     token = localStorage.getItem('tavian_auth_token');
-    if (token) return token;
-    return null;
+    return token;
 }
 
 function clearAuthToken() {
     localStorage.removeItem('tavian_auth_token');
     localStorage.removeItem('TAVIOSECURITY');
     localStorage.removeItem('tavian_user_backup');
-    document.cookie = 'tavian_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-    document.cookie = 'TAVIOSECURITY=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
 }
 
 function backupUserData(user) {
@@ -497,73 +474,13 @@ async function fetchAllUsers(){
     return [];
 }
 
-async function getCurrentUserFromAPI(){
-    try{
-        const token = getAuthToken();
-        if (!token) return null;
-        const response = await fetch(`${API_URL}/me`, { 
-            credentials: 'include',
-            headers: { 'Authorization': `Bearer ${token}`, 'X-Tavian-Token': token }
-        });
-        if(response.ok){
-            currentUser = await response.json();
-            backupUserData(currentUser);
-            return currentUser;
-        } else {
-            clearAuthToken();
-        }
-    }catch(e){}
-    return null;
-}
-
-async function autoLogin(){
-    const savedToken = getAuthToken();
-    if (savedToken) {
-        try {
-            const response = await fetch(`${API_URL}/me`, {
-                headers: { 'Authorization': `Bearer ${savedToken}`, 'X-Tavian-Token': savedToken },
-                credentials: 'include'
-            });
-            if (response.ok) {
-                currentUser = await response.json();
-                backupUserData(currentUser);
-                return true;
-            } else {
-                clearAuthToken();
-            }
-        } catch(e) {}
-    }
-    try{
-        const response = await fetch(`${API_URL}/auto-login`, { method: 'GET', credentials: 'include' });
-        if(response.ok){
-            const data = await response.json();
-            if(data.success && data.user){
-                currentUser = data.user;
-                backupUserData(currentUser);
-                if (data.token) setAuthToken(data.token);
-                return true;
-            }
-        }
-    } catch(e){}
-    const backupUser = getBackupUser();
-    if (backupUser) {
-        currentUser = backupUser;
-        refreshUserData();
-        return true;
-    }
-    return false;
-}
-
 async function refreshUserData() {
     try {
         const token = getAuthToken();
         if (!token) return;
         const response = await fetch(`${API_URL}/me`, {
             credentials: 'include',
-            headers: { 
-                'Authorization': token ? `Bearer ${token}` : '',
-                'X-Tavian-Token': token || ''
-            }
+            headers: { 'Authorization': `Bearer ${token}` }
         });
         if (response.ok) {
             const freshUser = await response.json();
@@ -583,6 +500,32 @@ async function refreshUserData() {
     } catch(e) {}
 }
 
+async function autoLogin(){
+    const savedToken = getAuthToken();
+    if (savedToken) {
+        try {
+            const response = await fetch(`${API_URL}/me`, {
+                headers: { 'Authorization': `Bearer ${savedToken}` },
+                credentials: 'include'
+            });
+            if (response.ok) {
+                currentUser = await response.json();
+                backupUserData(currentUser);
+                return true;
+            } else {
+                clearAuthToken();
+            }
+        } catch(e) {}
+    }
+    const backupUser = getBackupUser();
+    if (backupUser) {
+        currentUser = backupUser;
+        refreshUserData();
+        return true;
+    }
+    return false;
+}
+
 async function loginAPI(username, password){
     try{
         clearAuthToken();
@@ -595,8 +538,6 @@ async function loginAPI(username, password){
         if(response.ok){
             currentUser = await response.json();
             backupUserData(currentUser);
-            const token = getAuthToken();
-            if (token) setAuthToken(token);
             return { success: true, user: currentUser };
         } else {
             const error = await response.json();
@@ -631,26 +572,7 @@ async function logoutAPI(){
     clearAuthToken();
 }
 
-async function updateUserAPI(updates){
-    if(!currentUser) return false;
-    try{
-        const token = getAuthToken();
-        const response = await fetch(`${API_URL}/user/${currentUser.username}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json', 'Authorization': token ? `Bearer ${token}` : '' },
-            credentials: 'include',
-            body: JSON.stringify(updates)
-        });
-        if(response.ok){
-            currentUser = await response.json();
-            backupUserData(currentUser);
-            return true;
-        }
-    }catch(e){}
-    return false;
-}
-
-// FIXED: Profile update API
+// ============ PROFILE UPDATE - FIXED ============
 async function updateProfileAPI(displayName, about, discord, status, avatar){
     if(!currentUser) return false;
     try{
@@ -664,25 +586,18 @@ async function updateProfileAPI(displayName, about, discord, status, avatar){
             avatar: avatar || ''
         };
         
-        console.log('📤 Sending profile update:', requestBody);
-        
         const response = await fetch(`${API_URL}/profile`, {
             method: 'PUT',
             headers: { 
                 'Content-Type': 'application/json', 
-                'Authorization': token ? `Bearer ${token}` : '',
-                'X-Tavian-Token': token || ''
+                'Authorization': `Bearer ${token}`
             },
             credentials: 'include',
             body: JSON.stringify(requestBody)
         });
         
-        console.log('📥 Response status:', response.status);
-        
         if(response.ok){
             const data = await response.json();
-            console.log('✅ Profile update response:', data);
-            
             if(data.success && data.user){
                 currentUser = data.user;
                 backupUserData(currentUser);
@@ -694,12 +609,10 @@ async function updateProfileAPI(displayName, about, discord, status, avatar){
             }
             return true;
         } else {
-            const errorText = await response.text();
-            console.error('❌ Profile update failed:', response.status, errorText);
             return false;
         }
     } catch(e){
-        console.error('❌ Profile update error:', e);
+        console.error('Profile update error:', e);
         return false;
     }
 }
@@ -710,7 +623,7 @@ async function addTransactionAPI(amount, reason, from=null){
         const token = getAuthToken();
         const response = await fetch(`${API_URL}/transaction`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': token ? `Bearer ${token}` : '' },
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
             credentials: 'include',
             body: JSON.stringify({ username: currentUser.username, amount, reason, from })
         });
@@ -730,7 +643,7 @@ async function addNotificationAPI(title, message){
         const token = getAuthToken();
         await fetch(`${API_URL}/notification`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': token ? `Bearer ${token}` : '' },
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
             credentials: 'include',
             body: JSON.stringify({ username: currentUser.username, title, message })
         });
@@ -738,32 +651,14 @@ async function addNotificationAPI(title, message){
     }catch(e){ return false; }
 }
 
-async function deleteAccountAPI(){
-    if(!currentUser) return false;
-    try{
-        const token = getAuthToken();
-        const response = await fetch(`${API_URL}/user/${currentUser.username}`, {
-            method: 'DELETE',
-            headers: { 'Authorization': token ? `Bearer ${token}` : '' },
-            credentials: 'include'
-        });
-        if(response.ok){
-            currentUser = null;
-            clearAuthToken();
-            return true;
-        }
-    }catch(e){}
-    return false;
-}
-
-// ============ FRIEND SYSTEM API ============
+// ============ FRIEND SYSTEM ============
 async function sendFriendRequest(username){
     if(!currentUser) return false;
     try{
         const token = getAuthToken();
         const response = await fetch(`${API_URL}/friend-request/${username}`, {
             method: 'POST',
-            headers: { 'Authorization': token ? `Bearer ${token}` : '' },
+            headers: { 'Authorization': `Bearer ${token}` },
             credentials: 'include'
         });
         if(response.ok){
@@ -782,7 +677,7 @@ async function acceptFriendRequest(username){
         const token = getAuthToken();
         const response = await fetch(`${API_URL}/friend-accept/${username}`, {
             method: 'POST',
-            headers: { 'Authorization': token ? `Bearer ${token}` : '' },
+            headers: { 'Authorization': `Bearer ${token}` },
             credentials: 'include'
         });
         if(response.ok){
@@ -799,7 +694,7 @@ async function declineFriendRequest(username){
         const token = getAuthToken();
         const response = await fetch(`${API_URL}/friend-decline/${username}`, {
             method: 'POST',
-            headers: { 'Authorization': token ? `Bearer ${token}` : '' },
+            headers: { 'Authorization': `Bearer ${token}` },
             credentials: 'include'
         });
         if(response.ok){
@@ -816,7 +711,7 @@ async function removeFriend(username){
         const token = getAuthToken();
         const response = await fetch(`${API_URL}/friend-remove/${username}`, {
             method: 'POST',
-            headers: { 'Authorization': token ? `Bearer ${token}` : '' },
+            headers: { 'Authorization': `Bearer ${token}` },
             credentials: 'include'
         });
         if(response.ok){
@@ -827,14 +722,14 @@ async function removeFriend(username){
     }catch(e){ return false; }
 }
 
-// ============ FOLLOW SYSTEM API ============
+// ============ FOLLOW SYSTEM ============
 async function followUser(username){
     if(!currentUser) return false;
     try{
         const token = getAuthToken();
         const response = await fetch(`${API_URL}/follow/${username}`, {
             method: 'POST',
-            headers: { 'Authorization': token ? `Bearer ${token}` : '' },
+            headers: { 'Authorization': `Bearer ${token}` },
             credentials: 'include'
         });
         if(response.ok){
@@ -851,7 +746,7 @@ async function unfollowUser(username){
         const token = getAuthToken();
         const response = await fetch(`${API_URL}/unfollow/${username}`, {
             method: 'POST',
-            headers: { 'Authorization': token ? `Bearer ${token}` : '' },
+            headers: { 'Authorization': `Bearer ${token}` },
             credentials: 'include'
         });
         if(response.ok){
@@ -862,18 +757,17 @@ async function unfollowUser(username){
     }catch(e){ return false; }
 }
 
-// ============ ROLE SYSTEM API (Owner Only) ============
+// ============ ROLE SYSTEM ============
 async function createRoleAPI(name, badge, color){
     try{
         const token = getAuthToken();
         const response = await fetch(`${API_URL}/roles`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': token ? `Bearer ${token}` : '' },
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
             credentials: 'include',
             body: JSON.stringify({ name, badge, color })
         });
         if(response.ok){
-            const data = await response.json();
             alert(`✅ Role "${name}" created!`);
             return true;
         }
@@ -888,7 +782,7 @@ async function assignRoleAPI(username, roleName, roleBadge, roleColor){
         const token = getAuthToken();
         const response = await fetch(`${API_URL}/roles/assign`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': token ? `Bearer ${token}` : '' },
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
             credentials: 'include',
             body: JSON.stringify({ targetUsername: username, roleName, roleBadge, roleColor })
         });
@@ -970,21 +864,16 @@ function updateFriendsHome(){
 }
 
 // ============ PROFILE RENDERING ============
-// FIXED: Role badge function
 function getRoleBadgeHTML(user){
-    // Check by username first for owner (MUST COME FIRST)
     if(user && (user.username === 'realgysj' || user.isOwner === true)){
         return `<span class="role-badge" style="background:#ffcc0020; color:#ffcc00; border:1px solid #ffcc00">👑 Owner</span>`;
     }
-    // Check by username for moderator
     if(user && (user.username === 'plstealme2' || user.isModerator === true)){
         return `<span class="role-badge" style="background:#00aaff20; color:#00aaff; border:1px solid #00aaff">🔨 Moderator</span>`;
     }
-    // Check for custom role badge
     if(user && user.roleBadge && user.role){
         return `<span class="role-badge" style="background:${user.roleColor || '#888888'}20; color:${user.roleColor || '#888888'}; border:1px solid ${user.roleColor || '#888888'}">${user.roleBadge} ${user.role}</span>`;
     }
-    // Check for booster
     if(user && user.isBooster){
         return `<span class="role-badge" style="background:#ff66cc20; color:#ff66cc; border:1px solid #ff66cc">💎 Booster</span>`;
     }
@@ -1003,7 +892,6 @@ function hasPendingRequest(user){
     return currentUser && currentUser.friendRequests && currentUser.friendRequests.includes(user.username);
 }
 
-// FIXED: Render profile with correct owner detection
 function renderProfile(){
     if(!currentUser) return;
     currentViewingUser = currentUser;
@@ -1153,7 +1041,7 @@ async function unfollowUserAction(username){
     }
 }
 
-// ============ EDIT PROFILE MODAL ============
+// ============ EDIT PROFILE MODAL ==========
 function openEditProfileModal(){
     document.getElementById("editDisplayName").value = currentUser?.displayName || '';
     document.getElementById("editAbout").value = currentUser?.about || '';
@@ -1192,7 +1080,6 @@ function previewAvatar(){
     updateAvatarPreview();
 }
 
-// Add event listeners for counters
 document.getElementById("editDisplayName")?.addEventListener('input', () => {
     updateEditProfileCounters();
     updateAvatarPreview();
@@ -1201,7 +1088,6 @@ document.getElementById("editAbout")?.addEventListener('input', updateEditProfil
 document.getElementById("editStatus")?.addEventListener('input', updateEditProfileCounters);
 document.getElementById("editAvatar")?.addEventListener('input', updateAvatarPreview);
 
-// FIXED: Save profile edit function
 async function saveProfileEdit(){
     const displayName = document.getElementById("editDisplayName").value.trim();
     const about = document.getElementById("editAbout").value;
@@ -1209,14 +1095,11 @@ async function saveProfileEdit(){
     const status = document.getElementById("editStatus").value;
     const avatar = document.getElementById("editAvatar").value.trim();
     
-    console.log('Saving profile with:', { displayName, about, discord, status, avatar });
-    
     if(!displayName){
         alert("Display name cannot be empty");
         return;
     }
     
-    // Show loading state
     const saveBtn = document.querySelector('#editProfileModal .edit-profile-actions button:last-child');
     const originalText = saveBtn.textContent;
     saveBtn.textContent = 'Saving...';
@@ -1228,26 +1111,7 @@ async function saveProfileEdit(){
         if(result){
             alert("✅ Profile updated successfully!");
             closeEditProfileModal();
-            
-            // Refresh user data from server
-            const token = getAuthToken();
-            if(token){
-                const response = await fetch(`${API_URL}/me`, {
-                    headers: { 'Authorization': `Bearer ${token}` },
-                    credentials: 'include'
-                });
-                if(response.ok){
-                    const freshUser = await response.json();
-                    currentUser = freshUser;
-                    backupUserData(currentUser);
-                }
-            }
-            
-            // Update UI
-            updateTavixDisplay();
-            updateWelcome();
-            
-            // Re-render profile if on profile page
+            await refreshUserData();
             if(document.getElementById("profilePage").style.display === "block"){
                 if(currentViewingUser && currentViewingUser.id === currentUser.id){
                     renderProfile();
@@ -1255,6 +1119,8 @@ async function saveProfileEdit(){
                     renderOtherUserProfile(currentViewingUser);
                 }
             }
+            updateTavixDisplay();
+            updateWelcome();
         } else {
             alert("❌ Failed to update profile. Please try again.");
         }
@@ -1267,7 +1133,7 @@ async function saveProfileEdit(){
     }
 }
 
-// ============ MODALS ============
+// ============ MODALS ==========
 function openFriendsModal(){
     if(!currentUser) return;
     const container = document.getElementById("friendsList");
@@ -1476,7 +1342,7 @@ async function assignRole(){
     }
 }
 
-// ============ TAVIX FUNCTIONS ============
+// ============ TAVIX FUNCTIONS ==========
 async function buyTAVIX(){
     const s = document.getElementById("buyAmount");
     const a = parseInt(s.value);
@@ -1549,7 +1415,7 @@ function openTransactionsModal(){
 }
 function closeModals(){ document.querySelectorAll(".modal-overlay").forEach(m=>m.style.display="none"); }
 
-// ============ SEARCH FUNCTIONS ============
+// ============ SEARCH FUNCTIONS ==========
 function openSearch(){ document.getElementById("searchOverlay").style.display="flex"; document.getElementById("globalSearchInput").focus(); }
 function closeSearchGlobal(){ document.getElementById("searchOverlay").style.display="none"; document.getElementById("globalSearchInput").value=""; document.getElementById("globalSearchResults").style.display="none"; document.getElementById("globalSearchDropdown").style.display="none"; }
 
@@ -1587,7 +1453,7 @@ async function performSearch(){
     document.getElementById("globalSearchDropdown").style.display = "none";
 }
 
-// ============ NAVIGATION ============
+// ============ NAVIGATION ==========
 function showHome(){
     document.getElementById("authPage").style.display = "none";
     document.getElementById("profilePage").style.display = "none";
@@ -1759,7 +1625,7 @@ async function handleRoute(){
     }
 }
 
-// ============ SETTINGS ============
+// ============ SETTINGS ==========
 function openSettings(){
     if(!currentUser){ navigateTo("signin"); return; }
     document.getElementById("globalSettingsUsername").innerHTML = escapeHtml(currentUser.username) + getRoleBadgeHTML(currentUser);
@@ -1831,7 +1697,44 @@ async function confirmDeleteAccount(){
     }
 }
 
-// ============ WELCOME MESSAGE ============
+async function deleteAccountAPI(){
+    if(!currentUser) return false;
+    try{
+        const token = getAuthToken();
+        const response = await fetch(`${API_URL}/user/${currentUser.username}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` },
+            credentials: 'include'
+        });
+        if(response.ok){
+            currentUser = null;
+            clearAuthToken();
+            return true;
+        }
+    }catch(e){}
+    return false;
+}
+
+async function updateUserAPI(updates){
+    if(!currentUser) return false;
+    try{
+        const token = getAuthToken();
+        const response = await fetch(`${API_URL}/user/${currentUser.username}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            credentials: 'include',
+            body: JSON.stringify(updates)
+        });
+        if(response.ok){
+            currentUser = await response.json();
+            backupUserData(currentUser);
+            return true;
+        }
+    }catch(e){}
+    return false;
+}
+
+// ============ WELCOME MESSAGE ==========
 function updateWelcome(){
     if(currentUser){
         const username = currentUser.displayName || currentUser.username;
@@ -1859,7 +1762,7 @@ function updateWelcome(){
     }
 }
 
-// ============ AUTH FORMS ============
+// ============ AUTH FORMS ==========
 function showAuthForm(t){
     const lf = document.getElementById("loginForm"), sf = document.getElementById("signupForm");
     const lt = document.getElementById("loginTab"), st = document.getElementById("signupTab");
@@ -1877,7 +1780,7 @@ function removeSaved(user){ let s=getSaved().filter(a=>a.username!==user); local
 function quickLogin(user){ document.getElementById("loginUsername").value=user; showAuthForm('login'); }
 function renderSaved(){ const c=document.getElementById("savedAccountsList"); if(!c)return; const s=getSaved(); if(s.length===0){ c.innerHTML='<div style="color:#999">No saved accounts</div>'; return; } c.innerHTML=s.map(acc=>`<div class="saved-account-btn" onclick="quickLogin('${escapeHtml(acc.username)}')"><div class="saved-account-avatar" style="background:${acc.color||'#667eea'}">${(acc.displayName.charAt(0)||acc.username.charAt(0)).toUpperCase()}</div><div class="saved-account-info"><div class="saved-account-name">${escapeHtml(acc.displayName)}</div><div class="saved-account-username">@${escapeHtml(acc.username)}</div></div><span class="remove-account" onclick="event.stopPropagation(); removeSaved('${escapeHtml(acc.username)}')">✕</span></div>`).join(''); }
 
-// ============ DROPDOWN TOGGLES ============
+// ============ DROPDOWN TOGGLES ==========
 let tavixDropdownOpen=false, notifDropdownOpen=false;
 document.addEventListener("click", function(e){
     const td = document.getElementById("tavixDropdown");
@@ -1891,7 +1794,7 @@ document.addEventListener("click", function(e){
 function toggleTavix(){ const d=document.getElementById("tavixDropdown"); if(tavixDropdownOpen){ d.style.display="none"; tavixDropdownOpen=false; } else { updateTavixDisplay(); d.style.display="block"; tavixDropdownOpen=true; } }
 function toggleNotifications(){ const d=document.getElementById("notificationDropdown"); if(notifDropdownOpen){ d.style.display="none"; notifDropdownOpen=false; } else { updateNotifications(); d.style.display="block"; notifDropdownOpen=true; } }
 
-// ============ EVENT LISTENERS ============
+// ============ EVENT LISTENERS ==========
 document.getElementById("searchBtnHome")?.addEventListener("click",openSearch);
 document.getElementById("searchBtnProfile")?.addEventListener("click",openSearch);
 document.getElementById("profileBtnHome")?.addEventListener("click", () => { if(currentUser) viewProfile(currentUser.username); else navigateTo("signin"); });
@@ -1908,7 +1811,7 @@ const tb2=document.getElementById("tavixBtnProfile"); if(tb2)tb2.onclick=toggleT
 const nb1=document.getElementById("notificationBtnHome"); if(nb1)nb1.onclick=toggleNotifications;
 const nb2=document.getElementById("notificationBtnProfile"); if(nb2)nb2.onclick=toggleNotifications;
 
-// ============ FORMS ============
+// ============ FORMS ==========
 document.getElementById("signupForm")?.addEventListener("submit", async function(e){
     e.preventDefault();
     const un = document.getElementById("signupUsername").value.trim();
@@ -1949,7 +1852,7 @@ document.getElementById("loginForm")?.addEventListener("submit", async function(
     }
 });
 
-// ============ PAGE LOAD ============
+// ============ PAGE LOAD ==========
 window.addEventListener("hashchange", handleRoute);
 window.onload = async function(){
     await fetchAllUsers();
