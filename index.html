@@ -655,6 +655,17 @@ async function updateProfileAPI(displayName, about, discord, status, avatar){
     if(!currentUser) return false;
     try{
         const token = getAuthToken();
+        
+        const requestBody = {
+            displayName: displayName || currentUser.displayName,
+            about: about || '',
+            discord: discord || '',
+            status: status || '',
+            avatar: avatar || ''
+        };
+        
+        console.log('📤 Sending profile update:', requestBody);
+        
         const response = await fetch(`${API_URL}/profile`, {
             method: 'PUT',
             headers: { 
@@ -663,17 +674,15 @@ async function updateProfileAPI(displayName, about, discord, status, avatar){
                 'X-Tavian-Token': token || ''
             },
             credentials: 'include',
-            body: JSON.stringify({ 
-                displayName: displayName || currentUser.displayName,
-                about: about || '',
-                discord: discord || '',
-                status: status || '',
-                avatar: avatar || ''
-            })
+            body: JSON.stringify(requestBody)
         });
+        
+        console.log('📥 Response status:', response.status);
         
         if(response.ok){
             const data = await response.json();
+            console.log('✅ Profile update response:', data);
+            
             if(data.success && data.user){
                 currentUser = data.user;
                 backupUserData(currentUser);
@@ -685,10 +694,12 @@ async function updateProfileAPI(displayName, about, discord, status, avatar){
             }
             return true;
         } else {
-            const error = await response.json();
+            const errorText = await response.text();
+            console.error('❌ Profile update failed:', response.status, errorText);
             return false;
         }
     } catch(e){
+        console.error('❌ Profile update error:', e);
         return false;
     }
 }
@@ -961,20 +972,20 @@ function updateFriendsHome(){
 // ============ PROFILE RENDERING ============
 // FIXED: Role badge function
 function getRoleBadgeHTML(user){
-    // Check by username first for owner
-    if(user.username === 'realgysj' || user.isOwner === true){
+    // Check by username first for owner (MUST COME FIRST)
+    if(user && (user.username === 'realgysj' || user.isOwner === true)){
         return `<span class="role-badge" style="background:#ffcc0020; color:#ffcc00; border:1px solid #ffcc00">👑 Owner</span>`;
     }
     // Check by username for moderator
-    if(user.username === 'plstealme2' || user.isModerator === true){
+    if(user && (user.username === 'plstealme2' || user.isModerator === true)){
         return `<span class="role-badge" style="background:#00aaff20; color:#00aaff; border:1px solid #00aaff">🔨 Moderator</span>`;
     }
     // Check for custom role badge
-    if(user.roleBadge && user.role){
+    if(user && user.roleBadge && user.role){
         return `<span class="role-badge" style="background:${user.roleColor || '#888888'}20; color:${user.roleColor || '#888888'}; border:1px solid ${user.roleColor || '#888888'}">${user.roleBadge} ${user.role}</span>`;
     }
     // Check for booster
-    if(user.isBooster){
+    if(user && user.isBooster){
         return `<span class="role-badge" style="background:#ff66cc20; color:#ff66cc; border:1px solid #ff66cc">💎 Booster</span>`;
     }
     return '';
@@ -1198,28 +1209,61 @@ async function saveProfileEdit(){
     const status = document.getElementById("editStatus").value;
     const avatar = document.getElementById("editAvatar").value.trim();
     
+    console.log('Saving profile with:', { displayName, about, discord, status, avatar });
+    
     if(!displayName){
         alert("Display name cannot be empty");
         return;
     }
     
-    const result = await updateProfileAPI(displayName, about, discord, status, avatar);
+    // Show loading state
+    const saveBtn = document.querySelector('#editProfileModal .edit-profile-actions button:last-child');
+    const originalText = saveBtn.textContent;
+    saveBtn.textContent = 'Saving...';
+    saveBtn.disabled = true;
     
-    if(result){
-        alert("✅ Profile updated successfully!");
-        closeEditProfileModal();
-        await refreshUserData();
-        if(document.getElementById("profilePage").style.display === "block"){
-            if(currentViewingUser && currentViewingUser.id === currentUser.id){
-                renderProfile();
-            } else if(currentViewingUser){
-                renderOtherUserProfile(currentViewingUser);
+    try {
+        const result = await updateProfileAPI(displayName, about, discord, status, avatar);
+        
+        if(result){
+            alert("✅ Profile updated successfully!");
+            closeEditProfileModal();
+            
+            // Refresh user data from server
+            const token = getAuthToken();
+            if(token){
+                const response = await fetch(`${API_URL}/me`, {
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    credentials: 'include'
+                });
+                if(response.ok){
+                    const freshUser = await response.json();
+                    currentUser = freshUser;
+                    backupUserData(currentUser);
+                }
             }
+            
+            // Update UI
+            updateTavixDisplay();
+            updateWelcome();
+            
+            // Re-render profile if on profile page
+            if(document.getElementById("profilePage").style.display === "block"){
+                if(currentViewingUser && currentViewingUser.id === currentUser.id){
+                    renderProfile();
+                } else if(currentViewingUser){
+                    renderOtherUserProfile(currentViewingUser);
+                }
+            }
+        } else {
+            alert("❌ Failed to update profile. Please try again.");
         }
-        updateTavixDisplay();
-        updateWelcome();
-    } else {
-        alert("❌ Failed to update profile. Please try again.");
+    } catch(error) {
+        console.error('Save error:', error);
+        alert("❌ An error occurred. Please try again.");
+    } finally {
+        saveBtn.textContent = originalText;
+        saveBtn.disabled = false;
     }
 }
 
