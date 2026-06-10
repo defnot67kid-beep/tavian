@@ -15,6 +15,13 @@
 *{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif;}
 body{background:#f4f4f4;overflow-x:hidden;}
 
+/* Toast Notification */
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(100px);background:#333;color:white;padding:14px 28px;border-radius:50px;font-size:14px;z-index:10000;transition:transform 0.3s ease;box-shadow:0 4px 12px rgba(0,0,0,0.2);pointer-events:none;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+.toast.success{background:#10b981;}
+.toast.error{background:#dc2626;}
+.toast.info{background:#3b82f6;}
+
 header{background:white;padding:15px 20px;border-bottom:1px solid #ddd;position:sticky;top:0;z-index:100;}
 .topbar{display:flex;justify-content:space-between;align-items:center;}
 .logo{font-size:42px;font-weight:900;cursor:pointer;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
@@ -169,18 +176,36 @@ header{background:white;padding:15px 20px;border-bottom:1px solid #ddd;position:
 .green-box{background:#d1fae5;border-left:4px solid #10b981;padding:15px;border-radius:10px;margin:15px 0;color:#065f46;}
 .back-to-home{position:fixed;bottom:30px;right:30px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;border:none;padding:12px 24px;border-radius:50px;cursor:pointer;font-weight:bold;box-shadow:0 4px 12px rgba(0,0,0,0.2);z-index:100;}
 .back-to-home:hover{opacity:0.9;}
-
-/* Toast Notifications */
-.toast-notification{position:fixed;bottom:20px;right:20px;background:#333;color:white;padding:12px 20px;border-radius:8px;z-index:10000;animation:slideInRight 0.3s ease;max-width:350px;box-shadow:0 4px 12px rgba(0,0,0,0.15);font-size:14px;}
-.toast-notification.success{background:#10b981;}
-.toast-notification.error{background:#dc2626;}
-.toast-notification.info{background:#3b82f6;}
-@keyframes slideInRight{from{transform:translateX(100%);opacity:0;}to{transform:translateX(0);opacity:1;}}
-
 @media (max-width:768px){.logo{font-size:28px;}.players-grid{grid-template-columns:1fr;}.display-name{font-size:42px;}}
+
+/* Edit About Modal */
+.edit-about-modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:4000;justify-content:center;align-items:center;}
+.edit-about-container{background:white;border-radius:24px;padding:30px;max-width:500px;width:90%;}
+.edit-about-container h2{margin-bottom:20px;color:#333;}
+.edit-about-container textarea{width:100%;padding:15px;border:2px solid #e0e0e0;border-radius:12px;font-size:16px;font-family:Arial,sans-serif;resize:vertical;min-height:150px;margin:10px 0;}
+.edit-about-container textarea:focus{outline:none;border-color:#667eea;}
+.edit-about-buttons{display:flex;gap:10px;margin-top:20px;}
+.edit-about-buttons button{flex:1;padding:12px;border:none;border-radius:10px;cursor:pointer;font-size:16px;}
+.edit-about-buttons button:first-child{background:#e0e0e0;color:#333;}
+.edit-about-buttons button:last-child{background:#667eea;color:white;}
 </style>
 </head>
 <body>
+
+<!-- Toast Container -->
+<div id="toast" class="toast"></div>
+
+<!-- Edit About Modal -->
+<div id="editAboutModal" class="edit-about-modal">
+    <div class="edit-about-container">
+        <h2>✏️ Edit About</h2>
+        <textarea id="editAboutText" placeholder="Tell people about yourself..."></textarea>
+        <div class="edit-about-buttons">
+            <button onclick="closeEditAboutModal()">Cancel</button>
+            <button onclick="saveAboutText()">Save</button>
+        </div>
+    </div>
+</div>
 
 <!-- GLOBAL SEARCH OVERLAY -->
 <div id="searchOverlay" class="search-overlay">
@@ -220,7 +245,7 @@ header{background:white;padding:15px 20px;border-bottom:1px solid #ddd;position:
 <div id="deletePage" class="delete-page"><h1>⚠️ Delete Account</h1><p>This action is <strong>permanent</strong> and cannot be undone.</p><div class="warning-text">All your data will be erased.</div><p>Type <strong style="color:#dc2626;">DELETE</strong> to confirm:</p><input type="text" id="deleteConfirmInput" class="delete-input" placeholder="Type DELETE here"><div class="delete-buttons"><button class="cancel-delete" onclick="navigateTo('home')">Cancel</button><button class="confirm-delete" onclick="confirmDeleteAccount()">Permanently Delete</button></div></div>
 
 <!-- HOME PAGE -->
-<div id="homePage" style="display:none;"><header><div class="topbar"><div class="logo" onclick="navigateTo('home')">TAVIAN</div><div class="nav-icons"><button class="icon-btn search-btn" id="searchBtnHome"><span class="material-icons">search</span></button><div class="tavix-btn" id="tavixBtn"><span class="tavix-icon">⌬</span><span class="tavix-amount" id="tavixBalance">0</span></div><button class="icon-btn profile-btn" id="profileBtnHome"><span class="material-icons">person</span></button><button class="icon-btn notification-badge" id="notificationBtnHome"><span class="material-icons">notifications</span><span class="badge-count" id="notificationCount">0</span></button><button class="icon-btn settings-btn" id="settingsBtnHome"><span class="material-icons">settings</span></button></div></div></header><div id="tavixDropdown" class="tavix-dropdown"><div class="tavix-dropdown-header"><div class="balance" id="dropdownBalance">0 ⌬</div><div class="label">TAVIX Balance</div></div><div class="tavix-dropdown-item" onclick="openBuyModal()"><div class="icon">💰</div><div class="info"><div class="title">Buy TAVIX</div><div class="desc">Purchase TAVIX with real money</div></div></div><div class="tavix-dropdown-item" onclick="openGiftModal()"><div class="icon">🎁</div><div class="info"><div class="title">Gift TAVIX</div><div class="desc">Send TAVIX to a friend</div></div></div><div class="tavix-dropdown-item" onclick="openRedeemModal()"><div class="icon">🎟️</div><div class="info"><div class="title">Redeem Code</div><div class="desc">Enter a TAVIAN code</div></div></div><div class="tavix-dropdown-item" onclick="openTransactionsModal()"><div class="icon">📜</div><div class="info"><div class="title">Transactions</div><div class="desc">View your TAVIX history</div></div></div></div><div id="welcomeBanner" class="welcome-message" style="display:none;"><span class="welcome-text" id="welcomeText"></span></div><div id="mainContent"><div class="section"><h2>FRIENDS</h2><div class="friends-box"><div>No friends 😭</div><button class="friend-arrow">&gt;</button></div></div><div class="section"><h2>GAMES</h2><div class="empty-games">No games available</div></div><footer style="margin-top:40px; background:white; padding:20px; text-align:center;"></footer></div></div>
+<div id="homePage" style="display:none;"><header><div class="topbar"><div class="logo" onclick="navigateTo('home')">TAVIAN</div><div class="nav-icons"><button class="icon-btn search-btn" id="searchBtnHome"><span class="material-icons">search</span></button><div class="tavix-btn" id="tavixBtn"><span class="tavix-icon">⌬</span><span class="tavix-amount" id="tavixBalance">0</span></div><button class="icon-btn profile-btn" id="profileBtnHome"><span class="material-icons">person</span></button><button class="icon-btn notification-badge" id="notificationBtnHome"><span class="material-icons">notifications</span><span class="badge-count" id="notificationCount">0</span></button><button class="icon-btn settings-btn" id="settingsBtnHome"><span class="material-icons">settings</span></button></div></div></header><div id="tavixDropdown" class="tavix-dropdown"><div class="tavix-dropdown-header"><div class="balance" id="dropdownBalance">0 ⌬</div><div class="label">TAVIX Balance</div></div><div class="tavix-dropdown-item" onclick="openBuyModal()"><div class="icon">💰</div><div class="info"><div class="title">Buy TAVIX</div><div class="desc">Purchase TAVIX with real money</div></div></div><div class="tavix-dropdown-item" onclick="openGiftModal()"><div class="icon">🎁</div><div class="info"><div class="title">Gift TAVIX</div><div class="desc">Send TAVIX to a friend</div></div></div><div class="tavix-dropdown-item" onclick="openTransactionsModal()"><div class="icon">📜</div><div class="info"><div class="title">Transactions</div><div class="desc">View your TAVIX history</div></div></div></div><div id="welcomeBanner" class="welcome-message" style="display:none;"><span class="welcome-text" id="welcomeText"></span></div><div id="mainContent"><div class="section"><h2>FRIENDS</h2><div class="friends-box"><div>No friends 😭</div><button class="friend-arrow">&gt;</button></div></div><div class="section"><h2>GAMES</h2><div class="empty-games">No games available</div></div><footer style="margin-top:40px; background:white; padding:20px; text-align:center;"></footer></div></div>
 
 <!-- PROFILE PAGE -->
 <div id="profilePage" style="display:none;"><header><div class="topbar"><div class="logo" onclick="navigateTo('home')">TAVIAN</div><div class="nav-icons"><button class="icon-btn search-btn" id="searchBtnProfile"><span class="material-icons">search</span></button><div class="tavix-btn" id="tavixBtnProfile"><span class="tavix-icon">⌬</span><span class="tavix-amount" id="tavixBalanceProfile">0</span></div><button class="icon-btn profile-btn" id="profileBtnProfile"><span class="material-icons">person</span></button><button class="icon-btn notification-badge" id="notificationBtnProfile"><span class="material-icons">notifications</span><span class="badge-count" id="notificationCountProfile">0</span></button><button class="icon-btn settings-btn" id="settingsBtnProfile"><span class="material-icons">settings</span></button></div></div></header><div id="profileContent" class="profile-page"></div><footer style="margin-top:40px; background:white; padding:20px; text-align:center;"></footer></div>
@@ -299,30 +324,25 @@ header{background:white;padding:15px 20px;border-bottom:1px solid #ddd;position:
 
 <script>
 // ============================================
-// TAVIAN PLATFORM - UPDATED WITH TOAST NOTIFICATIONS & REDEEM CODES
+// TAVIAN PLATFORM - NO GUEST TOKENS
+// Only authenticated users get tokens
 // ============================================
-
-// Toast Notification System
-function showToast(message, type = 'info') {
-    const toast = document.createElement('div');
-    toast.className = `toast-notification ${type}`;
-    toast.textContent = message;
-    document.body.appendChild(toast);
-    
-    setTimeout(() => {
-        toast.style.opacity = '0';
-        setTimeout(() => toast.remove(), 300);
-    }, 3000);
-}
-
-function showError(message) { showToast(message, 'error'); }
-function showSuccess(message) { showToast(message, 'success'); }
-function showInfo(message) { showToast(message, 'info'); }
 
 // API Configuration
 const API_URL = 'https://tavian-api.onrender.com/api';
 
-// Format number with K/M suffix
+// Toast function
+function showToast(message, type = 'info') {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.className = `toast ${type}`;
+    setTimeout(() => toast.classList.add('show'), 10);
+    setTimeout(() => {
+        toast.classList.remove('show');
+    }, 3000);
+}
+
+// FORMAT NUMBER WITH K/M SUFFIX
 function formatTavix(amount){
     if(amount >= 1000000) return (amount / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
     if(amount >= 1000) return (amount / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
@@ -333,13 +353,15 @@ function formatTavix(amount){
 let currentUser = null;
 let allUsers = [];
 
-// Token Management
+// ============ TOKEN MANAGEMENT - NO GUESTS ============
 function setAuthToken(token) {
     if (!token) return;
+    console.log('🔐 Setting auth token');
     localStorage.setItem('tavian_auth_token', token);
     localStorage.setItem('TAVIOSECURITY', token);
     document.cookie = `tavian_token=${token}; path=/; max-age=2592000`;
     document.cookie = `TAVIOSECURITY=${token}; path=/; max-age=2592000`;
+    console.log('✅ Auth token stored');
 }
 
 function getAuthToken() {
@@ -351,6 +373,7 @@ function getAuthToken() {
 }
 
 function clearAuthToken() {
+    console.log('🗑️ Clearing auth token...');
     localStorage.removeItem('tavian_auth_token');
     localStorage.removeItem('TAVIOSECURITY');
     localStorage.removeItem('tavian_user_backup');
@@ -360,12 +383,20 @@ function clearAuthToken() {
 }
 
 function backupUserData(user) {
-    if (user) localStorage.setItem('tavian_user_backup', JSON.stringify(user));
+    if (user) {
+        localStorage.setItem('tavian_user_backup', JSON.stringify(user));
+    }
 }
 
 function getBackupUser() {
     const backup = localStorage.getItem('tavian_user_backup');
-    if (backup) try { return JSON.parse(backup); } catch(e) { return null; }
+    if (backup) {
+        try {
+            return JSON.parse(backup);
+        } catch(e) {
+            return null;
+        }
+    }
     return null;
 }
 
@@ -376,9 +407,11 @@ function getCookie(name) {
     return null;
 }
 
-function isLoggedIn() { return currentUser !== null && getAuthToken() !== null; }
+function isLoggedIn() {
+    return currentUser !== null && getAuthToken() !== null;
+}
 
-// API Calls
+// ============ API CALLS ============
 async function fetchAllUsers(){
     try{
         const response = await fetch(`${API_URL}/users`, { credentials: 'include' });
@@ -386,62 +419,91 @@ async function fetchAllUsers(){
             allUsers = await response.json();
             return allUsers;
         }
-    }catch(e){ console.error(e); }
+    }catch(e){console.error(e);}
     return [];
 }
 
 async function getCurrentUserFromAPI(){
     try{
         const token = getAuthToken();
-        if (!token) return null;
-        
+        if (!token) {
+            console.log('No auth token found');
+            return null;
+        }
         const response = await fetch(`${API_URL}/me`, { 
             credentials: 'include',
-            headers: { 'Authorization': `Bearer ${token}`, 'X-Tavian-Token': token }
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'X-Tavian-Token': token
+            }
         });
         if(response.ok){
             currentUser = await response.json();
             backupUserData(currentUser);
             return currentUser;
-        } else { clearAuthToken(); }
+        } else {
+            clearAuthToken();
+        }
     }catch(e){}
     return null;
 }
 
 async function autoLogin(){
+    console.log('🔍 Checking for existing session...');
     const savedToken = getAuthToken();
     
     if (savedToken) {
+        console.log('🔑 Found auth token, validating...');
         try {
             const response = await fetch(`${API_URL}/me`, {
-                headers: { 'Authorization': `Bearer ${savedToken}`, 'X-Tavian-Token': savedToken },
+                headers: {
+                    'Authorization': `Bearer ${savedToken}`,
+                    'X-Tavian-Token': savedToken
+                },
                 credentials: 'include'
             });
             if (response.ok) {
                 currentUser = await response.json();
                 backupUserData(currentUser);
-                showSuccess(`Welcome back, ${currentUser.displayName || currentUser.username}!`);
+                console.log('✅ Auto-login successful! User:', currentUser?.username);
                 return true;
-            } else { clearAuthToken(); }
-        } catch(e) {}
+            } else {
+                console.log('⚠️ Token invalid, clearing...');
+                clearAuthToken();
+            }
+        } catch(e) {
+            console.log('Token validation failed:', e);
+        }
     }
     
     try{
-        const response = await fetch(`${API_URL}/auto-login`, { method: 'GET', credentials: 'include' });
+        const response = await fetch(`${API_URL}/auto-login`, {
+            method: 'GET',
+            credentials: 'include'
+        });
         if(response.ok){
             const data = await response.json();
             if(data.success && data.user){
                 currentUser = data.user;
                 backupUserData(currentUser);
                 if (data.token) setAuthToken(data.token);
-                showSuccess(`Welcome back, ${currentUser.displayName || currentUser.username}!`);
+                console.log('✅ Auto-login successful via cookie!');
                 return true;
             }
         }
-    } catch(e){}
+    } catch(e){
+        console.log('Cookie auto-login failed:', e);
+    }
     
     const backupUser = getBackupUser();
-    if (backupUser) { currentUser = backupUser; refreshUserData(); return true; }
+    if (backupUser) {
+        currentUser = backupUser;
+        console.log('⚠️ Using cached user data');
+        refreshUserData();
+        return true;
+    }
+    
+    console.log('❌ No valid session found');
     return false;
 }
 
@@ -449,27 +511,41 @@ async function refreshUserData() {
     try {
         const token = getAuthToken();
         if (!token) return;
-        const response = await fetch(`${API_URL}/me`, { credentials: 'include', headers: { 'Authorization': token ? `Bearer ${token}` : '' } });
+        const response = await fetch(`${API_URL}/me`, {
+            credentials: 'include',
+            headers: {
+                'Authorization': token ? `Bearer ${token}` : ''
+            }
+        });
         if (response.ok) {
             const freshUser = await response.json();
             currentUser = freshUser;
             backupUserData(freshUser);
             updateTavixDisplay();
             updateNotifications();
-            if (document.getElementById("profilePage").style.display === "block") renderProfile();
+            if (document.getElementById("profilePage").style.display === "block") {
+                renderProfile();
+            }
+            console.log('✅ User data refreshed');
         }
-    } catch(e) {}
+    } catch(e) {
+        console.log('Background refresh failed:', e);
+    }
 }
 
 async function loginAPI(username, password){
     try{
+        console.log('🔐 Attempting login for:', username);
         clearAuthToken();
         const response = await fetch(`${API_URL}/login`, {
-            method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
             body: JSON.stringify({ username, password })
         });
         if(response.ok){
             currentUser = await response.json();
+            console.log('✅ Login successful!');
             backupUserData(currentUser);
             let token = getCookie('tavian_token') || getCookie('TAVIOSECURITY');
             const setCookieHeader = response.headers.get('set-cookie');
@@ -478,25 +554,32 @@ async function loginAPI(username, password){
                 if (tokenMatch && tokenMatch[1]) token = tokenMatch[1];
             }
             if (token) setAuthToken(token);
-            showSuccess(`Welcome, ${currentUser.displayName || currentUser.username}!`);
+            showToast(`Welcome back, ${currentUser.displayName || currentUser.username}!`, 'success');
             return { success: true, user: currentUser };
         } else {
             const error = await response.json();
-            showError(error.error);
+            showToast(error.error || 'Login failed', 'error');
             return { success: false, error: error.error };
         }
-    }catch(e){ showError("Network error"); return { success: false, error: "Network error" }; }
+    }catch(e){ 
+        showToast('Network error', 'error');
+        return { success: false, error: "Network error" }; 
+    }
 }
 
 async function registerAPI(username, email, password, displayName, hcaptchaResponse){
     try{
+        console.log('🔐 Registering new user:', username);
         clearAuthToken();
         const response = await fetch(`${API_URL}/register`, {
-            method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
             body: JSON.stringify({ username, email, password, displayName, hcaptchaResponse })
         });
         if(response.ok){
             currentUser = await response.json();
+            console.log('✅ Registration successful!');
             backupUserData(currentUser);
             let token = getCookie('tavian_token') || getCookie('TAVIOSECURITY');
             const setCookieHeader = response.headers.get('set-cookie');
@@ -505,21 +588,27 @@ async function registerAPI(username, email, password, displayName, hcaptchaRespo
                 if (tokenMatch && tokenMatch[1]) token = tokenMatch[1];
             }
             if (token) setAuthToken(token);
-            showSuccess(`Account created! Welcome ${currentUser.displayName || currentUser.username}!`);
+            showToast(`Welcome to Tavian, ${currentUser.displayName}!`, 'success');
             return { success: true, user: currentUser };
         } else {
             const error = await response.json();
-            showError(error.error);
+            showToast(error.error || 'Registration failed', 'error');
             return { success: false, error: error.error };
         }
-    }catch(e){ showError("Network error"); return { success: false, error: "Network error" }; }
+    }catch(e){ 
+        showToast('Network error', 'error');
+        return { success: false, error: "Network error" }; 
+    }
 }
 
 async function logoutAPI(){
-    try{ await fetch(`${API_URL}/logout`, { method: 'POST', credentials: 'include' }); }catch(e){}
+    console.log('🚪 Logging out...');
+    try{
+        await fetch(`${API_URL}/logout`, { method: 'POST', credentials: 'include' });
+    }catch(e){}
     currentUser = null;
     clearAuthToken();
-    showInfo("Logged out successfully");
+    showToast('Logged out successfully', 'info');
 }
 
 async function updateUserAPI(updates){
@@ -528,7 +617,10 @@ async function updateUserAPI(updates){
         const token = getAuthToken();
         const response = await fetch(`${API_URL}/user/${currentUser.username}`, {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json', 'Authorization': token ? `Bearer ${token}` : '' },
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': token ? `Bearer ${token}` : ''
+            },
             credentials: 'include',
             body: JSON.stringify(updates)
         });
@@ -547,7 +639,10 @@ async function addTransactionAPI(amount, reason, from=null){
         const token = getAuthToken();
         const response = await fetch(`${API_URL}/transaction`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': token ? `Bearer ${token}` : '' },
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': token ? `Bearer ${token}` : ''
+            },
             credentials: 'include',
             body: JSON.stringify({ username: currentUser.username, amount, reason, from })
         });
@@ -567,7 +662,10 @@ async function addNotificationAPI(title, message){
         const token = getAuthToken();
         await fetch(`${API_URL}/notification`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': token ? `Bearer ${token}` : '' },
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': token ? `Bearer ${token}` : ''
+            },
             credentials: 'include',
             body: JSON.stringify({ username: currentUser.username, title, message })
         });
@@ -580,44 +678,23 @@ async function deleteAccountAPI(){
     try{
         const token = getAuthToken();
         const response = await fetch(`${API_URL}/user/${currentUser.username}`, {
-            method: 'DELETE', headers: { 'Authorization': token ? `Bearer ${token}` : '' }, credentials: 'include'
+            method: 'DELETE',
+            headers: {
+                'Authorization': token ? `Bearer ${token}` : ''
+            },
+            credentials: 'include'
         });
         if(response.ok){
             currentUser = null;
             clearAuthToken();
-            showSuccess("Account deleted successfully");
+            showToast('Account deleted permanently', 'error');
             return true;
         }
     }catch(e){}
     return false;
 }
 
-// Redeem Code Function
-async function redeemCodeAPI(code){
-    if(!currentUser) { showError("Please login first"); return false; }
-    try{
-        const token = getAuthToken();
-        const response = await fetch(`${API_URL}/redeem`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': token ? `Bearer ${token}` : '' },
-            credentials: 'include',
-            body: JSON.stringify({ code })
-        });
-        if(response.ok){
-            const result = await response.json();
-            showSuccess(result.message);
-            await refreshUserData();
-            updateTavixDisplay();
-            return true;
-        } else {
-            const error = await response.json();
-            showError(error.error);
-            return false;
-        }
-    } catch(e){ showError("Failed to redeem code"); return false; }
-}
-
-// Badge System
+// BADGE SYSTEM
 function getUserBadge(username){
     const lowerUsername = username.toLowerCase();
     if(lowerUsername === "realgysj") return { icon: "👑", class: "owner" };
@@ -680,7 +757,7 @@ async function markRead(id){
     }
 }
 
-// Saved Accounts
+// SAVED ACCOUNTS
 function getSaved(){return JSON.parse(localStorage.getItem("savedAccounts"))||[];}
 function saveAccount(acc){let s=getSaved();if(!s.find(a=>a.username===acc.username)){s.push({username:acc.username,displayName:acc.displayName||acc.username,email:acc.email,lastLogin:new Date().toISOString(),color:'#'+Math.floor(Math.random()*16777215).toString(16)});localStorage.setItem("savedAccounts",JSON.stringify(s));}renderSaved();}
 function removeSaved(user){let s=getSaved().filter(a=>a.username!==user);localStorage.setItem("savedAccounts",JSON.stringify(s));renderSaved();}
@@ -690,25 +767,52 @@ function renderSaved(){const c=document.getElementById("savedAccountsList");if(!
 function escapeHtml(s){if(!s)return '';return s.replace(/[&<>]/g,function(m){if(m==='&')return '&amp;';if(m==='<')return '&lt;';if(m==='>')return '&gt;';return m;});}
 function formatEmail(e){if(!e)return '-';const a=e.indexOf('@');if(a<=4)return e.substring(0,a)+'***'+e.substring(a);return e.substring(0,4)+'***'+e.substring(a);}
 
-// Profile Functions
+// ============ EDIT ABOUT FUNCTIONS ============
+function openEditAboutModal() {
+    if (!currentUser) return;
+    document.getElementById('editAboutText').value = currentUser.about || '';
+    document.getElementById('editAboutModal').style.display = 'flex';
+}
+
+function closeEditAboutModal() {
+    document.getElementById('editAboutModal').style.display = 'none';
+}
+
+async function saveAboutText() {
+    const newAbout = document.getElementById('editAboutText').value.trim();
+    if (await updateUserAPI({ about: newAbout })) {
+        showToast('About section updated!', 'success');
+        closeEditAboutModal();
+        renderProfile();
+    } else {
+        showToast('Failed to update about', 'error');
+    }
+}
+
+// ============ PROFILE FUNCTIONS ============
 function navigateToUserProfile(userId) {
     if (!userId) return;
     updateHash(`#${userId}-profile`);
-    if (currentUser && currentUser.id === userId) showProfile();
-    else showOtherUserProfile(userId);
+    if (currentUser && currentUser.id === userId) {
+        showProfile();
+    } else {
+        showOtherUserProfile(userId);
+    }
 }
 
 async function showOtherUserProfile(userId) {
     await fetchAllUsers();
     const user = allUsers.find(u => u.id === userId);
-    if (!user) { showError("User not found"); navigateTo("home"); return; }
-    
+    if (!user) {
+        showToast('User not found', 'error');
+        navigateTo("home");
+        return;
+    }
     document.getElementById("authPage").style.display = "none";
     document.getElementById("homePage").style.display = "none";
     document.getElementById("tosPage").style.display = "none";
     document.getElementById("deletePage").style.display = "none";
     document.getElementById("profilePage").style.display = "block";
-    
     renderOtherUserProfile(user);
 }
 
@@ -720,15 +824,31 @@ function renderOtherUserProfile(user) {
             <div>
                 <div class="display-name">${escapeHtml(user.displayName || user.username)} ${renderBadge(user.username)}</div>
                 <div class="username">@${escapeHtml(user.username)}</div>
-                <div class="social-stats"><span>0 Friends</span><span>2 Followers</span></div>
+                <div class="social-stats">
+                    <span>0 Friends</span>
+                    <span>2 Followers</span>
+                </div>
             </div>
         </div>
-        <div class="about-card"><div class="card-header"><h2>ABOUT</h2></div><p class="about-text">${escapeHtml(user.about || "This user hasn't written anything yet...")}</p></div>
-        <div class="profile-stats-grid">
-            <div class="stat-card"><div class="stat-label">VISITS</div><div class="stat-value">${user.visits || 0}</div></div>
-            <div class="stat-card"><div class="stat-label">JOINED</div><div class="stat-value">${new Date(user.createdAt || Date.now()).toLocaleDateString()}</div></div>
+        <div class="about-card">
+            <div class="card-header">
+                <h2>ABOUT</h2>
+            </div>
+            <p class="about-text">${escapeHtml(user.about || "This user hasn't written anything yet...")}</p>
         </div>
-        ${!isOwner && currentUser ? `<div style="margin-top:20px; text-align:center;"><button class="submit-btn" style="padding:12px 24px; font-size:16px;" onclick="sendGiftToUser('${user.username}')">🎁 Send TAVIX</button></div>` : ''}
+        <div class="profile-stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">VISITS</div>
+                <div class="stat-value">${user.visits || 0}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">JOINED</div>
+                <div class="stat-value">${new Date(user.createdAt || Date.now()).toLocaleDateString()}</div>
+            </div>
+        </div>
+        ${!isOwner && currentUser ? `<div style="margin-top:20px; text-align:center;">
+            <button class="submit-btn" style="padding:12px 24px; font-size:16px;" onclick="sendGiftToUser('${user.username}')">🎁 Send TAVIX</button>
+        </div>` : ''}
     `;
     document.getElementById("profileContent").innerHTML = html;
 }
@@ -737,23 +857,43 @@ async function sendGiftToUser(username) {
     const amount = prompt(`How much TAVIX to send to ${username}?`, "10");
     if (!amount) return;
     const amt = parseInt(amount);
-    if (isNaN(amt) || amt <= 0) { showError("Enter valid amount"); return; }
-    if (!currentUser) { showError("You must be logged in to send TAVIX"); navigateTo("signin"); return; }
-    if ((currentUser.tavix || 0) < amt) { showError("Insufficient TAVIX"); return; }
+    if (isNaN(amt) || amt <= 0) {
+        showToast('Enter valid amount', 'error');
+        return;
+    }
+    if (!currentUser) {
+        showToast('You must be logged in', 'error');
+        navigateTo("signin");
+        return;
+    }
+    if ((currentUser.tavix || 0) < amt) {
+        showToast('Insufficient TAVIX', 'error');
+        return;
+    }
     await fetchAllUsers();
     const recipient = allUsers.find(x => x.username === username);
-    if (!recipient) { showError("User not found"); return; }
+    if (!recipient) {
+        showToast('User not found', 'error');
+        return;
+    }
     if (await addTransactionAPI(-amt, `Gifted ${formatTavix(amt)} TAVIX to @${username}`)) {
         await addTransactionAPI(amt, `Received ${formatTavix(amt)} TAVIX from @${currentUser.username}`, currentUser.username);
         await addNotificationAPI("🎁 Gift Received", `@${currentUser.username} sent you ${formatTavix(amt)} TAVIX!`);
-        showSuccess(`Sent ${formatTavix(amt)} TAVIX to @${username}!`);
+        showToast(`Sent ${formatTavix(amt)} TAVIX to @${username}!`, 'success');
         updateTavixDisplay();
-        if (window.location.hash === `#${recipient.id}-profile`) showOtherUserProfile(recipient.id);
-    } else { showError("Failed to send gift"); }
+        if (window.location.hash === `#${recipient.id}-profile`) {
+            showOtherUserProfile(recipient.id);
+        }
+    } else {
+        showToast('Failed to send gift', 'error');
+    }
 }
 
 function showProfile() {
-    if (!currentUser) { navigateTo("signin"); return; }
+    if (!currentUser) {
+        navigateTo("signin");
+        return;
+    }
     document.getElementById("authPage").style.display = "none";
     document.getElementById("homePage").style.display = "none";
     document.getElementById("tosPage").style.display = "none";
@@ -770,40 +910,43 @@ function renderProfile(){
             <div>
                 <div class="display-name">${escapeHtml(currentUser.displayName || currentUser.username)} ${renderBadge(currentUser.username)}</div>
                 <div class="username">@${escapeHtml(currentUser.username)}</div>
-                <div class="social-stats"><span>0 Friends</span><span>2 Followers</span></div>
+                <div class="social-stats">
+                    <span>0 Friends</span>
+                    <span>2 Followers</span>
+                </div>
             </div>
         </div>
         <div class="about-card">
-            <div class="card-header"><h2>ABOUT</h2><button class="edit-btn" onclick="editAbout()">Edit</button></div>
-            <p class="about-text" id="profileAboutText">${escapeHtml(currentUser.about || "Tell people about yourself...")}</p>
+            <div class="card-header">
+                <h2>ABOUT</h2>
+                <button class="edit-btn" onclick="openEditAboutModal()">Edit</button>
+            </div>
+            <p class="about-text">${escapeHtml(currentUser.about || "Tell people about yourself...")}</p>
         </div>
         <div class="profile-stats-grid">
-            <div class="stat-card"><div class="stat-label">VISITS</div><div class="stat-value">${currentUser.visits || 0}</div></div>
-            <div class="stat-card"><div class="stat-label">JOINED</div><div class="stat-value">${new Date(currentUser.createdAt || Date.now()).toLocaleDateString()}</div></div>
+            <div class="stat-card">
+                <div class="stat-label">VISITS</div>
+                <div class="stat-value">${currentUser.visits || 0}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">JOINED</div>
+                <div class="stat-value">${new Date(currentUser.createdAt || Date.now()).toLocaleDateString()}</div>
+            </div>
         </div>
     `;
     document.getElementById("profileContent").innerHTML = html;
 }
 
-async function editAbout(){
-    const currentAbout = currentUser?.about || "";
-    const about = prompt("Edit your about section:", currentAbout);
-    if(about !== null && about !== currentAbout){
-        if(await updateUserAPI({ about: about })){
-            document.getElementById("profileAboutText").innerHTML = escapeHtml(about);
-            showSuccess("About section updated!");
-            renderProfile();
-        } else { showError("Failed to update about section"); }
+async function viewProfile(username){
+    const user = allUsers.find(u => u.username === username);
+    if(user){
+        navigateToUserProfile(user.id);
+    } else {
+        showToast('User not found', 'error');
     }
 }
 
-async function viewProfile(username){
-    const user = allUsers.find(u => u.username === username);
-    if(user) navigateToUserProfile(user.id);
-    else showError("User not found");
-}
-
-// Search Functions
+// ============ SEARCH FUNCTIONS ============
 function openSearch(){document.getElementById("searchOverlay").style.display="flex";document.getElementById("globalSearchInput").focus();}
 function closeSearchGlobal(){document.getElementById("searchOverlay").style.display="none";document.getElementById("globalSearchInput").value="";document.getElementById("globalSearchResults").style.display="none";document.getElementById("globalSearchDropdown").style.display="none";}
 function closeSearch(){closeSearchGlobal();}
@@ -829,60 +972,83 @@ async function performSearch(){
     await fetchAllUsers();
     const players=allUsers.filter(p=>p.username.toLowerCase().includes(q)||(p.displayName&&p.displayName.toLowerCase().includes(q)));
     const r=document.getElementById("globalSearchResults");
-    if(players.length===0){ r.innerHTML='<div class="empty-games">No players found</div>'; }
-    else{
+    if(players.length===0){
+        r.innerHTML='<div class="empty-games">No players found</div>';
+    }else{
         r.innerHTML=`<div class="results-section"><h3>👥 PLAYERS</h3><div class="players-grid">${players.map(p=>`<div class="player-card" onclick="closeSearch();viewProfile('${escapeHtml(p.username)}')"><img class="player-avatar" src="https://ui-avatars.com/api/?background=667eea&color=fff&size=60&name=${encodeURIComponent(p.displayName||p.username)}"><div><div class="player-display-name">${escapeHtml(p.displayName||p.username)} ${renderBadge(p.username)}</div><div class="player-username">@${escapeHtml(p.username)}</div></div></div>`).join('')}</div></div>`;
     }
     r.style.display="block";
     document.getElementById("globalSearchDropdown").style.display="none";
 }
 
-// Settings Functions
+// ============ SETTINGS ============
 function openSettings(){
-    if(!currentUser){ navigateTo("signin"); return; }
+    if(!currentUser){navigateTo("signin");return;}
     document.getElementById("globalSettingsUsername").innerHTML=escapeHtml(currentUser.username)+" "+renderBadge(currentUser.username);
     document.getElementById("globalSettingsDisplayName").innerHTML=escapeHtml(currentUser.displayName||currentUser.username);
     document.getElementById("globalSettingsEmail").innerHTML=formatEmail(currentUser.email);
     document.getElementById("globalSettingsTAVIX").innerHTML=formatTavix(currentUser.tavix||0)+" ⌬";
     document.getElementById("settingsOverlay").style.display="flex";
 }
-function closeSettingsGlobal(){ document.getElementById("settingsOverlay").style.display="none"; }
+function closeSettingsGlobal(){document.getElementById("settingsOverlay").style.display="none";}
 async function updateDisplayNameGlobal(){
     const newName=document.getElementById("globalNewDisplayName").value.trim();
-    if(!newName){ showError("Please enter a display name"); return; }
+    if(!newName){showToast('Enter a display name', 'error');return;}
     if(await updateUserAPI({ displayName: newName })){
         document.getElementById("globalSettingsDisplayName").innerHTML=escapeHtml(newName);
         document.getElementById("globalNewDisplayName").value="";
         updateWelcome();
         if(document.getElementById("profilePage").style.display==="block") renderProfile();
-        showSuccess("Display name updated!");
-    } else { showError("Failed to update display name"); }
+        showToast('Display name updated!', 'success');
+    }else{showToast('Failed to update display name', 'error');}
 }
-async function logoutGlobal(){ await logoutAPI(); currentUser=null; closeSettingsGlobal(); navigateTo("signin"); }
+async function logoutGlobal(){
+    await logoutAPI();
+    currentUser=null;
+    closeSettingsGlobal();
+    navigateTo("signin");
+}
 async function confirmDeleteAccount(){
     if(document.getElementById("deleteConfirmInput").value==="DELETE"){
-        if(await deleteAccountAPI()) navigateTo("signin");
-        else showError("Failed to delete account");
-    } else { showError('Type "DELETE" to confirm'); }
+        if(await deleteAccountAPI()){
+            navigateTo("signin");
+        }else{showToast('Failed to delete account', 'error');}
+    }else{showToast('Type "DELETE" to confirm', 'error');}
 }
 
-// Welcome Message
+// ============ WELCOME MESSAGE ============
 function updateWelcome(){
     if(currentUser){
         const username = currentUser.displayName || currentUser.username;
-        const greetings = [`Sup ${username}, ready to play?`,`Yo ${username}, good to see you`,`${username} back at it again`,`Hey ${username}, let's go`,`What's good ${username}?`,`${username} in the building`];
+        const greetings = [
+            `Sup ${username}, ready to play?`, `Yo ${username}, good to see you`,
+            `${username} back at it again`, `Hey ${username}, let's go`,
+            `What's good ${username}?`, `${username} in the building`,
+            `Ayy ${username}, welcome back`, `There he is, ${username}`,
+            `${username} returned for more`, `The legend is back, ${username}`,
+            `Let's go ${username}`, `${username} is here`,
+            `Back for more ${username}?`, `Welcome back playa`,
+            `The goat ${username} has arrived`, `${username} my guy!`,
+            `Yooo ${username} what's up`, `${username} pulling up again`,
+            `He's back... ${username}`, `${username} let's get it`
+        ];
         const randomGreeting = greetings[Math.floor(Math.random() * greetings.length)];
         document.getElementById("welcomeText").innerHTML = randomGreeting;
         document.getElementById("welcomeBanner").style.display = "flex";
         setTimeout(() => {
             const banner = document.getElementById("welcomeBanner");
             if(banner) banner.style.opacity = "0";
-            setTimeout(() => { if(banner) { banner.style.display = "none"; banner.style.opacity = "1"; } }, 500);
+            setTimeout(() => {
+                if(banner) {
+                    banner.style.display = "none";
+                    banner.style.opacity = "1";
+                }
+            }, 500);
         }, 5000);
     }
 }
 
-// Navigation
+// ============ NAVIGATION ============
 function showHome(){
     document.getElementById("authPage").style.display = "none";
     document.getElementById("profilePage").style.display = "none";
@@ -921,16 +1087,48 @@ function showAuth(){
 }
 
 function navigateTo(p, userId = null){
-    if(p === "profile" && userId) navigateToUserProfile(userId);
-    else if(p === "profile" && !userId && currentUser) navigateToUserProfile(currentUser.id);
-    else if(p === "home"){ if(currentUser){ showHome(); updateHash("#home"); } else { showAuth(); showAuthForm("login"); updateHash("#signin"); } }
-    else if(p === "settings"){ if(currentUser) openSettings(); else { showAuth(); showAuthForm("login"); updateHash("#signin"); } }
-    else if(p === "wiki-tos"){ showTOS(); updateHash("#wiki-tos"); }
-    else if(p === "delete"){ if(currentUser) showDelete(); else { showAuth(); showAuthForm("login"); updateHash("#signin"); } }
-    else if(p === "signin"){ showAuth(); showAuthForm("login"); updateHash("#signin"); }
+    if(p === "profile" && userId){
+        navigateToUserProfile(userId);
+    } else if(p === "profile" && !userId && currentUser){
+        navigateToUserProfile(currentUser.id);
+    } else if(p === "home"){
+        if(currentUser){
+            showHome();
+            updateHash("#home");
+        } else {
+            showAuth();
+            showAuthForm("login");
+            updateHash("#signin");
+        }
+    } else if(p === "settings"){
+        if(currentUser){
+            openSettings();
+        } else {
+            showAuth();
+            showAuthForm("login");
+            updateHash("#signin");
+        }
+    } else if(p === "wiki-tos"){
+        showTOS();
+        updateHash("#wiki-tos");
+    } else if(p === "delete"){
+        if(currentUser){
+            showDelete();
+        } else {
+            showAuth();
+            showAuthForm("login");
+            updateHash("#signin");
+        }
+    } else if(p === "signin"){
+        showAuth();
+        showAuthForm("login");
+        updateHash("#signin");
+    }
 }
 
-function updateHash(h){ history.pushState(null, null, h); }
+function updateHash(h){
+    history.pushState(null, null, h);
+}
 
 async function handleRoute(){
     const h = window.location.hash;
@@ -938,15 +1136,32 @@ async function handleRoute(){
     const profileMatch = h.match(/^#(\d+)-profile$/);
     if(profileMatch){
         const userId = parseInt(profileMatch[1]);
-        if(currentUser && currentUser.id === userId) showProfile();
-        else await showOtherUserProfile(userId);
+        if(currentUser && currentUser.id === userId){
+            showProfile();
+        } else {
+            await showOtherUserProfile(userId);
+        }
         return;
     }
     if(h === "#wiki-tos"){ showTOS(); return; }
-    if(h === "#delete"){ if(currentUser) showDelete(); else { showAuth(); showAuthForm("login"); updateHash("#signin"); } return; }
-    if(h === "#settings"){ if(currentUser){ showHome(); openSettings(); } else { showAuth(); showAuthForm("login"); updateHash("#signin"); } return; }
-    if(currentUser){ showHome(); if(window.location.hash !== "#home") updateHash("#home"); }
-    else{ showAuth(); showAuthForm("login"); if(window.location.hash !== "#signin") updateHash("#signin"); }
+    if(h === "#delete"){
+        if(currentUser){ showDelete(); }
+        else { showAuth(); showAuthForm("login"); updateHash("#signin"); }
+        return;
+    }
+    if(h === "#settings"){
+        if(currentUser){ showHome(); openSettings(); }
+        else { showAuth(); showAuthForm("login"); updateHash("#signin"); }
+        return;
+    }
+    if(currentUser){
+        showHome();
+        if(window.location.hash !== "#home") updateHash("#home");
+    } else {
+        showAuth();
+        showAuthForm("login");
+        if(window.location.hash !== "#signin") updateHash("#signin");
+    }
 }
 
 function showAuthForm(t){
@@ -959,55 +1174,71 @@ function showAuthForm(t){
     document.getElementById("authError").textContent="";
 }
 
-// TAVIX Modal Functions
+// ============ TAVIX MODAL FUNCTIONS ============
 let tavixDropdownOpen=false,notifDropdownOpen=false;
 document.addEventListener("click",function(e){const td=document.getElementById("tavixDropdown");const nd=document.getElementById("notificationDropdown");const tb=document.getElementById("tavixBtn")||document.getElementById("tavixBtnProfile");const nb=document.getElementById("notificationBtnHome")||document.getElementById("notificationBtnProfile");if(td&&tb&&!tb.contains(e.target)&&!td.contains(e.target)){td.style.display="none";tavixDropdownOpen=false;}if(nd&&nb&&!nb.contains(e.target)&&!nd.contains(e.target)){nd.style.display="none";notifDropdownOpen=false;}});
 function toggleTavix(){const d=document.getElementById("tavixDropdown");if(tavixDropdownOpen){d.style.display="none";tavixDropdownOpen=false;}else{updateTavixDisplay();d.style.display="block";tavixDropdownOpen=true;}}
 function toggleNotifications(){const d=document.getElementById("notificationDropdown");if(notifDropdownOpen){d.style.display="none";notifDropdownOpen=false;}else{updateNotifications();d.style.display="block";notifDropdownOpen=true;}}
 function openBuyModal(){closeModals();document.getElementById("buyModal").style.display="flex";}
 function openGiftModal(){closeModals();document.getElementById("giftModal").style.display="flex";}
-function openRedeemModal(){ const code = prompt("Enter your TAVIAN redeem code:"); if(code && code.trim()) redeemCodeAPI(code.trim().toUpperCase()); }
 function openTransactionsModal(){
     closeModals();
     const t=currentUser?.transactions||[];
     const c=document.getElementById("transactionList");
-    if(t.length===0){ c.innerHTML='<p style="text-align:center;color:#888">No transactions yet</p>'; }
-    else{ c.innerHTML=t.map(tr=>`<div class="transaction-item"><span>${new Date(tr.date).toLocaleDateString()} - ${tr.reason}${tr.from?` from @${tr.from}`:""}</span><span class="transaction-amount ${tr.amount>0?"positive":"negative"}">${tr.amount>0?"+":""}${formatTavix(Math.abs(tr.amount))} ⌬</span></div>`).join(''); }
+    if(t.length===0){c.innerHTML='<p style="text-align:center;color:#888">No transactions</p>';
+    }else{c.innerHTML=t.map(tr=>`<div class="transaction-item"><span>${new Date(tr.date).toLocaleDateString()} - ${tr.reason}${tr.from?` from @${tr.from}`:""}</span><span class="transaction-amount ${tr.amount>0?"positive":"negative"}">${tr.amount>0?"+":""}${formatTavix(Math.abs(tr.amount))} ⌬</span></div>`).join('');}
     document.getElementById("transactionsModal").style.display="flex";
 }
 async function buyTAVIX(){
     const s=document.getElementById("buyAmount");
     const a=parseInt(s.value);
-    if(await addTransaction(a,`Purchased ${a} TAVIX`)){ showSuccess(`+${formatTavix(a)} TAVIX added!`); closeModals(); updateTavixDisplay(); }
-    else{ showError("Purchase failed"); }
+    if(await addTransaction(a,`Purchased ${a} TAVIX`)){
+        showToast(`+${formatTavix(a)} TAVIX added!`, 'success');
+        closeModals();
+        updateTavixDisplay();
+    }else{showToast('Purchase failed', 'error');}
 }
 async function sendGift(){
     const un=document.getElementById("giftUsername").value.trim();
     const amt=parseInt(document.getElementById("giftAmount").value);
-    if(!un){ showError("Enter username"); return; }
-    if(isNaN(amt)||amt<=0){ showError("Enter valid amount"); return; }
-    if(!currentUser){ showError("Not logged in"); return; }
-    if((currentUser.tavix||0)<amt){ showError("Insufficient TAVIX"); return; }
+    if(!un){showToast('Enter username', 'error');return;}
+    if(isNaN(amt)||amt<=0){showToast('Enter valid amount', 'error');return;}
+    if(!currentUser){showToast('Not logged in', 'error');return;}
+    if((currentUser.tavix||0)<amt){showToast('Insufficient TAVIX', 'error');return;}
     await fetchAllUsers();
     const recipient=allUsers.find(x=>x.username===un);
-    if(!recipient){ showError("User not found"); return; }
+    if(!recipient){showToast('User not found', 'error');return;}
     if(await addTransactionAPI(-amt,`Gifted ${formatTavix(amt)} TAVIX to @${un}`)){
         await addTransactionAPI(amt,`Received ${formatTavix(amt)} TAVIX from @${currentUser.username}`, currentUser.username);
         await addNotificationAPI("🎁 Gift Received", `@${currentUser.username} sent you ${formatTavix(amt)} TAVIX!`);
-        showSuccess(`Sent ${formatTavix(amt)} TAVIX to @${un}!`);
+        showToast(`Sent ${formatTavix(amt)} TAVIX to @${un}!`, 'success');
         closeModals();
         document.getElementById("giftUsername").value="";
         document.getElementById("giftAmount").value="";
         updateTavixDisplay();
-    } else { showError("Failed to send gift"); }
+    }else{showToast('Failed to send gift', 'error');}
 }
-function closeModals(){ document.querySelectorAll(".modal-overlay").forEach(m=>m.style.display="none"); }
+function closeModals(){document.querySelectorAll(".modal-overlay").forEach(m=>m.style.display="none");}
 
-// Event Listeners
+// ============ EVENT LISTENERS ============
 document.getElementById("searchBtnHome")?.addEventListener("click",openSearch);
 document.getElementById("searchBtnProfile")?.addEventListener("click",openSearch);
-document.getElementById("profileBtnHome")?.addEventListener("click", () => { if(currentUser) navigateToUserProfile(currentUser.id); else navigateTo("signin"); });
-document.getElementById("profileBtnProfile")?.addEventListener("click", () => { if(currentUser) navigateToUserProfile(currentUser.id); else navigateTo("signin"); });
+
+document.getElementById("profileBtnHome")?.addEventListener("click", () => {
+    if(currentUser){
+        navigateToUserProfile(currentUser.id);
+    } else {
+        navigateTo("signin");
+    }
+});
+document.getElementById("profileBtnProfile")?.addEventListener("click", () => {
+    if(currentUser){
+        navigateToUserProfile(currentUser.id);
+    } else {
+        navigateTo("signin");
+    }
+});
+
 document.getElementById("settingsBtnHome")?.addEventListener("click",()=>navigateTo("settings"));
 document.getElementById("settingsBtnProfile")?.addEventListener("click",()=>navigateTo("settings"));
 document.getElementById("globalSearchInput")?.addEventListener("input",updateSearchDropdown);
@@ -1020,7 +1251,7 @@ const tb2=document.getElementById("tavixBtnProfile");if(tb2)tb2.onclick=toggleTa
 const nb1=document.getElementById("notificationBtnHome");if(nb1)nb1.onclick=toggleNotifications;
 const nb2=document.getElementById("notificationBtnProfile");if(nb2)nb2.onclick=toggleNotifications;
 
-// Forms
+// ============ FORMS ============
 document.getElementById("signupForm")?.addEventListener("submit", async function(e){
     e.preventDefault();
     const un = document.getElementById("signupUsername").value.trim();
@@ -1029,16 +1260,28 @@ document.getElementById("signupForm")?.addEventListener("submit", async function
     const cf = document.getElementById("signupConfirm").value;
     const tos = document.getElementById("tosAgree").checked;
     const err = document.getElementById("authError");
+    
     if(!tos){ err.textContent = "You must agree to the Terms of Service"; return; }
+    
     const hcaptchaResponse = hcaptcha.getResponse();
-    if(!hcaptchaResponse){ err.textContent = "Please complete the image puzzle to verify you're human"; return; }
+    if(!hcaptchaResponse){
+        err.textContent = "Please complete the image puzzle to verify you're human";
+        return;
+    }
+    
     if(un.length < 3){ err.textContent = "Username must be at least 3 characters"; return; }
     if(pw.length < 8){ err.textContent = "Password must be at least 8 characters"; return; }
     if(pw !== cf){ err.textContent = "Passwords don't match"; return; }
     if(!em.includes("@")){ err.textContent = "Please enter a valid email address"; return; }
+    
     const result = await registerAPI(un, em, pw, un, hcaptchaResponse);
-    if(result.success){ saveAccount({username: un, displayName: un, email: em}); navigateTo("home"); }
-    else{ err.textContent = result.error; hcaptcha.reset(); }
+    if(result.success){
+        saveAccount({username: un, displayName: un, email: em});
+        navigateTo("home");
+    } else {
+        err.textContent = result.error;
+        hcaptcha.reset();
+    }
 });
 
 document.getElementById("loginForm")?.addEventListener("submit", async function(e){
@@ -1046,19 +1289,37 @@ document.getElementById("loginForm")?.addEventListener("submit", async function(
     const un = document.getElementById("loginUsername").value.trim();
     const pw = document.getElementById("loginPassword").value;
     const result = await loginAPI(un, pw);
-    if(result.success){ saveAccount({username: un, displayName: result.user.displayName || un, email: result.user.email}); navigateTo("home"); }
-    else{ document.getElementById("authError").textContent = result.error; }
+    if(result.success){
+        saveAccount({username: un, displayName: result.user.displayName || un, email: result.user.email});
+        navigateTo("home");
+    } else {
+        document.getElementById("authError").textContent = result.error;
+    }
 });
 
-// Page Load
+// ============ PAGE LOAD ============
 window.addEventListener("hashchange", handleRoute);
 window.onload = async function(){
     await fetchAllUsers();
+    console.log('🔐 Tavian Auth System - NO GUEST TOKENS');
     const guestToken = localStorage.getItem('guest_token');
-    if (guestToken) localStorage.removeItem('guest_token');
-    await autoLogin();
-    if (currentUser) setInterval(async () => { await refreshUserData(); }, 10 * 60 * 1000);
+    if (guestToken) {
+        console.log('🧹 Cleaning up leftover guest token...');
+        localStorage.removeItem('guest_token');
+    }
+    const autoLoggedIn = await autoLogin();
+    if(autoLoggedIn) {
+        console.log('✅ Auto-login successful! User:', currentUser?.username);
+    } else {
+        console.log('⚠️ No session found - user is not logged in');
+    }
+    if (currentUser) {
+        setInterval(async () => {
+            await refreshUserData();
+        }, 10 * 60 * 1000);
+    }
     handleRoute();
+    console.log('✅ Tavian Platform Ready');
 };
 </script>
 </body>
