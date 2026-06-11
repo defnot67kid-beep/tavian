@@ -1,1683 +1,1539 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tavian - Game Platform</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Minibloxia - Advanced Moderation + Dual Controls</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', 'Helvetica', sans-serif;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
 
-<!-- Material Icons -->
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+            background: #000;
+        }
 
-<!-- hCaptcha with forced image puzzle mode -->
-<script src="https://js.hcaptcha.com/1/api.js?hl=en" async defer></script>
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            display: block;
+        }
 
-<style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif;}
-body{background:#f4f4f4;overflow-x:hidden;}
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            outline: none;
+        }
 
-header{background:white;padding:15px 20px;border-bottom:1px solid #ddd;position:sticky;top:0;z-index:100;}
-.topbar{display:flex;justify-content:space-between;align-items:center;}
-.logo{font-size:42px;font-weight:900;cursor:pointer;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.nav-icons{display:flex;align-items:center;gap:10px;position:relative;}
-.icon-btn{width:50px;height:50px;border:none;border-radius:10px;background:white;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:0.2s;}
-.icon-btn:hover{background:#f0f0f0;}
-.icon-btn .material-icons{font-size:28px;color:#555;}
-.notification-badge{position:relative;}
-.notification-badge .badge-count{position:absolute;top:-5px;right:-5px;background:#dc2626;color:white;font-size:10px;font-weight:bold;padding:2px 6px;border-radius:50%;min-width:18px;text-align:center;}
-.tavix-btn{background:white;border-radius:30px;padding:5px 15px 5px 10px;display:flex;align-items:center;gap:8px;cursor:pointer;transition:0.2s;border:1px solid #e0e0e0;}
-.tavix-btn:hover{background:#f0f0f0;border-color:#f0b800;}
-.tavix-icon{font-size:28px;color:#f0b800;}
-.tavix-amount{font-weight:bold;font-size:18px;color:#333;}
-.tavix-dropdown{display:none;position:absolute;top:65px;right:0;background:white;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,0.15);width:280px;z-index:1000;overflow:hidden;animation:fadeIn 0.2s ease;}
-@keyframes fadeIn{from{opacity:0;transform:translateY(-10px);}to{opacity:1;transform:translateY(0);}}
-.tavix-dropdown-header{background:linear-gradient(135deg,#f0b800 0%,#f0b800 100%);padding:15px;text-align:center;}
-.tavix-dropdown-header .balance{color:white;font-size:24px;font-weight:bold;}
-.tavix-dropdown-header .label{color:rgba(255,255,255,0.9);font-size:12px;margin-top:5px;}
-.tavix-dropdown-item{padding:15px;display:flex;align-items:center;gap:15px;cursor:pointer;transition:0.2s;border-bottom:1px solid #f0f0f0;}
-.tavix-dropdown-item:hover{background:#f9f9f9;}
-.tavix-dropdown-item .icon{font-size:24px;width:40px;text-align:center;}
-.tavix-dropdown-item .info{flex:1;}
-.tavix-dropdown-item .title{font-weight:bold;color:#333;}
-.tavix-dropdown-item .desc{font-size:12px;color:#888;margin-top:2px;}
-.modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:3000;justify-content:center;align-items:center;}
-.modal-container{background:white;border-radius:24px;padding:30px;max-width:450px;width:90%;text-align:center;}
-.modal-container h2{margin-bottom:20px;color:#333;}
-.modal-container input,.modal-container select{width:100%;padding:15px;border:2px solid #e0e0e0;border-radius:12px;margin:10px 0;font-size:16px;}
-.modal-container input:focus,.modal-container select:focus{outline:none;border-color:#f0b800;}
-.modal-buttons{display:flex;gap:10px;margin-top:20px;}
-.modal-buttons button{flex:1;padding:12px;border:none;border-radius:10px;cursor:pointer;font-size:16px;}
-.modal-buttons button:first-child{background:#e0e0e0;color:#333;}
-.modal-buttons button:last-child{background:#f0b800;color:white;}
-.transaction-list{max-height:300px;overflow-y:auto;text-align:left;}
-.transaction-item{padding:10px;border-bottom:1px solid #f0f0f0;display:flex;justify-content:space-between;}
-.transaction-amount{font-weight:bold;}
-.transaction-amount.positive{color:#10b981;}
-.transaction-amount.negative{color:#dc2626;}
-.notification-dropdown{display:none;position:absolute;top:65px;right:60px;background:white;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,0.15);width:320px;max-height:400px;overflow-y:auto;z-index:1000;animation:fadeIn 0.2s ease;}
-.notification-item{padding:15px;border-bottom:1px solid #f0f0f0;display:flex;gap:12px;cursor:pointer;transition:0.2s;}
-.notification-item:hover{background:#f9f9f9;}
-.notification-item.unread{background:#f0f7ff;}
-.notification-icon{font-size:24px;}
-.notification-content{flex:1;}
-.notification-title{font-weight:bold;color:#333;margin-bottom:4px;}
-.notification-message{font-size:12px;color:#666;}
-.notification-time{font-size:10px;color:#999;margin-top:4px;}
-.empty-notifications{padding:30px;text-align:center;color:#999;}
-.search-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:2000;justify-content:flex-start;align-items:flex-start;}
-.search-panel{width:100%;background:white;border-radius:0 0 20px 20px;box-shadow:0 10px 30px rgba(0,0,0,0.2);animation:slideDown 0.3s ease;}
-@keyframes slideDown{from{transform:translateY(-100%);opacity:0;}to{transform:translateY(0);opacity:1;}}
-.search-header{padding:20px 25px;border-bottom:1px solid #e0e0e0;display:flex;justify-content:space-between;align-items:center;}
-.search-header h2{font-size:24px;font-weight:600;color:#333;}
-.close-search-global{background:none;border:none;font-size:24px;cursor:pointer;padding:10px;border-radius:10px;color:#666;}
-.close-search-global:hover{background:#f0f0f0;}
-.search-input-wrapper{padding:20px 25px;position:relative;}
-.search-input-wrapper input{width:100%;padding:18px;border:2px solid #e0e0e0;border-radius:12px;font-size:18px;}
-.search-input-wrapper input:focus{outline:none;border-color:#667eea;}
-.search-dropdown-global{position:absolute;top:100%;left:25px;right:25px;background:white;border-radius:12px;box-shadow:0 8px 20px rgba(0,0,0,0.15);max-height:400px;overflow-y:auto;z-index:2001;display:none;margin-top:5px;}
-.search-results-global{padding:25px;max-height:60vh;overflow-y:auto;display:none;}
-.players-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
-.player-card{background:white;border-radius:16px;padding:20px;display:flex;align-items:center;gap:15px;border:1px solid #e5e5e5;transition:0.2s;cursor:pointer;}
-.player-card:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.08);}
-.player-avatar{width:60px;height:60px;border-radius:50%;object-fit:cover;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);}
-.badge{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;background:#f0f0f0;border-radius:50%;font-size:22px;margin-left:8px;}
-.badge.owner{background:#ffd700;color:#8b7500;}
-.badge.admin{background:#4a90e2;color:white;}
-.section{padding:25px;max-width:1200px;margin:auto;}
-.section h2{color:#666;margin-bottom:20px;letter-spacing:4px;font-size:18px;}
+        .ui-overlay {
+            position: relative;
+            z-index: 10;
+            pointer-events: none;
+        }
 
-/* FRIENDS STYLES */
-.friends-container{
-    display:flex;
-    align-items:center;
-    gap:20px;
-    padding:20px 0;
-}
+        .top-buttons, .chat-panel, .players, .chat-input-wrapper, .send-btn, .top-btn {
+            pointer-events: auto;
+        }
 
-.scroll-btn{
-    width:40px;
-    height:40px;
-    border:none;
-    border-radius:50%;
-    background:white;
-    box-shadow:0 2px 8px rgba(0,0,0,.1);
-    cursor:pointer;
-    font-size:22px;
-    transition:0.2s;
-}
+        .top-buttons {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            display: flex;
+            gap: 6px;
+            z-index: 20;
+        }
 
-.scroll-btn:hover{
-    background:#f0f0f0;
-    transform:scale(1.05);
-}
+        .top-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            border-radius: 6px;
+            background: #3f5664;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            backdrop-filter: blur(2px);
+        }
+        .top-btn:hover {
+            background: #2c4452;
+        }
 
-.friend-card{
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    gap:10px;
-    cursor:pointer;
-    transition:0.2s;
-}
+        .chat-panel {
+            position: absolute;
+            top: 46px;
+            left: 8px;
+            width: 280px;
+            height: 220px;
+            background: rgba(54, 83, 100, 0.85);
+            backdrop-filter: blur(8px);
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.15);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            z-index: 20;
+            transition: opacity 0.2s, visibility 0.2s;
+        }
 
-.friend-card:hover{
-    transform:translateY(-3px);
-}
+        .chat-panel.closed {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
 
-.friend-avatar{
-    width:64px;
-    height:64px;
-    border-radius:50%;
-    background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
-    color:white;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:28px;
-    font-weight:bold;
-}
+        .chat-messages {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            right: 8px;
+            bottom: 44px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
 
-.friend-name{
-    color:#444;
-    font-size:15px;
-    font-weight:500;
-}
+        .chat-messages::-webkit-scrollbar {
+            width: 4px;
+        }
 
-/* GAMES STYLES */
-.games-grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
-    gap:18px;
-}
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: #557384;
+            border-radius: 10px;
+        }
 
-.game-card{
-    background:white;
-    border-radius:10px;
-    overflow:hidden;
-    border:1px solid #e5e5e5;
-    transition:.2s;
-    cursor:pointer;
-}
+        .chat-input {
+            position: absolute;
+            left: 8px;
+            right: 8px;
+            bottom: 8px;
+            display: flex;
+            gap: 6px;
+        }
 
-.game-card:hover{
-    transform:translateY(-3px);
-    box-shadow:0 6px 18px rgba(0,0,0,.08);
-}
+        .chat-input-wrapper {
+            position: relative;
+            flex: 1;
+            display: flex;
+            align-items: center;
+        }
 
-.game-card img{
-    width:100%;
-    height:180px;
-    object-fit:cover;
-    background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
-}
+        .chat-input-wrapper input {
+            width: 100%;
+            height: 30px;
+            border: none;
+            outline: none;
+            background: rgba(30, 30, 35, 0.9);
+            color: white;
+            border-radius: 8px;
+            padding: 0 42px 0 10px;
+            font-size: 12px;
+            backdrop-filter: blur(4px);
+        }
 
-.game-info{
-    padding:12px;
-}
+        .chat-input-wrapper input::placeholder {
+            color: #bbbbbb;
+        }
 
-.game-info h3{
-    font-size:20px;
-    margin-bottom:5px;
-    color:#111;
-}
+        .char-counter {
+            position: absolute;
+            right: 10px;
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.4);
+            font-family: monospace;
+            pointer-events: none;
+        }
 
-.game-info p{
-    color:#888;
-    font-size:15px;
-}
+        .char-counter.limit-reached {
+            color: #ff6b6b;
+            font-weight: bold;
+        }
 
-.game-loading{
-    text-align:center;
-    padding:40px;
-    color:#888;
-}
+        .send-btn {
+            width: 30px;
+            height: 30px;
+            border: none;
+            border-radius: 8px;
+            background: #2b2b2b;
+            color: white;
+            font-size: 12px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .send-btn:hover {
+            background: #3e3e3e;
+        }
 
-.game-error{
-    text-align:center;
-    padding:40px;
-    color:#dc2626;
-}
+        .players {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 140px;
+            height: 180px;
+            background: rgba(15, 20, 35, 0.85);
+            backdrop-filter: blur(8px);
+            border-radius: 10px;
+            overflow: hidden;
+            color: white;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+            z-index: 20;
+            transition: opacity 0.2s, visibility 0.2s;
+        }
 
-/* Game Page Styles */
-.game-page {
-    max-width: 1200px;
-    margin: 40px auto;
-    padding: 20px;
-}
+        .players.closed {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
 
-.game-detail-card {
-    background: white;
-    border-radius: 20px;
-    overflow: hidden;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-}
+        .players-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 8px;
+            font-size: 9px;
+            font-weight: bold;
+            background: rgba(0,0,0,0.3);
+            border-bottom: 1px solid rgba(255,255,255,.15);
+            cursor: pointer;
+        }
+        
+        .players-header:hover {
+            background: rgba(0,0,0,0.5);
+        }
 
-.game-detail-header {
-    position: relative;
-}
+        .players-list {
+            height: calc(100% - 28px);
+            overflow-y: auto;
+        }
 
-.game-detail-cover {
-    width: 100%;
-    height: 400px;
-    object-fit: cover;
-}
+        .players-list::-webkit-scrollbar {
+            width: 4px;
+        }
 
-.game-detail-info {
-    padding: 30px;
-}
+        .players-list::-webkit-scrollbar-thumb {
+            background: #4f5872;
+            border-radius: 4px;
+        }
 
-.game-detail-title {
-    font-size: 36px;
-    font-weight: 800;
-    margin-bottom: 10px;
-    color: #111;
-}
+        .player {
+            padding: 8px 8px;
+            font-size: 10px;
+            font-weight: bold;
+            background: rgba(255,255,255,0.06);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
 
-.game-detail-meta {
-    display: flex;
-    gap: 20px;
-    margin-bottom: 20px;
-    color: #666;
-}
+        .chat-message {
+            background: rgba(30, 49, 62, 0.8);
+            color: #e0e0e0;
+            border-radius: 8px;
+            padding: 6px 8px;
+            margin-bottom: 5px;
+            font-size: 11px;
+            line-height: 1.4;
+            word-wrap: break-word;
+        }
+        
+        .message-name {
+            color: #ffd966;
+            font-weight: bold;
+            margin-right: 6px;
+        }
+        
+        .message-text {
+            color: #f0f0f0;
+        }
 
-.game-detail-description {
-    color: #555;
-    line-height: 1.6;
-    margin-bottom: 30px;
-}
+        .system-alert-message {
+            background: rgba(46, 25, 25, 0.9);
+            color: #ff6b6b;
+            border-radius: 8px;
+            padding: 6px 8px;
+            margin-bottom: 5px;
+            font-size: 11px;
+            line-height: 1.4;
+            font-weight: bold;
+            word-wrap: break-word;
+            border-left: 3px solid #ff4444;
+        }
 
-.play-game-btn {
-    background: linear-gradient(135deg,#667eea 0%,#764ba2 100%);
-    color: white;
-    border: none;
-    padding: 15px 40px;
-    border-radius: 50px;
-    font-size: 18px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.2s;
-}
+        .controls-hint {
+            position: absolute;
+            bottom: 12px;
+            left: 12px;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+            padding: 6px 12px;
+            border-radius: 8px;
+            color: white;
+            font-size: 11px;
+            font-family: monospace;
+            z-index: 20;
+            pointer-events: none;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
 
-.play-game-btn:hover {
-    transform: scale(1.05);
-    opacity: 0.9;
-}
+        .camera-mode-hint {
+            position: absolute;
+            bottom: 12px;
+            right: 12px;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+            padding: 6px 12px;
+            border-radius: 8px;
+            color: #ffd966;
+            font-size: 11px;
+            font-family: monospace;
+            z-index: 20;
+            pointer-events: none;
+            border: 1px solid rgba(255,215,0,0.3);
+        }
 
-.back-to-games {
-    background: #e0e0e0;
-    color: #333;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 8px;
-    cursor: pointer;
-    margin-top: 20px;
-}
+        .crosshair {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 16px;
+            height: 16px;
+            z-index: 9999;
+            pointer-events: none;
+            transition: opacity 0.2s;
+        }
+        
+        .crosshair .outer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 16px;
+            height: 16px;
+            border: 1.5px solid rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            box-sizing: border-box;
+        }
+        
+        .crosshair .dot {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 3px;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+        }
 
-/* END NEW STYLES */
+        /* Mobile Controls */
+        .mobile-controls {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 30;
+            pointer-events: none;
+            display: none;
+        }
 
-.welcome-message{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);padding:15px 25px;margin:10px 25px 0 25px;border-radius:12px;display:flex;justify-content:space-between;align-items:center;transition:opacity 0.5s;}
-.welcome-text{color:white;font-size:18px;font-weight:500;}
-.profile-page{max-width:1200px;margin:auto;padding:25px;}
-.profile-header{display:flex;gap:30px;align-items:center;margin-bottom:30px;background:white;padding:30px;border-radius:20px;box-shadow:0 2px 10px rgba(0,0,0,0.05);}
-.profile-pfp{width:120px;height:120px;border-radius:50%;object-fit:cover;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);}
-.display-name{font-size:56px;font-weight:800;color:#111;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
-.username{font-size:28px;color:#666;margin-top:5px;}
-.social-stats{display:flex;gap:25px;margin-top:12px;color:#555;font-size:22px;}
-.about-card{background:white;border:1px solid #e5e5e5;border-radius:16px;padding:25px;margin-bottom:30px;}
-.card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;}
-.card-header h2{color:#666;letter-spacing:4px;font-size:18px;}
-.edit-btn{background:white;border:1px solid #dcdcdc;border-radius:8px;padding:8px 18px;cursor:pointer;font-size:14px;transition:0.2s;}
-.edit-btn:hover{background:#f5f5f5;}
-.about-text{color:#555;font-size:16px;line-height:1.5;min-height:80px;}
-.about-edit-area{width:100%;padding:12px;border:2px solid #e0e0e0;border-radius:12px;font-size:16px;margin-bottom:10px;resize:vertical;font-family:Arial,sans-serif;}
-.save-about-btn{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;border:none;border-radius:8px;padding:8px 16px;cursor:pointer;}
-.cancel-about-btn{background:#e0e0e0;color:#333;border:none;border-radius:8px;padding:8px 16px;cursor:pointer;margin-left:10px;}
-.profile-stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;}
-.stat-card{background:white;border:1px solid #e5e5e5;border-radius:16px;padding:25px;}
-.stat-label{color:#999;font-size:14px;font-weight:bold;letter-spacing:2px;}
-.stat-value{font-size:32px;margin-top:10px;font-weight:500;}
-.auth-container{max-width:550px;margin:40px auto;padding:20px;}
-.tabs{display:flex;margin-bottom:40px;border-radius:10px;overflow:hidden;border:1px solid #ddd;}
-.tab{flex:1;padding:15px;border:none;background:white;cursor:pointer;font-size:18px;}
-.tab.active{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;}
-.auth-form{display:none;}
-.auth-form.active{display:block;}
-.auth-form label{display:block;margin-bottom:10px;color:#666;font-size:18px;}
-.auth-form input{width:100%;padding:18px;border:1px solid #ccc;border-radius:8px;margin-bottom:25px;font-size:16px;}
-.auth-form input:focus{outline:none;border-color:#667eea;}
-.submit-btn{width:100%;padding:18px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;border:none;border-radius:8px;font-size:24px;cursor:pointer;}
-.submit-btn:hover{opacity:0.9;}
-.error{color:red;margin-bottom:20px;}
-.h-captcha{margin:20px 0;display:flex;justify-content:center;min-height:80px;}
-.captcha-note{font-size:12px;color:#666;text-align:center;margin-top:10px;margin-bottom:15px;}
-.tos-container{margin:20px 0;padding:15px;background:#f9f9f9;border-radius:12px;border:1px solid #e0e0e0;}
-.tos-checkbox{display:flex;align-items:center;gap:10px;cursor:pointer;}
-.tos-checkbox input{width:20px;height:20px;cursor:pointer;margin:0;}
-.tos-checkbox label{margin:0;cursor:pointer;font-size:14px;color:#555;}
-.tos-link{color:#667eea;text-decoration:none;font-weight:bold;}
-.tos-link:hover{text-decoration:underline;}
-.quick-login-section{margin-top:30px;padding:20px;background:#f9f9f9;border-radius:16px;border:1px solid #e0e0e0;}
-.quick-login-section h3{font-size:16px;color:#666;margin-bottom:15px;display:flex;align-items:center;gap:8px;}
-.saved-accounts-list{display:flex;flex-wrap:wrap;gap:10px;}
-.saved-account-btn{display:flex;align-items:center;gap:10px;padding:10px 16px;background:white;border:1px solid #ddd;border-radius:12px;cursor:pointer;transition:0.2s;}
-.saved-account-btn:hover{background:#f0f0f0;border-color:#667eea;}
-.saved-account-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);display:flex;align-items:center;justify-content:center;color:white;font-weight:bold;}
-.saved-account-info{text-align:left;}
-.saved-account-name{font-weight:600;font-size:14px;}
-.saved-account-username{font-size:11px;color:#888;}
-.remove-account{margin-left:10px;color:#999;font-size:18px;cursor:pointer;padding:0 5px;}
-.remove-account:hover{color:#dc2626;}
-.settings-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:2000;justify-content:center;align-items:center;}
-.settings-container{max-width:600px;width:90%;margin:20px;padding:40px;background:white;border-radius:24px;max-height:90vh;overflow-y:auto;}
-.setting-item{margin-bottom:30px;padding:20px;background:#f9f9f9;border-radius:16px;}
-.setting-label{font-weight:bold;color:#555;margin-bottom:8px;font-size:12px;text-transform:uppercase;}
-.setting-value{font-size:20px;font-weight:500;margin-bottom:15px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
-.setting-input{width:100%;padding:14px;border:2px solid #e0e0e0;border-radius:12px;font-size:16px;}
-.save-btn{width:100%;padding:14px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;border:none;border-radius:12px;cursor:pointer;margin-top:10px;}
-.delete-btn{width:100%;padding:14px;background:#dc2626;color:white;border:none;border-radius:12px;cursor:pointer;margin-top:15px;}
-.delete-btn:hover{background:#b91c1c;}
-.logout-btn{width:100%;padding:14px;background:#666;color:white;border:none;border-radius:12px;cursor:pointer;margin-top:10px;}
-.logout-btn:hover{background:#555;}
-.note{font-size:12px;color:#888;text-align:center;margin-top:20px;}
-.delete-page{display:none;max-width:600px;margin:80px auto;padding:40px;background:white;border-radius:24px;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,0.1);}
-.delete-page h1{font-size:36px;color:#dc2626;margin-bottom:20px;}
-.delete-page p{color:#555;margin-bottom:30px;line-height:1.6;}
-.warning-text{background:#fee2e2;padding:15px;border-radius:12px;color:#dc2626;margin:20px 0;font-weight:bold;}
-.delete-input{width:100%;padding:15px;border:2px solid #e0e0e0;border-radius:12px;font-size:16px;margin:20px 0;}
-.delete-buttons{display:flex;gap:15px;}
-.delete-buttons button{flex:1;padding:15px;border:none;border-radius:12px;cursor:pointer;font-size:16px;}
-.cancel-delete{background:#e0e0e0;color:#333;}
-.confirm-delete{background:#dc2626;color:white;}
-.confirm-delete:hover{background:#b91c1c;}
-.tos-page{display:none;max-width:1000px;margin:0 auto;padding:30px;background:#f4f4f4;min-height:100vh;}
-.tos-header{background:white;border-radius:20px;padding:30px;margin-bottom:30px;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,0.05);}
-.tos-header h1{font-size:48px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:10px;}
-.tos-header p{color:#666;font-size:14px;}
-.tos-card{background:white;border-radius:20px;padding:30px;margin-bottom:30px;box-shadow:0 2px 10px rgba(0,0,0,0.05);}
-.tos-card h2{color:#333;margin-bottom:20px;padding-bottom:10px;border-bottom:3px solid #667eea;display:inline-block;}
-.tos-card ul{margin-left:25px;line-height:1.8;color:#444;}
-.tos-card li{margin:8px 0;}
-.tos-card p{line-height:1.6;color:#444;margin:10px 0;}
-.warning-box{background:#1a1a2e;color:#ff4444;padding:15px;border-radius:10px;font-family:monospace;margin:15px 0;}
-.green-box{background:#d1fae5;border-left:4px solid #10b981;padding:15px;border-radius:10px;margin:15px 0;color:#065f46;}
-.back-to-home{position:fixed;bottom:30px;right:30px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;border:none;padding:12px 24px;border-radius:50px;cursor:pointer;font-weight:bold;box-shadow:0 4px 12px rgba(0,0,0,0.2);z-index:100;}
-.back-to-home:hover{opacity:0.9;}
-@media (max-width:768px){.logo{font-size:28px;}.players-grid{grid-template-columns:1fr;}.display-name{font-size:42px;}}
-</style>
+        .mobile-controls.active {
+            display: block;
+        }
+
+        .joystick-container {
+            position: absolute;
+            bottom: 120px;
+            left: 120px;
+            width: 140px;
+            height: 140px;
+            pointer-events: auto;
+        }
+
+        .joystick-base {
+            position: absolute;
+            width: 140px;
+            height: 140px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 50%;
+            backdrop-filter: blur(8px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            left: 0;
+            top: 0;
+        }
+
+        .joystick-thumb {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            left: 40px;
+            top: 40px;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+            transition: transform 0.05s linear;
+        }
+
+        .camera-zone {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 50%;
+            height: 100%;
+            pointer-events: auto;
+            background: transparent;
+        }
+
+        .camera-touch-area {
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+        }
+
+        .action-buttons {
+            position: absolute;
+            bottom: 120px;
+            right: 20px;
+            display: flex;
+            gap: 15px;
+            pointer-events: auto;
+        }
+
+        .action-btn {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.1s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .action-btn:active {
+            transform: scale(0.95);
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .device-indicator {
+            position: absolute;
+            top: 8px;
+            right: 160px;
+            background: rgba(0,0,0,0.7);
+            padding: 4px 10px;
+            border-radius: 8px;
+            color: #ffd966;
+            font-size: 10px;
+            font-weight: bold;
+            z-index: 20;
+            pointer-events: none;
+            font-family: monospace;
+        }
+
+        @media (max-width: 768px) {
+            .controls-hint, .camera-mode-hint {
+                font-size: 9px;
+                bottom: 8px;
+            }
+            .joystick-container {
+                bottom: 100px;
+                left: 100px;
+                width: 120px;
+                height: 120px;
+            }
+            .joystick-base {
+                width: 120px;
+                height: 120px;
+            }
+            .joystick-thumb {
+                width: 50px;
+                height: 50px;
+                left: 35px;
+                top: 35px;
+            }
+            .action-btn {
+                width: 60px;
+                height: 60px;
+                font-size: 20px;
+            }
+        }
+    </style>
 </head>
+
 <body>
+    <div id="canvas-container"></div>
 
-<!-- GLOBAL SEARCH OVERLAY -->
-<div id="searchOverlay" class="search-overlay">
-    <div class="search-panel">
-        <div class="search-header"><h2>🔍 Search</h2><button class="close-search-global" onclick="closeSearchGlobal()">✕</button></div>
-        <div class="search-input-wrapper"><input type="text" id="globalSearchInput" placeholder="Search players..." autocomplete="off"><div id="globalSearchDropdown" class="search-dropdown-global"></div></div>
-        <div id="globalSearchResults" class="search-results-global"></div>
+    <div class="crosshair" id="crosshair">
+        <div class="outer"></div>
+        <div class="dot"></div>
     </div>
-</div>
 
-<!-- NOTIFICATION DROPDOWN -->
-<div id="notificationDropdown" class="notification-dropdown"><div id="notificationList"></div></div>
-
-<!-- TAVIX MODALS -->
-<div id="buyModal" class="modal-overlay"><div class="modal-container"><h2>💰 Buy TAVIX</h2><p style="color:#666; margin-bottom:15px;">Select amount:</p><select id="buyAmount"><option value="100">100 TAVIX - $0.99</option><option value="500">500 TAVIX - $4.99</option><option value="1000">1000 TAVIX - $9.99</option><option value="5000">5000 TAVIX - $49.99</option></select><div class="modal-buttons"><button onclick="closeModals()">Cancel</button><button onclick="buyTAVIX()">Purchase</button></div></div></div>
-<div id="giftModal" class="modal-overlay"><div class="modal-container"><h2>🎁 Gift TAVIX</h2><input type="text" id="giftUsername" placeholder="Recipient username"><input type="number" id="giftAmount" placeholder="Amount to send" min="1"><div class="modal-buttons"><button onclick="closeModals()">Cancel</button><button onclick="sendGift()">Send Gift</button></div></div></div>
-<div id="transactionsModal" class="modal-overlay"><div class="modal-container"><h2>📜 Transaction History</h2><div id="transactionList" class="transaction-list"></div><div class="modal-buttons"><button onclick="closeModals()">Close</button></div></div></div>
-
-<!-- SETTINGS OVERLAY -->
-<div id="settingsOverlay" class="settings-overlay">
-    <div class="settings-container">
-        <div class="settings-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-            <h1>⚙️ Settings</h1>
-            <button class="close-settings" onclick="closeSettingsGlobal()" style="background:none; border:none; font-size:28px; cursor:pointer; color:#666; padding:5px 10px;">✕</button>
+    <div class="ui-overlay">
+        <div class="top-buttons">
+            <button class="top-btn" id="settingsBtn" title="Settings">⚙</button>
+            <button class="top-btn" id="chatToggleBtn" title="Toggle Chat">💬</button>
         </div>
-        <div class="setting-item"><div class="setting-label">USERNAME</div><div class="setting-value" id="globalSettingsUsername">-</div></div>
-        <div class="setting-item"><div class="setting-label">DISPLAY NAME</div><div class="setting-value" id="globalSettingsDisplayName">-</div><input type="text" id="globalNewDisplayName" class="setting-input" placeholder="New display name"><button class="save-btn" onclick="updateDisplayNameGlobal()">Save Display Name</button></div>
-        <div class="setting-item"><div class="setting-label">EMAIL</div><div class="setting-value" id="globalSettingsEmail">-</div></div>
-        <div class="setting-item"><div class="setting-label">TAVIX BALANCE</div><div class="setting-value" id="globalSettingsTAVIX">-</div></div>
-        <button class="delete-btn" onclick="navigateTo('delete')">🗑️ Delete Account</button>
-        <button class="logout-btn" id="globalLogoutBtn">Logout</button>
-        <div class="note">🔒 Username cannot be changed • Display name can be updated anytime</div>
-    </div>
-</div>
 
-<!-- DELETE PAGE -->
-<div id="deletePage" class="delete-page"><h1>⚠️ Delete Account</h1><p>This action is <strong>permanent</strong> and cannot be undone.</p><div class="warning-text">All your data will be erased.</div><p>Type <strong style="color:#dc2626;">DELETE</strong> to confirm:</p><input type="text" id="deleteConfirmInput" class="delete-input" placeholder="Type DELETE here"><div class="delete-buttons"><button class="cancel-delete" onclick="navigateTo('home')">Cancel</button><button class="confirm-delete" onclick="confirmDeleteAccount()">Permanently Delete</button></div></div>
-
-<!-- HOME PAGE -->
-<div id="homePage" style="display:none;"><header><div class="topbar"><div class="logo" onclick="navigateTo('home')">TAVIAN</div><div class="nav-icons"><button class="icon-btn search-btn" id="searchBtnHome"><span class="material-icons">search</span></button><div class="tavix-btn" id="tavixBtn"><span class="tavix-icon">⌬</span><span class="tavix-amount" id="tavixBalance">0</span></div><button class="icon-btn profile-btn" id="profileBtnHome"><span class="material-icons">person</span></button><button class="icon-btn notification-badge" id="notificationBtnHome"><span class="material-icons">notifications</span><span class="badge-count" id="notificationCount">0</span></button><button class="icon-btn settings-btn" id="settingsBtnHome"><span class="material-icons">settings</span></button></div></div></header><div id="tavixDropdown" class="tavix-dropdown"><div class="tavix-dropdown-header"><div class="balance" id="dropdownBalance">0 ⌬</div><div class="label">TAVIX Balance</div></div><div class="tavix-dropdown-item" onclick="openBuyModal()"><div class="icon">💰</div><div class="info"><div class="title">Buy TAVIX</div><div class="desc">Purchase TAVIX with real money</div></div></div><div class="tavix-dropdown-item" onclick="openGiftModal()"><div class="icon">🎁</div><div class="info"><div class="title">Gift TAVIX</div><div class="desc">Send TAVIX to a friend</div></div></div><div class="tavix-dropdown-item" onclick="openTransactionsModal()"><div class="icon">📜</div><div class="info"><div class="title">Transactions</div><div class="desc">View your TAVIX history</div></div></div></div><div id="welcomeBanner" class="welcome-message" style="display:none;"><span class="welcome-text" id="welcomeText"></span></div><div id="mainContent"><div class="section"><h2>FRIENDS (1)</h2><div class="friends-container"><button class="scroll-btn" onclick="scrollFriends(-1)">‹</button><div id="friendsList" style="display:flex; gap:20px; overflow-x:auto; scroll-behavior:smooth; padding:10px 0;"><div class="friend-card" onclick="viewProfile('mikaeel')"><div class="friend-avatar">M</div><div class="friend-name">mikaeel</div></div></div><button class="scroll-btn" onclick="scrollFriends(1)">›</button></div></div><div class="section"><h2>GAMES</h2><div id="gamesContainer" class="games-grid"><div class="game-loading">Loading games...</div></div></div></div><footer style="margin-top:40px; background:white; padding:20px; text-align:center;"></footer></div></div>
-
-<!-- GAME PAGE (DETAIL VIEW) -->
-<div id="gamePage" style="display:none;">
-    <header>
-        <div class="topbar">
-            <div class="logo" onclick="navigateTo('home')">TAVIAN</div>
-            <div class="nav-icons">
-                <button class="icon-btn search-btn" id="searchBtnGame"><span class="material-icons">search</span></button>
-                <div class="tavix-btn" id="tavixBtnGame"><span class="tavix-icon">⌬</span><span class="tavix-amount" id="tavixBalanceGame">0</span></div>
-                <button class="icon-btn profile-btn" id="profileBtnGame"><span class="material-icons">person</span></button>
-                <button class="icon-btn notification-badge" id="notificationBtnGame"><span class="material-icons">notifications</span><span class="badge-count" id="notificationCountGame">0</span></button>
-                <button class="icon-btn settings-btn" id="settingsBtnGame"><span class="material-icons">settings</span></button>
-            </div>
-        </div>
-    </header>
-    <div id="gameContent" class="game-page"></div>
-</div>
-
-<!-- PROFILE PAGE -->
-<div id="profilePage" style="display:none;"><header><div class="topbar"><div class="logo" onclick="navigateTo('home')">TAVIAN</div><div class="nav-icons"><button class="icon-btn search-btn" id="searchBtnProfile"><span class="material-icons">search</span></button><div class="tavix-btn" id="tavixBtnProfile"><span class="tavix-icon">⌬</span><span class="tavix-amount" id="tavixBalanceProfile">0</span></div><button class="icon-btn profile-btn" id="profileBtnProfile"><span class="material-icons">person</span></button><button class="icon-btn notification-badge" id="notificationBtnProfile"><span class="material-icons">notifications</span><span class="badge-count" id="notificationCountProfile">0</span></button><button class="icon-btn settings-btn" id="settingsBtnProfile"><span class="material-icons">settings</span></button></div></div></header><div id="profileContent" class="profile-page"></div><footer style="margin-top:40px; background:white; padding:20px; text-align:center;"></footer></div>
-
-<!-- TERMS OF SERVICE PAGE -->
-<div id="tosPage" class="tos-page">
-    <div class="tos-header"><h1>📜 TERMS OF SERVICE</h1><p>Updated: June 2026</p></div>
-    <div class="tos-card"><h2>1. Acceptance</h2><p>By using Tavian, you agree to these terms.</p></div>
-    <div class="tos-card"><h2>2. Your Account</h2><p>You are responsible for your account security. Don't share passwords.</p></div>
-    <div class="tos-card"><h2>3. Rules</h2><p>No bots. No cheating. Respect other users.</p><div class="warning-box">⚠️ VIOLATIONS = BAN</div></div>
-    <div class="tos-card"><h2>4. TAVIX</h2><p>Virtual currency. No real money value.</p></div>
-    <div class="tos-card"><h2>5. Contact</h2><p>Message RealGysj or Plstealme2 if something's wrong.</p></div>
-    <button class="back-to-home" onclick="navigateTo('home')">← BACK</button>
-</div>
-
-<!-- AUTH PAGE -->
-<div id="authPage" style="display:none;">
-    <header>
-        <div class="topbar">
-            <div class="logo">TAVIAN</div>
-            <div class="nav-icons"></div>
-        </div>
-    </header>
-    <div class="auth-container">
-        <div class="tabs">
-            <button class="tab active" id="loginTab" onclick="showAuthForm('login')">Sign In</button>
-            <button class="tab" id="signupTab" onclick="showAuthForm('signup')">Create Account</button>
-        </div>
-        <div id="authError" class="error"></div>
-        
-        <!-- LOGIN FORM -->
-        <form id="loginForm" class="auth-form active">
-            <label>Username</label>
-            <input type="text" id="loginUsername" required>
-            <label>Password</label>
-            <input type="password" id="loginPassword" required>
-            <button type="submit" class="submit-btn">Sign In</button>
-            <div style="text-align:center; margin-top:15px;">
-                <a href="#" onclick="showAuthForm('signup'); return false;" style="color:#667eea;">No account? Create one</a>
-            </div>
-        </form>
-        
-        <!-- SIGNUP FORM -->
-        <form id="signupForm" class="auth-form">
-            <label>Username</label>
-            <input type="text" id="signupUsername" required>
-            <label>Email</label>
-            <input type="email" id="signupEmail" required>
-            <label>Password</label>
-            <input type="password" id="signupPassword" required>
-            <label>Confirm Password</label>
-            <input type="password" id="signupConfirm" required>
-            
-            <div class="h-captcha" 
-                 data-sitekey="ca72f9a0-77d0-4a9c-af8e-e4748fe6a93c" 
-                 data-theme="light"
-                 data-s="image"
-                 data-size="normal"></div>
-            <div class="captcha-note">🧩 Complete the image puzzle to verify you're human</div>
-            
-            <div class="tos-container">
-                <div class="tos-checkbox">
-                    <input type="checkbox" id="tosAgree">
-                    <label>I agree to the <a href="#" onclick="navigateTo('wiki-tos'); return false;">Terms of Service</a></label>
+        <div class="chat-panel" id="chatPanel">
+            <div class="chat-messages" id="chatMessages"></div>
+            <div class="chat-input">
+                <div class="chat-input-wrapper">
+                    <input type="text" id="chatInputField" placeholder="Press / to chat..." maxlength="100">
+                    <span class="char-counter" id="charCounter">0/100</span>
                 </div>
+                <button class="send-btn" id="sendChatBtn">➤</button>
             </div>
-            <button type="submit" class="submit-btn">Create Account</button>
-        </form>
+        </div>
+
+        <div class="players" id="playersPanel">
+            <div class="players-header">
+                <span>PLAYERS</span>
+                <span>⏎ TAB</span>
+            </div>
+            <div class="players-list" id="playersList">
+                <div class="player">✨ Minibloxia</div>
+                <div class="player">🤖 Guest_123</div>
+                <div class="player">⭐ Builder_Bob</div>
+            </div>
+        </div>
         
-        <div class="quick-login-section">
-            <h3>📱 Quick Login</h3>
-            <div id="savedAccountsList" class="saved-accounts-list"></div>
+        <div class="device-indicator" id="deviceIndicator">💻 PC MODE</div>
+        <div class="controls-hint" id="controlsHint">
+            🎮 S=Forward W=Back | A/D Strafe | ← → Rotate | ↑ ↓ Pitch | Space Jump | I/O Zoom
+        </div>
+        <div class="camera-mode-hint" id="cameraModeHint">
+            🎥 Third Person | Distance: 8.0
         </div>
     </div>
-</div>
 
-<script>
-// ============================================
-// TAVIAN PLATFORM - WITH STUDIO API INTEGRATION
-// ============================================
-
-// API Configuration
-const API_URL = 'https://tavian-api.onrender.com/api';
-const STUDIO_API_URL = 'https://tavianstudio-gidf.onrender.com';
-
-// FORMAT NUMBER WITH K/M SUFFIX
-function formatTavix(amount){
-    if(amount >= 1000000) return (amount / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
-    if(amount >= 1000) return (amount / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
-    return amount.toString();
-}
-
-// USER SYSTEM
-let currentUser = null;
-let allUsers = [];
-let gamesList = [];
-
-// Scroll friends function
-function scrollFriends(direction) {
-    const container = document.getElementById('friendsList');
-    if (container) {
-        const scrollAmount = 300;
-        container.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' });
-    }
-}
-
-// ============ GAME FUNCTIONS ============
-async function fetchGames() {
-    try {
-        const response = await fetch(`${STUDIO_API_URL}/api/games`);
-        if (response.ok) {
-            gamesList = await response.json();
-            renderGames();
-        } else {
-            throw new Error('Failed to fetch games');
-        }
-    } catch (error) {
-        console.error('Error fetching games:', error);
-        const container = document.getElementById('gamesContainer');
-        if (container) {
-            container.innerHTML = '<div class="game-error">⚠️ Failed to load games. Please try again later.</div>';
-        }
-    }
-}
-
-function renderGames() {
-    const container = document.getElementById('gamesContainer');
-    if (!container) return;
-    
-    if (!gamesList || gamesList.length === 0) {
-        container.innerHTML = '<div class="game-loading">No games available yet. Check back soon!</div>';
-        return;
-    }
-    
-    container.innerHTML = gamesList.map(game => `
-        <div class="game-card" onclick="navigateToGame('${game.id}', '${escapeHtml(game.name)}')">
-            <img src="${game.thumbnail || 'https://placehold.co/300x220/667eea/white?text=' + encodeURIComponent(game.name)}" 
-                 alt="${escapeHtml(game.name)}"
-                 onerror="this.src='https://placehold.co/300x220/667eea/white?text=' + encodeURIComponent('${escapeHtml(game.name)}')">
-            <div class="game-info">
-                <h3>${escapeHtml(game.name)}</h3>
-                <p>${game.plays || 0} plays</p>
-            </div>
+    <!-- Mobile Controls -->
+    <div class="mobile-controls" id="mobileControls">
+        <div class="joystick-container" id="joystickContainer">
+            <div class="joystick-base"></div>
+            <div class="joystick-thumb" id="joystickThumb"></div>
         </div>
-    `).join('');
-}
-
-function navigateToGame(gameId, gameName) {
-    const safeGameName = gameName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
-    const hash = `#games-${gameId}-${safeGameName}`;
-    updateHash(hash);
-    showGamePage(gameId);
-}
-
-async function showGamePage(gameId) {
-    try {
-        // Fetch the specific game
-        const response = await fetch(`${STUDIO_API_URL}/api/games/${gameId}`);
-        if (!response.ok) throw new Error('Game not found');
-        
-        const game = await response.json();
-        
-        // Hide other pages, show game page
-        document.getElementById("authPage").style.display = "none";
-        document.getElementById("homePage").style.display = "none";
-        document.getElementById("profilePage").style.display = "none";
-        document.getElementById("tosPage").style.display = "none";
-        document.getElementById("deletePage").style.display = "none";
-        document.getElementById("gamePage").style.display = "block";
-        
-        // Update TAVIX display on game page
-        updateTavixDisplay();
-        updateNotifications();
-        
-        // Render game details
-        const gameContent = document.getElementById("gameContent");
-        gameContent.innerHTML = `
-            <div class="game-detail-card">
-                <div class="game-detail-header">
-                    <img class="game-detail-cover" src="${game.thumbnail || 'https://placehold.co/1200x400/667eea/white?text=' + encodeURIComponent(game.name)}" 
-                         alt="${escapeHtml(game.name)}"
-                         onerror="this.src='https://placehold.co/1200x400/667eea/white?text=' + encodeURIComponent('${escapeHtml(game.name)}')">
-                </div>
-                <div class="game-detail-info">
-                    <h1 class="game-detail-title">${escapeHtml(game.name)}</h1>
-                    <div class="game-detail-meta">
-                        <span>🎮 ${game.genre || 'Other'}</span>
-                        <span>👾 ${game.plays || 0} plays</span>
-                        <span>❤️ ${game.likes || 0} likes</span>
-                        <span>📅 ${new Date(game.createdAt).toLocaleDateString()}</span>
-                    </div>
-                    <div class="game-detail-description">
-                        ${escapeHtml(game.description || 'No description available.')}
-                    </div>
-                    <button class="play-game-btn" onclick="playGame('${game.id}')">▶ PLAY NOW</button>
-                    <br>
-                    <button class="back-to-games" onclick="navigateTo('home')">← Back to Games</button>
-                </div>
-            </div>
-        `;
-    } catch (error) {
-        console.error('Error loading game:', error);
-        alert('Failed to load game details');
-        navigateTo('home');
-    }
-}
-
-function playGame(gameId) {
-    const game = gamesList.find(g => g.id === gameId);
-    if (game) {
-        // You can implement actual game loading here
-        // For now, show a more detailed alert
-        alert(`🎮 Launching "${game.name}"...\n\nGame ID: ${gameId}\nPlays: ${game.plays || 0}\n\nIn production, this would load the actual game!`);
-        
-        // Future implementation could be:
-        // window.location.href = `/play.html?id=${gameId}`;
-        // or load in an iframe
-    } else {
-        alert('Game not found');
-    }
-}
-
-// ============ ABOUT EDITING FIXED ============
-let isEditingAbout = false;
-
-function editAbout() {
-    if (isEditingAbout) return;
-    
-    const aboutCard = document.querySelector('.about-card');
-    const aboutText = document.querySelector('.about-text');
-    const currentAbout = currentUser?.about || "Tell people about yourself...";
-    
-    const editHtml = `
-        <textarea id="aboutEditInput" class="about-edit-area" rows="4">${escapeHtml(currentAbout)}</textarea>
-        <div>
-            <button class="save-about-btn" onclick="saveAbout()">Save Changes</button>
-            <button class="cancel-about-btn" onclick="cancelAboutEdit()">Cancel</button>
+        <div class="camera-zone" id="cameraZone">
+            <div class="camera-touch-area" id="cameraTouchArea"></div>
         </div>
-    `;
-    
-    aboutText.style.display = 'none';
-    const editContainer = document.createElement('div');
-    editContainer.id = 'aboutEditContainer';
-    editContainer.innerHTML = editHtml;
-    aboutCard.appendChild(editContainer);
-    isEditingAbout = true;
-    document.getElementById('aboutEditInput').focus();
-}
+        <div class="action-buttons">
+            <button class="action-btn" id="jumpBtn">🦶 JUMP</button>
+        </div>
+    </div>
 
-async function saveAbout() {
-    const newAbout = document.getElementById('aboutEditInput').value.trim();
-    
-    if (newAbout === currentUser?.about) {
-        cancelAboutEdit();
-        return;
-    }
-    
-    try {
-        const token = getAuthToken();
-        if (!token) {
-            alert('You need to be logged in to update your about section');
-            cancelAboutEdit();
-            return;
-        }
-        
-        console.log('Saving about...', { newAbout, token: token.substring(0, 20) + '...' });
-        
-        const response = await fetch(`${API_URL}/user/${currentUser.username}`, {
-            method: 'PUT',
-            headers: { 
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`,
-                'X-Tavian-Token': token
-            },
-            credentials: 'include',
-            body: JSON.stringify({ about: newAbout })
-        });
-        
-        console.log('Response status:', response.status);
-        
-        if (response.ok) {
-            const updatedUser = await response.json();
-            currentUser = updatedUser;
-            backupUserData(currentUser);
-            
-            // Re-render the profile to show the updated about
-            renderProfile();
-            addNotification("📝 About Updated", "Your profile about section has been updated!");
-            alert('About section updated successfully!');
-        } else {
-            const errorText = await response.text();
-            console.error('Save failed:', response.status, errorText);
-            alert(`Failed to update about: ${response.status} ${errorText}`);
-            cancelAboutEdit();
-        }
-    } catch (error) {
-        console.error('Error saving about:', error);
-        alert('Network error: ' + error.message + '. Please check your connection and try again.');
-        cancelAboutEdit();
-    }
-}
-
-function cancelAboutEdit() {
-    const editContainer = document.getElementById('aboutEditContainer');
-    const aboutText = document.querySelector('.about-text');
-    
-    if (editContainer) {
-        editContainer.remove();
-    }
-    if (aboutText) {
-        aboutText.style.display = 'block';
-    }
-    isEditingAbout = false;
-}
-
-// ============ TOKEN MANAGEMENT ============
-function setAuthToken(token) {
-    if (!token) return;
-    localStorage.setItem('tavian_auth_token', token);
-    localStorage.setItem('TAVIOSECURITY', token);
-    document.cookie = `tavian_token=${token}; path=/; max-age=2592000`;
-    document.cookie = `TAVIOSECURITY=${token}; path=/; max-age=2592000`;
-}
-
-function getAuthToken() {
-    let token = localStorage.getItem('TAVIOSECURITY');
-    if (token) return token;
-    token = localStorage.getItem('tavian_auth_token');
-    if (token) return token;
-    return null;
-}
-
-function clearAuthToken() {
-    localStorage.removeItem('tavian_auth_token');
-    localStorage.removeItem('TAVIOSECURITY');
-    localStorage.removeItem('tavian_user_backup');
-    document.cookie = 'tavian_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-    document.cookie = 'TAVIOSECURITY=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-}
-
-function backupUserData(user) {
-    if (user) {
-        localStorage.setItem('tavian_user_backup', JSON.stringify(user));
-    }
-}
-
-function getBackupUser() {
-    const backup = localStorage.getItem('tavian_user_backup');
-    if (backup) {
-        try {
-            return JSON.parse(backup);
-        } catch(e) {
-            return null;
-        }
-    }
-    return null;
-}
-
-function getCookie(name) {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(';').shift();
-    return null;
-}
-
-// ============ API CALLS ============
-async function fetchAllUsers(){
-    try{
-        const response = await fetch(`${API_URL}/users`, { credentials: 'include' });
-        if(response.ok){
-            allUsers = await response.json();
-            return allUsers;
-        }
-    }catch(e){console.error(e);}
-    return [];
-}
-
-async function autoLogin(){
-    const savedToken = getAuthToken();
-    
-    if (savedToken) {
-        try {
-            const response = await fetch(`${API_URL}/me`, {
-                headers: {
-                    'Authorization': `Bearer ${savedToken}`,
-                    'X-Tavian-Token': savedToken
-                },
-                credentials: 'include'
-            });
-            
-            if (response.ok) {
-                currentUser = await response.json();
-                backupUserData(currentUser);
-                return true;
-            } else {
-                clearAuthToken();
-            }
-        } catch(e) {
-            console.log('Token validation failed:', e);
-        }
-    }
-    
-    const backupUser = getBackupUser();
-    if (backupUser) {
-        currentUser = backupUser;
-        refreshUserData();
-        return true;
-    }
-    
-    return false;
-}
-
-async function refreshUserData() {
-    try {
-        const token = getAuthToken();
-        if (!token) return;
-        
-        const response = await fetch(`${API_URL}/me`, {
-            credentials: 'include',
-            headers: { 
-                'Authorization': `Bearer ${token}`,
-                'X-Tavian-Token': token
-            }
-        });
-        if (response.ok) {
-            const freshUser = await response.json();
-            currentUser = freshUser;
-            backupUserData(freshUser);
-            updateTavixDisplay();
-            updateNotifications();
-            if (document.getElementById("profilePage").style.display === "block") {
-                renderProfile();
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.128.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.128.0/examples/jsm/"
             }
         }
-    } catch(e) {
-        console.log('Background refresh failed:', e);
-    }
-}
+    </script>
 
-async function loginAPI(username, password){
-    try{
-        clearAuthToken();
+    <script type="module">
+        import * as THREE from 'three';
+
+        // ===== DEVICE DETECTION =====
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
         
-        const response = await fetch(`${API_URL}/login`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
-            body: JSON.stringify({ username, password })
-        });
-        
-        if(response.ok){
-            currentUser = await response.json();
-            backupUserData(currentUser);
-            
-            let token = getCookie('tavian_token') || getCookie('TAVIOSECURITY');
-            const setCookieHeader = response.headers.get('set-cookie');
-            if (setCookieHeader && !token) {
-                const tokenMatch = setCookieHeader.match(/tavian_token=([^;]+)/);
-                if (tokenMatch && tokenMatch[1]) {
-                    token = tokenMatch[1];
-                }
-            }
-            
-            if (token) setAuthToken(token);
-            return { success: true, user: currentUser };
-        } else {
-            const error = await response.json();
-            return { success: false, error: error.error };
-        }
-    }catch(e){ 
-        return { success: false, error: "Network error" }; 
-    }
-}
-
-async function registerAPI(username, email, password, displayName, hcaptchaResponse){
-    try{
-        clearAuthToken();
-        
-        const response = await fetch(`${API_URL}/register`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
-            body: JSON.stringify({ username, email, password, displayName, hcaptchaResponse })
-        });
-        
-        if(response.ok){
-            currentUser = await response.json();
-            backupUserData(currentUser);
-            
-            let token = getCookie('tavian_token') || getCookie('TAVIOSECURITY');
-            const setCookieHeader = response.headers.get('set-cookie');
-            if (setCookieHeader && !token) {
-                const tokenMatch = setCookieHeader.match(/tavian_token=([^;]+)/);
-                if (tokenMatch && tokenMatch[1]) {
-                    token = tokenMatch[1];
-                }
-            }
-            
-            if (token) setAuthToken(token);
-            return { success: true, user: currentUser };
-        } else {
-            const error = await response.json();
-            return { success: false, error: error.error };
-        }
-    }catch(e){ 
-        return { success: false, error: "Network error" }; 
-    }
-}
-
-async function logoutAPI(){
-    try{
-        await fetch(`${API_URL}/logout`, { method: 'POST', credentials: 'include' });
-    }catch(e){}
-    currentUser = null;
-    clearAuthToken();
-}
-
-async function updateUserAPI(updates){
-    if(!currentUser) return false;
-    try{
-        const token = getAuthToken();
-        if (!token) {
-            console.error('No auth token found');
-            return false;
-        }
-        
-        const response = await fetch(`${API_URL}/user/${currentUser.username}`, {
-            method: 'PUT',
-            headers: { 
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`,
-                'X-Tavian-Token': token
-            },
-            credentials: 'include',
-            body: JSON.stringify(updates)
-        });
-        
-        if(response.ok){
-            currentUser = await response.json();
-            backupUserData(currentUser);
-            return true;
-        } else {
-            const error = await response.text();
-            console.error('Update failed:', response.status, error);
-            return false;
-        }
-    }catch(e){
-        console.error('Update API error:', e);
-        return false;
-    }
-}
-
-async function addTransactionAPI(amount, reason, from=null){
-    if(!currentUser) return false;
-    try{
-        const token = getAuthToken();
-        const response = await fetch(`${API_URL}/transaction`, {
-            method: 'POST',
-            headers: { 
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`,
-                'X-Tavian-Token': token
-            },
-            credentials: 'include',
-            body: JSON.stringify({ username: currentUser.username, amount, reason, from })
-        });
-        if(response.ok){
-            const result = await response.json();
-            currentUser.tavix = result.newBalance;
-            backupUserData(currentUser);
-            return true;
-        }
-    }catch(e){}
-    return false;
-}
-
-async function addNotificationAPI(title, message){
-    if(!currentUser) return false;
-    try{
-        const token = getAuthToken();
-        await fetch(`${API_URL}/notification`, {
-            method: 'POST',
-            headers: { 
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`,
-                'X-Tavian-Token': token
-            },
-            credentials: 'include',
-            body: JSON.stringify({ username: currentUser.username, title, message })
-        });
-        return true;
-    }catch(e){ return false; }
-}
-
-async function deleteAccountAPI(){
-    if(!currentUser) return false;
-    try{
-        const token = getAuthToken();
-        const response = await fetch(`${API_URL}/user/${currentUser.username}`, {
-            method: 'DELETE',
-            headers: { 
-                'Authorization': `Bearer ${token}`,
-                'X-Tavian-Token': token
-            },
-            credentials: 'include'
-        });
-        if(response.ok){
-            currentUser = null;
-            clearAuthToken();
-            return true;
-        }
-    }catch(e){}
-    return false;
-}
-
-// BADGE SYSTEM
-function getUserBadge(username){
-    const lowerUsername = username.toLowerCase();
-    if(lowerUsername === "realgysj") return { icon: "👑", class: "owner" };
-    if(lowerUsername === "plstealme2") return { icon: "🛡️", class: "admin" };
-    return null;
-}
-
-function renderBadge(username){
-    const badge = getUserBadge(username);
-    if(badge) return `<span class="badge ${badge.class}">${badge.icon}</span>`;
-    return "";
-}
-
-// UI Update Functions
-function updateTavixDisplay(){
-    const b = currentUser?.tavix || 0;
-    ["tavixBalance","tavixBalanceProfile","tavixBalanceGame","dropdownBalance","globalSettingsTAVIX"].forEach(id=>{
-        const e=document.getElementById(id);
-        if(e) e.innerHTML=id==="dropdownBalance"?`${formatTavix(b)} ⌬`:formatTavix(b);
-    });
-}
-
-async function addTransaction(amount, reason, from=null){
-    if(await addTransactionAPI(amount, reason, from)){
-        if(amount>0&&!from) addNotification("💰 TAVIX Purchased", `+${formatTavix(amount)} TAVIX`);
-        if(from) addNotification("🎁 Gift Received", `${from} sent you ${formatTavix(amount)} TAVIX!`);
-        updateTavixDisplay();
-        return true;
-    }
-    return false;
-}
-
-async function addNotification(title, message){
-    await addNotificationAPI(title, message);
-    updateNotifications();
-}
-
-function updateNotifications(){
-    if(!currentUser) return;
-    const unread = currentUser.notifications?.filter(n=>!n.read).length||0;
-    ["notificationCount","notificationCountProfile","notificationCountGame"].forEach(id=>{
-        const e=document.getElementById(id);
-        if(e) e.textContent=unread;
-    });
-    const container=document.getElementById("notificationList");
-    if(container){
-        if(!currentUser.notifications||currentUser.notifications.length===0){
-            container.innerHTML='<div class="empty-notifications">🔔 No notifications</div>';
-        }else{
-            container.innerHTML=currentUser.notifications.map(n=>`<div class="notification-item ${!n.read?'unread':''}" onclick="markRead(${n.id})"><div class="notification-icon">${n.title.includes("TAVIX")?"💰":"📢"}</div><div class="notification-content"><div class="notification-title">${escapeHtml(n.title)}</div><div class="notification-message">${escapeHtml(n.message)}</div><div class="notification-time">${new Date(n.time).toLocaleString()}</div></div></div>`).join('');
-        }
-    }
-}
-
-async function markRead(id){
-    if(currentUser && currentUser.notifications){
-        const n = currentUser.notifications.find(x=>x.id===id);
-        if(n) n.read=true;
-        await updateUserAPI({ notifications: currentUser.notifications });
-        updateNotifications();
-    }
-}
-
-// SAVED ACCOUNTS
-function getSaved(){return JSON.parse(localStorage.getItem("savedAccounts"))||[];}
-function saveAccount(acc){let s=getSaved();if(!s.find(a=>a.username===acc.username)){s.push({username:acc.username,displayName:acc.displayName||acc.username,email:acc.email,lastLogin:new Date().toISOString(),color:'#'+Math.floor(Math.random()*16777215).toString(16)});localStorage.setItem("savedAccounts",JSON.stringify(s));}renderSaved();}
-function removeSaved(user){let s=getSaved().filter(a=>a.username!==user);localStorage.setItem("savedAccounts",JSON.stringify(s));renderSaved();}
-function quickLogin(user){document.getElementById("loginUsername").value=user;showAuthForm('login');}
-function renderSaved(){const c=document.getElementById("savedAccountsList");if(!c)return;const s=getSaved();if(s.length===0){c.innerHTML='<div style="color:#999">No saved accounts</div>';return;}c.innerHTML=s.map(acc=>`<div class="saved-account-btn" onclick="quickLogin('${escapeHtml(acc.username)}')"><div class="saved-account-avatar" style="background:${acc.color||'#667eea'}">${(acc.displayName.charAt(0)||acc.username.charAt(0)).toUpperCase()}</div><div class="saved-account-info"><div class="saved-account-name">${escapeHtml(acc.displayName)}</div><div class="saved-account-username">@${escapeHtml(acc.username)}</div></div><span class="remove-account" onclick="event.stopPropagation(); removeSaved('${escapeHtml(acc.username)}')">✕</span></div>`).join('');}
-
-function escapeHtml(s){if(!s)return '';return s.replace(/[&<>]/g,function(m){if(m==='&')return '&amp;';if(m==='<')return '&lt;';if(m==='>')return '&gt;';return m;});}
-function formatEmail(e){if(!e)return '-';const a=e.indexOf('@');if(a<=4)return e.substring(0,a)+'***'+e.substring(a);return e.substring(0,4)+'***'+e.substring(a);}
-
-// ============ PROFILE FUNCTIONS ============
-function navigateToUserProfile(userId) {
-    if (!userId) return;
-    updateHash(`#${userId}-profile`);
-    
-    if (currentUser && currentUser.id === userId) {
-        showProfile();
-    } else {
-        showOtherUserProfile(userId);
-    }
-}
-
-async function showOtherUserProfile(userId) {
-    await fetchAllUsers();
-    const user = allUsers.find(u => u.id === userId);
-    
-    if (!user) {
-        alert("User not found");
-        navigateTo("home");
-        return;
-    }
-    
-    document.getElementById("authPage").style.display = "none";
-    document.getElementById("homePage").style.display = "none";
-    document.getElementById("gamePage").style.display = "none";
-    document.getElementById("tosPage").style.display = "none";
-    document.getElementById("deletePage").style.display = "none";
-    document.getElementById("profilePage").style.display = "block";
-    
-    renderOtherUserProfile(user);
-}
-
-function renderOtherUserProfile(user) {
-    const isOwner = currentUser && currentUser.id === user.id;
-    
-    const html = `
-        <div class="profile-header">
-            <img class="profile-pfp" src="https://ui-avatars.com/api/?background=667eea&color=fff&size=120&name=${encodeURIComponent(user.displayName || user.username)}">
-            <div>
-                <div class="display-name">${escapeHtml(user.displayName || user.username)} ${renderBadge(user.username)}</div>
-                <div class="username">@${escapeHtml(user.username)}</div>
-                <div class="social-stats">
-                    <span>0 Friends</span>
-                    <span>2 Followers</span>
-                </div>
-            </div>
-        </div>
-        <div class="about-card">
-            <div class="card-header">
-                <h2>ABOUT</h2>
-                ${isOwner ? '<button class="edit-btn" onclick="editAbout()">Edit</button>' : ''}
-            </div>
-            <p class="about-text">${escapeHtml(user.about || "This user hasn't written anything yet...")}</p>
-        </div>
-        <div class="profile-stats-grid">
-            <div class="stat-card">
-                <div class="stat-label">VISITS</div>
-                <div class="stat-value">${user.visits || 0}</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">JOINED</div>
-                <div class="stat-value">${new Date(user.createdAt || Date.now()).toLocaleDateString()}</div>
-            </div>
-        </div>
-        ${!isOwner && currentUser ? `<div style="margin-top:20px; text-align:center;">
-            <button class="submit-btn" style="padding:12px 24px; font-size:16px;" onclick="sendGiftToUser('${user.username}')">🎁 Send TAVIX</button>
-        </div>` : ''}
-    `;
-    document.getElementById("profileContent").innerHTML = html;
-}
-
-async function sendGiftToUser(username) {
-    const amount = prompt(`How much TAVIX to send to ${username}?`, "10");
-    if (!amount) return;
-    
-    const amt = parseInt(amount);
-    if (isNaN(amt) || amt <= 0) {
-        alert("Enter valid amount");
-        return;
-    }
-    
-    if (!currentUser) {
-        alert("You must be logged in to send TAVIX");
-        navigateTo("signin");
-        return;
-    }
-    
-    if ((currentUser.tavix || 0) < amt) {
-        alert("Insufficient TAVIX");
-        return;
-    }
-    
-    await fetchAllUsers();
-    const recipient = allUsers.find(x => x.username === username);
-    if (!recipient) {
-        alert("User not found");
-        return;
-    }
-    
-    if (await addTransactionAPI(-amt, `Gifted ${formatTavix(amt)} TAVIX to @${username}`)) {
-        await addTransactionAPI(amt, `Received ${formatTavix(amt)} TAVIX from @${currentUser.username}`, currentUser.username);
-        await addNotificationAPI("🎁 Gift Received", `@${currentUser.username} sent you ${formatTavix(amt)} TAVIX!`);
-        alert(`Sent ${formatTavix(amt)} TAVIX to @${username}!`);
-        updateTavixDisplay();
-        
-        if (window.location.hash === `#${recipient.id}-profile`) {
-            showOtherUserProfile(recipient.id);
-        }
-    } else {
-        alert("Failed to send gift");
-    }
-}
-
-function showProfile() {
-    if (!currentUser) {
-        navigateTo("signin");
-        return;
-    }
-    
-    document.getElementById("authPage").style.display = "none";
-    document.getElementById("homePage").style.display = "none";
-    document.getElementById("gamePage").style.display = "none";
-    document.getElementById("tosPage").style.display = "none";
-    document.getElementById("deletePage").style.display = "none";
-    document.getElementById("profilePage").style.display = "block";
-    
-    renderProfile();
-}
-
-function renderProfile(){
-    if(!currentUser) return;
-    const html = `
-        <div class="profile-header">
-            <img class="profile-pfp" src="https://ui-avatars.com/api/?background=667eea&color=fff&size=120&name=${encodeURIComponent(currentUser.displayName || currentUser.username)}">
-            <div>
-                <div class="display-name">${escapeHtml(currentUser.displayName || currentUser.username)} ${renderBadge(currentUser.username)}</div>
-                <div class="username">@${escapeHtml(currentUser.username)}</div>
-                <div class="social-stats">
-                    <span>0 Friends</span>
-                    <span>2 Followers</span>
-                </div>
-            </div>
-        </div>
-        <div class="about-card">
-            <div class="card-header">
-                <h2>ABOUT</h2>
-                <button class="edit-btn" onclick="editAbout()">Edit</button>
-            </div>
-            <p class="about-text">${escapeHtml(currentUser.about || "Tell people about yourself...")}</p>
-        </div>
-        <div class="profile-stats-grid">
-            <div class="stat-card">
-                <div class="stat-label">VISITS</div>
-                <div class="stat-value">${currentUser.visits || 0}</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">JOINED</div>
-                <div class="stat-value">${new Date(currentUser.createdAt || Date.now()).toLocaleDateString()}</div>
-            </div>
-        </div>
-    `;
-    document.getElementById("profileContent").innerHTML = html;
-}
-
-async function viewProfile(username){
-    const user = allUsers.find(u => u.username === username);
-    if(user){
-        navigateToUserProfile(user.id);
-    } else {
-        alert("User not found");
-    }
-}
-
-// ============ SEARCH FUNCTIONS ============
-function openSearch(){document.getElementById("searchOverlay").style.display="flex";document.getElementById("globalSearchInput").focus();}
-function closeSearchGlobal(){document.getElementById("searchOverlay").style.display="none";document.getElementById("globalSearchInput").value="";document.getElementById("globalSearchResults").style.display="none";document.getElementById("globalSearchDropdown").style.display="none";}
-function closeSearch(){closeSearchGlobal();}
-
-async function updateSearchDropdown(){
-    const q=document.getElementById("globalSearchInput").value.trim().toLowerCase();
-    const d=document.getElementById("globalSearchDropdown");
-    if(q===""){d.style.display="none";return;}
-    await fetchAllUsers();
-    const players=allUsers.filter(p=>p.username.toLowerCase().includes(q)||(p.displayName&&p.displayName.toLowerCase().includes(q)));
-    if(players.length===0){d.style.display="none";return;}
-    let html='<div class="dropdown-section"><h4>👥 PLAYERS</h4>';
-    players.forEach(p=>{html+=`<div class="dropdown-item" onclick="selectPlayer('${escapeHtml(p.username)}')"><img src="https://ui-avatars.com/api/?background=667eea&color=fff&size=40&name=${encodeURIComponent(p.displayName||p.username)}" style="width:40px;height:40px;border-radius:50%;"><div>${escapeHtml(p.displayName||p.username)} ${renderBadge(p.username)}<br><small>@${escapeHtml(p.username)}</small></div></div>`;});
-    html+=`</div>`;d.innerHTML=html;d.style.display="block";
-}
-
-function selectPlayer(user){closeSearch();viewProfile(user);}
-function handleSearchKey(e){if(e.key==="Enter")performSearch();}
-
-async function performSearch(){
-    const q=document.getElementById("globalSearchInput").value.trim().toLowerCase();
-    if(!q)return;
-    await fetchAllUsers();
-    const players=allUsers.filter(p=>p.username.toLowerCase().includes(q)||(p.displayName&&p.displayName.toLowerCase().includes(q)));
-    const r=document.getElementById("globalSearchResults");
-    if(players.length===0){
-        r.innerHTML='<div class="empty-games">No players found</div>';
-    }else{
-        r.innerHTML=`<div class="results-section"><h3>👥 PLAYERS</h3><div class="players-grid">${players.map(p=>`<div class="player-card" onclick="closeSearch();viewProfile('${escapeHtml(p.username)}')"><img class="player-avatar" src="https://ui-avatars.com/api/?background=667eea&color=fff&size=60&name=${encodeURIComponent(p.displayName||p.username)}"><div><div class="player-display-name">${escapeHtml(p.displayName||p.username)} ${renderBadge(p.username)}</div><div class="player-username">@${escapeHtml(p.username)}</div></div></div>`).join('')}</div></div>`;
-    }
-    r.style.display="block";
-    document.getElementById("globalSearchDropdown").style.display="none";
-}
-
-// ============ SETTINGS ============
-function openSettings(){
-    if(!currentUser){navigateTo("signin");return;}
-    document.getElementById("globalSettingsUsername").innerHTML=escapeHtml(currentUser.username)+" "+renderBadge(currentUser.username);
-    document.getElementById("globalSettingsDisplayName").innerHTML=escapeHtml(currentUser.displayName||currentUser.username);
-    document.getElementById("globalSettingsEmail").innerHTML=formatEmail(currentUser.email);
-    document.getElementById("globalSettingsTAVIX").innerHTML=formatTavix(currentUser.tavix||0)+" ⌬";
-    document.getElementById("settingsOverlay").style.display="flex";
-}
-function closeSettingsGlobal(){document.getElementById("settingsOverlay").style.display="none";}
-async function updateDisplayNameGlobal(){
-    const newName=document.getElementById("globalNewDisplayName").value.trim();
-    if(!newName){alert("Enter display name");return;}
-    if(await updateUserAPI({ displayName: newName })){
-        document.getElementById("globalSettingsDisplayName").innerHTML=escapeHtml(newName);
-        document.getElementById("globalNewDisplayName").value="";
-        updateWelcome();
-        if(document.getElementById("profilePage").style.display==="block") renderProfile();
-        alert("Display name updated!");
-    }else{alert("Failed to update");}
-}
-async function logoutGlobal(){
-    await logoutAPI();
-    currentUser=null;
-    closeSettingsGlobal();
-    navigateTo("signin");
-}
-async function confirmDeleteAccount(){
-    if(document.getElementById("deleteConfirmInput").value==="DELETE"){
-        if(await deleteAccountAPI()){
-            alert("Account deleted.");
-            navigateTo("signin");
-        }else{alert("Failed to delete account");}
-    }else{alert('Type "DELETE" to confirm');}
-}
-
-// ============ WELCOME MESSAGE ============
-function updateWelcome(){
-    if(currentUser){
-        const username = currentUser.displayName || currentUser.username;
-        const greetings = [
-            `Sup ${username}, ready to play?`, `Yo ${username}, good to see you`,
-            `${username} back at it again`, `Hey ${username}, let's go`,
-            `What's good ${username}?`, `${username} in the building`,
-            `Ayy ${username}, welcome back`, `There he is, ${username}`,
-            `${username} returned for more`, `The legend is back, ${username}`,
-            `Let's go ${username}`, `${username} is here`,
-            `Back for more ${username}?`, `Welcome back playa`,
-            `The goat ${username} has arrived`, `${username} my guy!`,
-            `Yooo ${username} what's up`, `${username} pulling up again`,
-            `He's back... ${username}`, `${username} let's get it`
+        // ===== ADVANCED MODERATION WITH CHARACTER-BY-CHARACTER DETECTION =====
+        const baseBannedList = [
+            'fuck', 'shit', 'damn', 'ass', 'bitch', 'cunt', 'dick', 'pussy', 'cock', 'whore', 
+            'bastard', 'slut', 'nigger', 'nigga', 'faggot', 'retard', 'kys', 'cum', 'dildo', 
+            'porn', 'nude', 'anal', 'ballsack', 'rape', 'rapist', 'motherfucker', 'fucker', 
+            'sucker', 'twat', 'clit', 'boner', 'prick', 'wanker', 'bollocks', 'arsehole', 
+            'asshole', 'shithead', 'dumbass'
         ];
-        const randomGreeting = greetings[Math.floor(Math.random() * greetings.length)];
-        document.getElementById("welcomeText").innerHTML = randomGreeting;
-        document.getElementById("welcomeBanner").style.display = "flex";
-        setTimeout(() => {
-            const banner = document.getElementById("welcomeBanner");
-            if(banner) banner.style.opacity = "0";
-            setTimeout(() => {
-                if(banner) {
-                    banner.style.display = "none";
-                    banner.style.opacity = "1";
+
+        const strictAllowlist = [
+            'assassin', 'assist', 'assistant', 'associate', 'assume', 'assure', 'asset',
+            'bass', 'class', 'glass', 'grass', 'pass', 'mass', 'brass', 'classic',
+            'butter', 'button', 'shatter', 'sheet', 'shoot', 'shorts', 'shirt',
+            'ship', 'shot', 'should', 'night', 'nigeria', 'nigerian', 'shuttle'
+        ];
+
+        // Advanced regex patterns that catch separators
+        const advancedBypassPatterns = [
+            { regex: /f[\W_]*u?[\W_]*c[\W_]*k/i, normalized: 'fuck' },
+            { regex: /c[\W_]*o?[\W_]*c[\W_]*k/i, normalized: 'cock' },
+            { regex: /s[\W_]*h?[\W_]*i?[\W_]*t/i, normalized: 'shit' },
+            { regex: /b[\W_]*i?[\W_]*t?[\W_]*c?[\W_]*h/i, normalized: 'bitch' },
+            { regex: /n[\W_]*i?[\W_]*g?[\W_]*g?[\W_]*e?[\W_]*r/i, normalized: 'nigger' },
+            { regex: /n[\W_]*i?[\W_]*g?[\W_]*g?[\W_]*a/i, normalized: 'nigga' },
+            { regex: /f[\W_]*a?[\W_]*g?[\W_]*g?[\W_]*o?[\W_]*t/i, normalized: 'faggot' },
+            { regex: /c[\W_]*u?[\W_]*n?[\W_]*t/i, normalized: 'cunt' },
+            { regex: /d[\W_]*i?[\W_]*c?[\W_]*k/i, normalized: 'dick' },
+            { regex: /p[\W_]*u?[\W_]*s?[\W_]*s?[\W_]*y/i, normalized: 'pussy' },
+            { regex: /a[\W_]*n?[\W_]*a?[\W_]*l/i, normalized: 'anal' },
+            { regex: /r[\W_]*a?[\W_]*p?[\W_]*e/i, normalized: 'rape' }
+        ];
+
+        // Character-by-character bypass patterns (c e n t e r type messages)
+        function detectCharacterByCharacterBypass(text) {
+            // Remove all spaces and special characters
+            const noSpaces = text.toLowerCase().replace(/[\s\*\-_\.\,\+\=\[\]\(\)\{\}\/\\\|\~\`\!\@\#\$\%\^\&\*]/g, '');
+            
+            // Check for any banned word being formed by character sequencing
+            for (const banned of baseBannedList) {
+                // Check if the banned word appears as a subsequence
+                let bannedIndex = 0;
+                let found = false;
+                
+                for (let i = 0; i < noSpaces.length; i++) {
+                    if (noSpaces[i] === banned[bannedIndex]) {
+                        bannedIndex++;
+                        if (bannedIndex === banned.length) {
+                            found = true;
+                            break;
+                        }
+                    }
                 }
-            }, 500);
-        }, 5000);
-    }
-}
-
-// ============ NAVIGATION ============
-function showHome(){
-    document.getElementById("authPage").style.display = "none";
-    document.getElementById("profilePage").style.display = "none";
-    document.getElementById("gamePage").style.display = "none";
-    document.getElementById("tosPage").style.display = "none";
-    document.getElementById("deletePage").style.display = "none";
-    document.getElementById("homePage").style.display = "block";
-    updateWelcome();
-    updateTavixDisplay();
-    updateNotifications();
-    fetchGames();
-}
-
-function showTOS(){
-    document.getElementById("authPage").style.display = "none";
-    document.getElementById("homePage").style.display = "none";
-    document.getElementById("gamePage").style.display = "none";
-    document.getElementById("profilePage").style.display = "none";
-    document.getElementById("deletePage").style.display = "none";
-    document.getElementById("tosPage").style.display = "block";
-}
-
-function showDelete(){
-    document.getElementById("authPage").style.display = "none";
-    document.getElementById("homePage").style.display = "none";
-    document.getElementById("gamePage").style.display = "none";
-    document.getElementById("profilePage").style.display = "none";
-    document.getElementById("tosPage").style.display = "none";
-    document.getElementById("deletePage").style.display = "block";
-    document.getElementById("deleteConfirmInput").value = "";
-}
-
-function showAuth(){
-    document.getElementById("homePage").style.display = "none";
-    document.getElementById("gamePage").style.display = "none";
-    document.getElementById("profilePage").style.display = "none";
-    document.getElementById("tosPage").style.display = "none";
-    document.getElementById("deletePage").style.display = "none";
-    document.getElementById("authPage").style.display = "block";
-    renderSaved();
-}
-
-function navigateTo(p, userId = null){
-    if(p === "profile" && userId){
-        navigateToUserProfile(userId);
-    } else if(p === "profile" && !userId && currentUser){
-        navigateToUserProfile(currentUser.id);
-    } else if(p === "home"){
-        if(currentUser){
-            showHome();
-            updateHash("#home");
-        } else {
-            showAuth();
-            showAuthForm("login");
-            updateHash("#signin");
+                
+                if (found) {
+                    // Check if it's allowlisted
+                    let isAllowed = false;
+                    for (const allowed of strictAllowlist) {
+                        if (noSpaces === allowed.toLowerCase() || noSpaces.includes(allowed.toLowerCase())) {
+                            isAllowed = true;
+                            break;
+                        }
+                    }
+                    if (!isAllowed) return true;
+                }
+            }
+            return false;
         }
-    } else if(p === "settings"){
-        if(currentUser){
-            openSettings();
-        } else {
-            showAuth();
-            showAuthForm("login");
-            updateHash("#signin");
+
+        // Detect spaced out words like "c o c k" or "c * o * c * k"
+        function detectSpacedBypass(text) {
+            const parts = text.toLowerCase().split(/[\s\*\-_\.\,\+\=\[\]\(\)\{\}\/\\\|\~\`\!\@\#\$\%\^\&\*]+/);
+            const combined = parts.join('');
+            
+            for (const banned of baseBannedList) {
+                if (combined.includes(banned)) {
+                    let isAllowed = false;
+                    for (const allowed of strictAllowlist) {
+                        if (combined === allowed.toLowerCase() || combined.includes(allowed.toLowerCase())) {
+                            isAllowed = true;
+                            break;
+                        }
+                    }
+                    if (!isAllowed) return true;
+                }
+            }
+            return false;
         }
-    } else if(p === "wiki-tos"){
-        showTOS();
-        updateHash("#wiki-tos");
-    } else if(p === "delete"){
-        if(currentUser){
-            showDelete();
-        } else {
-            showAuth();
-            showAuthForm("login");
-            updateHash("#signin");
+
+        // Detect sequential messages that build a bad word
+        let messageBuffer = [];
+        let lastMessageTime = 0;
+        
+        function detectSequentialBypass(currentMessage) {
+            const now = Date.now();
+            const messageLower = currentMessage.toLowerCase();
+            
+            // Reset buffer if too much time has passed (more than 30 seconds)
+            if (now - lastMessageTime > 30000) {
+                messageBuffer = [];
+            }
+            
+            messageBuffer.push(messageLower);
+            lastMessageTime = now;
+            
+            // Keep only last 10 messages
+            if (messageBuffer.length > 10) {
+                messageBuffer.shift();
+            }
+            
+            // Combine recent messages and check for banned words
+            const combined = messageBuffer.join('');
+            
+            for (const banned of baseBannedList) {
+                if (combined.includes(banned)) {
+                    // Check if it's a valid word being built sequentially
+                    let isAllowed = false;
+                    for (const allowed of strictAllowlist) {
+                        if (combined.includes(allowed.toLowerCase())) {
+                            isAllowed = true;
+                            break;
+                        }
+                    }
+                    if (!isAllowed) {
+                        // Clear buffer after detection
+                        messageBuffer = [];
+                        return true;
+                    }
+                }
+            }
+            
+            return false;
         }
-    } else if(p === "signin"){
-        showAuth();
-        showAuthForm("login");
-        updateHash("#signin");
-    }
-}
 
-function updateHash(h){
-    history.pushState(null, null, h);
-}
+        // Leet speak conversion
+        const leetMap = {
+            '0': 'o', '1': 'i', '2': 'z', '3': 'e', '4': 'a', '5': 's', '6': 'g', '7': 't', '8': 'b', '9': 'g',
+            '@': 'a', '!': 'i', '$': 's', '&': 'a', '#': 'h', '€': 'e', '£': 'e'
+        };
 
-async function handleRoute(){
-    const h = window.location.hash;
-    await fetchAllUsers();
-    
-    // Check for game page route: #games-gameId-gameName
-    const gameMatch = h.match(/^#games-(\d+)-/);
-    if (gameMatch) {
-        const gameId = gameMatch[1];
-        await showGamePage(gameId);
-        return;
-    }
-    
-    const profileMatch = h.match(/^#(\d+)-profile$/);
-    if(profileMatch){
-        const userId = parseInt(profileMatch[1]);
-        if(currentUser && currentUser.id === userId){
-            showProfile();
-        } else {
-            await showOtherUserProfile(userId);
+        function detectAdvancedBypasses(text) {
+            for (const pattern of advancedBypassPatterns) {
+                if (pattern.regex.test(text)) {
+                    return true;
+                }
+            }
+            return false;
         }
-        return;
-    }
-    
-    if(h === "#wiki-tos"){ showTOS(); return; }
-    if(h === "#delete"){
-        if(currentUser){ showDelete(); }
-        else { showAuth(); showAuthForm("login"); updateHash("#signin"); }
-        return;
-    }
-    if(h === "#settings"){
-        if(currentUser){ showHome(); openSettings(); }
-        else { showAuth(); showAuthForm("login"); updateHash("#signin"); }
-        return;
-    }
-    
-    if(currentUser){
-        showHome();
-        if(window.location.hash !== "#home") updateHash("#home");
-    } else {
-        showAuth();
-        showAuthForm("login");
-        if(window.location.hash !== "#signin") updateHash("#signin");
-    }
-}
 
-function showAuthForm(t){
-    const lf=document.getElementById("loginForm"),sf=document.getElementById("signupForm");
-    const lt=document.getElementById("loginTab"),st=document.getElementById("signupTab");
-    lf.classList.remove("active");sf.classList.remove("active");
-    lt.classList.remove("active");st.classList.remove("active");
-    if(t==="login"){lf.classList.add("active");lt.classList.add("active");}
-    else{sf.classList.add("active");st.classList.add("active");if(typeof hcaptcha !== 'undefined') hcaptcha.reset();}
-    document.getElementById("authError").textContent="";
-}
+        function deepNormalize(text) {
+            let normalized = text.toLowerCase();
+            
+            // Convert leet speak
+            let leetConverted = '';
+            for (let i = 0; i < normalized.length; i++) {
+                const c = normalized[i];
+                leetConverted += leetMap[c] || c;
+            }
+            
+            // Remove all separators
+            let noSeparators = leetConverted.replace(/[\s_\-\.\,\*\+=\(\)\[\]\{\}\/\\\|\~\`\!\@\#\$\%\^\&\*]/g, '');
+            
+            // Remove duplicate consecutive characters
+            let deduped = '';
+            for (let i = 0; i < noSeparators.length; i++) {
+                if (i === 0 || noSeparators[i] !== noSeparators[i-1]) {
+                    deduped += noSeparators[i];
+                }
+            }
+            
+            return deduped;
+        }
 
-// ============ TAVIX MODAL FUNCTIONS ============
-let tavixDropdownOpen=false,notifDropdownOpen=false;
-document.addEventListener("click",function(e){const td=document.getElementById("tavixDropdown");const nd=document.getElementById("notificationDropdown");const tb=document.getElementById("tavixBtn")||document.getElementById("tavixBtnProfile")||document.getElementById("tavixBtnGame");const nb=document.getElementById("notificationBtnHome")||document.getElementById("notificationBtnProfile")||document.getElementById("notificationBtnGame");if(td&&tb&&!tb.contains(e.target)&&!td.contains(e.target)){td.style.display="none";tavixDropdownOpen=false;}if(nd&&nb&&!nb.contains(e.target)&&!nd.contains(e.target)){nd.style.display="none";notifDropdownOpen=false;}});
-function toggleTavix(){const d=document.getElementById("tavixDropdown");if(tavixDropdownOpen){d.style.display="none";tavixDropdownOpen=false;}else{updateTavixDisplay();d.style.display="block";tavixDropdownOpen=true;}}
-function toggleNotifications(){const d=document.getElementById("notificationDropdown");if(notifDropdownOpen){d.style.display="none";notifDropdownOpen=false;}else{updateNotifications();d.style.display="block";notifDropdownOpen=true;}}
-function openBuyModal(){closeModals();document.getElementById("buyModal").style.display="flex";}
-function openGiftModal(){closeModals();document.getElementById("giftModal").style.display="flex";}
-function openTransactionsModal(){
-    closeModals();
-    const t=currentUser?.transactions||[];
-    const c=document.getElementById("transactionList");
-    if(t.length===0){c.innerHTML='<p style="text-align:center;color:#888">No transactions</p>';
-    }else{c.innerHTML=t.map(tr=>`<div class="transaction-item"><span>${new Date(tr.date).toLocaleDateString()} - ${tr.reason}${tr.from?` from @${tr.from}`:""}</span><span class="transaction-amount ${tr.amount>0?"positive":"negative"}">${tr.amount>0?"+":""}${formatTavix(Math.abs(tr.amount))} ⌬</span></div>`).join('');}
-    document.getElementById("transactionsModal").style.display="flex";
-}
-async function buyTAVIX(){
-    const s=document.getElementById("buyAmount");
-    const a=parseInt(s.value);
-    if(await addTransaction(a,`Purchased ${a} TAVIX`)){
-        alert(`+${formatTavix(a)} TAVIX added!`);
-        closeModals();
-        updateTavixDisplay();
-    }else{alert("Purchase failed");}
-}
-async function sendGift(){
-    const un=document.getElementById("giftUsername").value.trim();
-    const amt=parseInt(document.getElementById("giftAmount").value);
-    if(!un){alert("Enter username");return;}
-    if(isNaN(amt)||amt<=0){alert("Enter valid amount");return;}
-    if(!currentUser){alert("Not logged in");return;}
-    if((currentUser.tavix||0)<amt){alert("Insufficient TAVIX");return;}
-    await fetchAllUsers();
-    const recipient=allUsers.find(x=>x.username===un);
-    if(!recipient){alert("User not found");return;}
-    if(await addTransactionAPI(-amt,`Gifted ${formatTavix(amt)} TAVIX to @${un}`)){
-        await addTransactionAPI(amt,`Received ${formatTavix(amt)} TAVIX from @${currentUser.username}`, currentUser.username);
-        await addNotificationAPI("🎁 Gift Received", `@${currentUser.username} sent you ${formatTavix(amt)} TAVIX!`);
-        alert(`Sent ${formatTavix(amt)} TAVIX to @${un}!`);
-        closeModals();
-        document.getElementById("giftUsername").value="";
-        document.getElementById("giftAmount").value="";
-        updateTavixDisplay();
-    }else{alert("Failed to send gift");}
-}
-function closeModals(){document.querySelectorAll(".modal-overlay").forEach(m=>m.style.display="none");}
+        function advancedModerationFilter(rawMessage) {
+            if (!rawMessage || rawMessage.trim() === "") return true;
+            
+            // Check for pattern bypasses
+            if (detectAdvancedBypasses(rawMessage)) {
+                return true;
+            }
+            
+            // Check for spaced out bypass (c o c k)
+            if (detectSpacedBypass(rawMessage)) {
+                return true;
+            }
+            
+            // Check for character-by-character bypass
+            if (detectCharacterByCharacterBypass(rawMessage)) {
+                return true;
+            }
+            
+            // Check sequential message building
+            if (detectSequentialBypass(rawMessage)) {
+                return true;
+            }
+            
+            // Deep normalize and check
+            let normalized = deepNormalize(rawMessage);
+            
+            for (const banned of baseBannedList) {
+                if (normalized.includes(banned)) {
+                    let isAllowed = false;
+                    for (const allowed of strictAllowlist) {
+                        if (normalized === allowed || normalized.includes(allowed)) {
+                            isAllowed = true;
+                            break;
+                        }
+                    }
+                    if (!isAllowed) {
+                        return true;
+                    }
+                }
+            }
+            
+            // Extra check for combined words without separators
+            const noSeparatorsRaw = rawMessage.toLowerCase().replace(/[\s_\-\.\,\*\+=\(\)\[\]\{\}\/\\\|\~\`\!\@\#\$\%\^\&\*]/g, '');
+            for (const banned of baseBannedList) {
+                if (noSeparatorsRaw.includes(banned)) {
+                    for (const allowed of strictAllowlist) {
+                        if (noSeparatorsRaw === allowed) return false;
+                    }
+                    return true;
+                }
+            }
+            
+            return false;
+        }
+        
+        // ===== TAB FUNCTIONALITY FOR PLAYERS PANEL =====
+        let isPlayersOpen = true;
+        const playersPanel = document.getElementById('playersPanel');
+        
+        function togglePlayers() {
+            isPlayersOpen = !isPlayersOpen;
+            if (isPlayersOpen) {
+                playersPanel.classList.remove('closed');
+            } else {
+                playersPanel.classList.add('closed');
+            }
+        }
+        
+        // Also allow clicking the header to toggle
+        const playersHeader = document.querySelector('.players-header');
+        playersHeader.addEventListener('click', togglePlayers);
+        
+        // --- Setup Scene ---
+        const container = document.getElementById('canvas-container');
+        const scene = new THREE.Scene();
+        
+        // Sky
+        const canvasSky = document.createElement('canvas');
+        canvasSky.width = 1024;
+        canvasSky.height = 1024;
+        const ctxSky = canvasSky.getContext('2d');
+        const grd = ctxSky.createLinearGradient(0, 0, 0, canvasSky.height);
+        grd.addColorStop(0, '#2c7ac9');
+        grd.addColorStop(0.3, '#5da5e8');
+        grd.addColorStop(0.6, '#8bc4ff');
+        grd.addColorStop(0.85, '#b8dcff');
+        grd.addColorStop(1, '#d9edff');
+        ctxSky.fillStyle = grd;
+        ctxSky.fillRect(0, 0, canvasSky.width, canvasSky.height);
+        const skyTexture = new THREE.CanvasTexture(canvasSky);
+        const skyGeometry = new THREE.SphereGeometry(500, 64, 64);
+        const skyMaterial = new THREE.MeshStandardMaterial({ map: skyTexture, side: THREE.BackSide, emissive: 0x2266aa, emissiveIntensity: 0.12 });
+        scene.add(new THREE.Mesh(skyGeometry, skyMaterial));
+        
+        // Lights
+        const sunLight = new THREE.DirectionalLight(0xfff5d1, 1.2);
+        sunLight.position.set(80, 120, 40);
+        sunLight.castShadow = true;
+        sunLight.shadow.mapSize.width = 2048;
+        sunLight.shadow.mapSize.height = 2048;
+        scene.add(sunLight);
+        
+        const ambientLight = new THREE.AmbientLight(0x5c6e7c, 0.6);
+        scene.add(ambientLight);
+        
+        const backLight = new THREE.PointLight(0x6688aa, 0.35);
+        backLight.position.set(-20, 30, -30);
+        scene.add(backLight);
+        
+        // Ground with stud pattern
+        const groundWidth = 200;
+        const groundDepth = 200;
+        const canvasGrass = document.createElement('canvas');
+        canvasGrass.width = 128;
+        canvasGrass.height = 128;
+        const grassCtx = canvasGrass.getContext('2d');
+        grassCtx.fillStyle = '#74a852'; 
+        grassCtx.fillRect(0, 0, canvasGrass.width, canvasGrass.height);
+        const studCount = 4;
+        const step = canvasGrass.width / studCount;
+        for (let x = 0; x < studCount; x++) {
+            for (let y = 0; y < studCount; y++) {
+                const cx = x * step + step / 2;
+                const cy = y * step + step / 2;
+                const r = step * 0.28;
+                grassCtx.fillStyle = 'rgba(50, 80, 35, 0.35)';
+                grassCtx.beginPath();
+                grassCtx.arc(cx + 1, cy + 1, r, 0, Math.PI * 2);
+                grassCtx.fill();
+                grassCtx.fillStyle = '#7db559';
+                grassCtx.beginPath();
+                grassCtx.arc(cx, cy, r, 0, Math.PI * 2);
+                grassCtx.fill();
+                grassCtx.fillStyle = '#6b9c4b';
+                grassCtx.beginPath();
+                grassCtx.arc(cx, cy, r * 0.7, 0, Math.PI * 2);
+                grassCtx.fill();
+            }
+        }
+        const grassTexture = new THREE.CanvasTexture(canvasGrass);
+        grassTexture.repeat.set(50, 50);
+        grassTexture.wrapS = THREE.RepeatWrapping;
+        grassTexture.wrapT = THREE.RepeatWrapping;
+        const groundMaterial = new THREE.MeshStandardMaterial({ map: grassTexture, roughness: 0.9 });
+        const groundPlane = new THREE.Mesh(new THREE.PlaneGeometry(groundWidth, groundDepth), groundMaterial);
+        groundPlane.rotation.x = -Math.PI / 2;
+        groundPlane.position.y = -0.65;
+        groundPlane.receiveShadow = true;
+        scene.add(groundPlane);
+        
+        // === ROBLOX CHARACTER ===
+        const player = new THREE.Group();
+        const yellowMat = new THREE.MeshStandardMaterial({ color: 0xe5cd60, roughness: 0.5 });
+        const blueMat = new THREE.MeshStandardMaterial({ color: 0x2b70d4, roughness: 0.5 });
+        const greenMat = new THREE.MeshStandardMaterial({ color: 0x98b851, roughness: 0.5 });
+        const visualGroup = new THREE.Group();
+        player.add(visualGroup);
 
-// ============ EVENT LISTENERS ============
-document.getElementById("searchBtnHome")?.addEventListener("click",openSearch);
-document.getElementById("searchBtnProfile")?.addEventListener("click",openSearch);
-document.getElementById("searchBtnGame")?.addEventListener("click",openSearch);
+        // Head
+        const headGroup = new THREE.Group();
+        headGroup.position.y = 3.65;
+        const robloxHeadGeom = new THREE.CylinderGeometry(0.62, 0.62, 1.05, 32);
+        const headMesh = new THREE.Mesh(robloxHeadGeom, yellowMat);
+        headMesh.castShadow = true;
+        headGroup.add(headMesh);
+        const studGeom = new THREE.CylinderGeometry(0.24, 0.24, 0.16, 16);
+        const studMesh = new THREE.Mesh(studGeom, yellowMat);
+        studMesh.position.y = 0.6;
+        studMesh.castShadow = true;
+        headGroup.add(studMesh);
+        visualGroup.add(headGroup);
+        
+        // Torso
+        const torso = new THREE.Mesh(new THREE.BoxGeometry(1.45, 1.55, 0.75), blueMat);
+        torso.position.y = 2.35;
+        torso.castShadow = true;
+        visualGroup.add(torso);
+        
+        // Arms
+        const leftShoulder = new THREE.Group();
+        leftShoulder.position.set(-1.05, 3.0, 0);
+        const leftArm = new THREE.Mesh(new THREE.BoxGeometry(0.68, 1.55, 0.68), yellowMat);
+        leftArm.position.y = -0.78;
+        leftArm.castShadow = true;
+        leftShoulder.add(leftArm);
+        visualGroup.add(leftShoulder);
+        
+        const rightShoulder = new THREE.Group();
+        rightShoulder.position.set(1.05, 3.0, 0);
+        const rightArm = new THREE.Mesh(new THREE.BoxGeometry(0.68, 1.55, 0.68), yellowMat);
+        rightArm.position.y = -0.78;
+        rightArm.castShadow = true;
+        rightShoulder.add(rightArm);
+        visualGroup.add(rightShoulder);
+        
+        // Legs
+        const leftHip = new THREE.Group();
+        leftHip.position.set(-0.36, 1.5, 0);
+        const leftLeg = new THREE.Mesh(new THREE.BoxGeometry(0.68, 1.6, 0.68), greenMat);
+        leftLeg.position.y = -0.8;
+        leftLeg.castShadow = true;
+        leftHip.add(leftLeg);
+        visualGroup.add(leftHip);
+        
+        const rightHip = new THREE.Group();
+        rightHip.position.set(0.36, 1.5, 0);
+        const rightLeg = new THREE.Mesh(new THREE.BoxGeometry(0.68, 1.6, 0.68), greenMat);
+        rightLeg.position.y = -0.8;
+        rightLeg.castShadow = true;
+        rightHip.add(rightLeg);
+        visualGroup.add(rightHip);
+        
+        // Face
+        const eyeMat = new THREE.MeshStandardMaterial({ color: 0x111111 });
+        const leftEye = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.14, 0.04), eyeMat);
+        leftEye.position.set(-0.18, 3.75, 0.6);
+        visualGroup.add(leftEye);
+        const rightEye = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.14, 0.04), eyeMat);
+        rightEye.position.set(0.18, 3.75, 0.6);
+        visualGroup.add(rightEye);
+        const mouth = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.06, 0.04), eyeMat);
+        mouth.position.set(0, 3.48, 0.6);
+        visualGroup.add(mouth);
 
-document.getElementById("profileBtnHome")?.addEventListener("click", () => {
-    if(currentUser){
-        navigateToUserProfile(currentUser.id);
-    } else {
-        navigateTo("signin");
-    }
-});
-document.getElementById("profileBtnProfile")?.addEventListener("click", () => {
-    if(currentUser){
-        navigateToUserProfile(currentUser.id);
-    } else {
-        navigateTo("signin");
-    }
-});
-document.getElementById("profileBtnGame")?.addEventListener("click", () => {
-    if(currentUser){
-        navigateToUserProfile(currentUser.id);
-    } else {
-        navigateTo("signin");
-    }
-});
-
-document.getElementById("settingsBtnHome")?.addEventListener("click",()=>navigateTo("settings"));
-document.getElementById("settingsBtnProfile")?.addEventListener("click",()=>navigateTo("settings"));
-document.getElementById("settingsBtnGame")?.addEventListener("click",()=>navigateTo("settings"));
-document.getElementById("globalSearchInput")?.addEventListener("input",updateSearchDropdown);
-document.getElementById("globalSearchInput")?.addEventListener("keypress",handleSearchKey);
-document.getElementById("globalLogoutBtn")?.addEventListener("click",logoutGlobal);
-document.getElementById("searchOverlay")?.addEventListener("click",function(e){if(e.target===this)closeSearchGlobal();});
-document.getElementById("settingsOverlay")?.addEventListener("click",function(e){if(e.target===this)closeSettingsGlobal();});
-const tb1=document.getElementById("tavixBtn");if(tb1)tb1.onclick=toggleTavix;
-const tb2=document.getElementById("tavixBtnProfile");if(tb2)tb2.onclick=toggleTavix;
-const tb3=document.getElementById("tavixBtnGame");if(tb3)tb3.onclick=toggleTavix;
-const nb1=document.getElementById("notificationBtnHome");if(nb1)nb1.onclick=toggleNotifications;
-const nb2=document.getElementById("notificationBtnProfile");if(nb2)nb2.onclick=toggleNotifications;
-const nb3=document.getElementById("notificationBtnGame");if(nb3)nb3.onclick=toggleNotifications;
-
-// ============ FORMS ============
-document.getElementById("signupForm")?.addEventListener("submit", async function(e){
-    e.preventDefault();
-    const un = document.getElementById("signupUsername").value.trim();
-    const em = document.getElementById("signupEmail").value.trim();
-    const pw = document.getElementById("signupPassword").value;
-    const cf = document.getElementById("signupConfirm").value;
-    const tos = document.getElementById("tosAgree").checked;
-    const err = document.getElementById("authError");
-    
-    if(!tos){ err.textContent = "You must agree to the Terms of Service"; return; }
-    
-    const hcaptchaResponse = hcaptcha.getResponse();
-    if(!hcaptchaResponse){
-        err.textContent = "Please complete the image puzzle to verify you're human";
-        return;
-    }
-    
-    if(un.length < 3){ err.textContent = "Username must be at least 3 characters"; return; }
-    if(pw.length < 8){ err.textContent = "Password must be at least 8 characters"; return; }
-    if(pw !== cf){ err.textContent = "Passwords don't match"; return; }
-    if(!em.includes("@")){ err.textContent = "Please enter a valid email address"; return; }
-    
-    const result = await registerAPI(un, em, pw, un, hcaptchaResponse);
-    if(result.success){
-        saveAccount({username: un, displayName: un, email: em});
-        navigateTo("home");
-    } else {
-        err.textContent = result.error;
-        hcaptcha.reset();
-    }
-});
-
-document.getElementById("loginForm")?.addEventListener("submit", async function(e){
-    e.preventDefault();
-    const un = document.getElementById("loginUsername").value.trim();
-    const pw = document.getElementById("loginPassword").value;
-    const result = await loginAPI(un, pw);
-    if(result.success){
-        saveAccount({username: un, displayName: result.user.displayName || un, email: result.user.email});
-        navigateTo("home");
-    } else {
-        document.getElementById("authError").textContent = result.error;
-    }
-});
-
-// ============ PAGE LOAD ============
-window.addEventListener("hashchange", handleRoute);
-window.onload = async function(){
-    await fetchAllUsers();
-    
-    const autoLoggedIn = await autoLogin();
-    
-    if (currentUser) {
-        setInterval(async () => {
-            await refreshUserData();
-        }, 10 * 60 * 1000);
-    }
-    
-    await handleRoute();
-};
-</script>
+        // Name tag
+        function createOverheadNameTag(nameString) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 512;
+            canvas.height = 128;
+            const context = canvas.getContext('2d');
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            context.font = 'bold 52px Arial, sans-serif';
+            context.textAlign = 'center';
+            context.textBaseline = 'middle';
+            context.strokeStyle = 'black';
+            context.lineWidth = 10;
+            context.strokeText(nameString, canvas.width / 2, canvas.height / 2);
+            context.fillStyle = 'white';
+            context.fillText(nameString, canvas.width / 2, canvas.height / 2);
+            const texture = new THREE.CanvasTexture(canvas);
+            const material = new THREE.SpriteMaterial({ map: texture, transparent: true });
+            const sprite = new THREE.Sprite(material);
+            sprite.position.set(0, 4.65, 0);
+            sprite.scale.set(3.5, 0.875, 1);
+            return sprite;
+        }
+        const nameTag = createOverheadNameTag("Minibloxia");
+        player.add(nameTag);
+        scene.add(player);
+        
+        // Physics
+        let isJumping = false;
+        let verticalVelocity = 0;
+        const GRAVITY = 20;
+        const JUMP_VELOCITY = 7.5;
+        const GROUND_Y = 0;
+        
+        function startJump() {
+            if (isJumping) return;
+            if (player.position.y > GROUND_Y + 0.001) return;
+            isJumping = true;
+            verticalVelocity = JUMP_VELOCITY;
+        }
+        
+        function updateAirborneMechanics(deltaTime) {
+            if (player.position.y > GROUND_Y || isJumping) {
+                if (!isJumping) isJumping = true;
+                verticalVelocity -= GRAVITY * deltaTime;
+                player.position.y += verticalVelocity * deltaTime;
+                if (player.position.y <= GROUND_Y) {
+                    player.position.y = GROUND_Y;
+                    isJumping = false;
+                    verticalVelocity = 0;
+                    leftShoulder.rotation.set(0, 0, 0);
+                    rightShoulder.rotation.set(0, 0, 0);
+                    leftHip.rotation.set(0, 0, 0);
+                    rightHip.rotation.set(0, 0, 0);
+                } else {
+                    if (verticalVelocity < -0.2) {
+                        leftShoulder.rotation.set(-Math.PI * 0.85, 0, -0.3);
+                        rightShoulder.rotation.set(-Math.PI * 0.85, 0, 0.3);
+                        leftHip.rotation.set(-0.1, 0, 0.2);
+                        rightHip.rotation.set(0.1, 0, -0.2);
+                    } else {
+                        leftShoulder.rotation.set(-Math.PI, 0, 0);
+                        rightShoulder.rotation.set(-Math.PI, 0, 0);
+                        leftHip.rotation.set(0, 0, 0);
+                        rightHip.rotation.set(0, 0, 0);
+                    }
+                }
+            }
+        }
+        
+        // ========== CAMERA SYSTEM ==========
+        let cameraDistance = 8.0;
+        let targetDistance = 8.0;
+        const MIN_DISTANCE = 0.3;
+        const MAX_DISTANCE = 14.0;
+        const ZOOM_SPEED = 6.0;
+        
+        let cameraYaw = -Math.PI / 3;
+        let cameraPitch = 0.25;
+        let isFirstPerson = false;
+        
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 1000);
+        const crosshair = document.getElementById('crosshair');
+        
+        function updateGhostEffect() {
+            const distance = cameraDistance;
+            let opacity = Math.min(1.0, Math.max(0.0, (distance - 0.5) / 0.7));
+            isFirstPerson = (distance < 0.8);
+            crosshair.style.opacity = isFirstPerson ? '1' : '0';
+            const materials = [yellowMat, blueMat, greenMat, eyeMat];
+            materials.forEach(mat => { mat.transparent = true; mat.opacity = opacity; });
+            nameTag.visible = (opacity > 0.2);
+            document.getElementById('cameraModeHint').innerHTML = `${isFirstPerson ? "🎯 FIRST PERSON" : "🎥 THIRD PERSON"} | Distance: ${cameraDistance.toFixed(1)} (I/O)`;
+        }
+        
+        // Movement system
+        const keyState = { 
+            w: false, a: false, s: false, d: false,
+            ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false 
+        };
+        let moveSpeed = 5.2;
+        let walkAnimationTime = 0;
+        let currentMoveDirection = 0;
+        
+        function getMovementDirection() {
+            let moveX = 0, moveZ = 0;
+            if (!isMobile) {
+                if (keyState.s) moveZ += 1;
+                if (keyState.w) moveZ -= 1;
+                if (keyState.a) moveX -= 1;
+                if (keyState.d) moveX += 1;
+            } else {
+                if (joystickActive) {
+                    moveX = joystickX;
+                    moveZ = joystickY;
+                }
+            }
+            return { moveX, moveZ };
+        }
+        
+        function updateCameraRotation() {
+            if (isMobile) return;
+            
+            if (keyState.ArrowLeft) {
+                cameraYaw -= 0.05;
+            }
+            if (keyState.ArrowRight) {
+                cameraYaw += 0.05;
+            }
+            
+            if (keyState.ArrowUp) {
+                cameraPitch -= 0.05;
+            }
+            if (keyState.ArrowDown) {
+                cameraPitch += 0.05;
+            }
+            
+            cameraPitch = Math.max(-Math.PI / 2.2, Math.min(Math.PI / 2.2, cameraPitch));
+        }
+        
+        function updateMovement(deltaTime) {
+            if (isChatFocused) return;
+            
+            let { moveX, moveZ } = getMovementDirection();
+            const isMoving = (Math.abs(moveX) > 0.05 || Math.abs(moveZ) > 0.05);
+            
+            if (isMoving) {
+                const len = Math.hypot(moveX, moveZ);
+                if (len > 1) {
+                    moveX /= len;
+                    moveZ /= len;
+                }
+                
+                const forward = new THREE.Vector3(Math.sin(cameraYaw), 0, Math.cos(cameraYaw)).normalize();
+                const right = new THREE.Vector3(Math.cos(cameraYaw), 0, -Math.sin(cameraYaw)).normalize();
+                
+                const moveDelta = new THREE.Vector3().addScaledVector(forward, moveZ).addScaledVector(right, moveX).normalize();
+                
+                let newX = player.position.x + moveDelta.x * moveSpeed * deltaTime;
+                let newZ = player.position.z + moveDelta.z * moveSpeed * deltaTime;
+                const limit = 88;
+                player.position.x = Math.min(limit, Math.max(-limit, newX));
+                player.position.z = Math.min(limit, Math.max(-limit, newZ));
+                
+                currentMoveDirection = Math.atan2(moveDelta.x, moveDelta.z);
+                if (!isFirstPerson) {
+                    let angleDiff = currentMoveDirection - player.rotation.y;
+                    while (angleDiff > Math.PI) angleDiff -= Math.PI * 2;
+                    while (angleDiff < -Math.PI) angleDiff += Math.PI * 2;
+                    player.rotation.y += angleDiff * 0.15;
+                }
+            }
+            
+            if (isMoving && !isJumping) {
+                walkAnimationTime += deltaTime * 14;
+                const swing = Math.sin(walkAnimationTime) * 0.9;
+                const legSwing = Math.sin(walkAnimationTime) * 0.8;
+                leftShoulder.rotation.set(swing, 0, 0);
+                rightShoulder.rotation.set(-swing, 0, 0);
+                leftHip.rotation.set(-legSwing, 0, 0);
+                rightHip.rotation.set(legSwing, 0, 0);
+                visualGroup.position.y = Math.abs(Math.sin(walkAnimationTime)) * 0.06;
+            } 
+            else if (!isMoving && !isJumping) {
+                walkAnimationTime = 0;
+                visualGroup.position.y += (0 - visualGroup.position.y) * 0.2;
+                leftShoulder.rotation.set(0, 0, 0);
+                rightShoulder.rotation.set(0, 0, 0);
+                leftHip.rotation.set(0, 0, 0);
+                rightHip.rotation.set(0, 0, 0);
+            }
+        }
+        
+        function updateCamera(deltaTime) {
+            updateCameraRotation();
+            
+            cameraDistance += (targetDistance - cameraDistance) * Math.min(1.0, ZOOM_SPEED * deltaTime);
+            cameraDistance = Math.min(MAX_DISTANCE, Math.max(MIN_DISTANCE, cameraDistance));
+            
+            const targetPos = player.position.clone();
+            targetPos.y += 3.2;
+            
+            const horizontalDist = Math.cos(cameraPitch) * cameraDistance;
+            const camX = targetPos.x + Math.sin(cameraYaw) * horizontalDist;
+            const camY = targetPos.y + Math.sin(cameraPitch) * cameraDistance + 0.5;
+            const camZ = targetPos.z + Math.cos(cameraYaw) * horizontalDist;
+            
+            camera.position.set(camX, camY, camZ);
+            camera.lookAt(targetPos);
+            
+            if (isFirstPerson) {
+                player.rotation.y = cameraYaw + Math.PI;
+            }
+            
+            updateGhostEffect();
+        }
+        
+        // ========== INPUT HANDLING ==========
+        function shouldProcessControls() {
+            return !isChatFocused;
+        }
+        
+        // PC Keyboard Events
+        window.addEventListener('keydown', (e) => {
+            // Tab key toggles players panel
+            if (e.key === 'Tab') {
+                e.preventDefault();
+                togglePlayers();
+                return;
+            }
+            
+            if (!shouldProcessControls() || isMobile) return;
+            const key = e.key;
+            
+            if (key === ' ' || key === 'Space') {
+                e.preventDefault();
+                startJump();
+            }
+            
+            if (key === 'i' || key === 'I') {
+                targetDistance = Math.max(MIN_DISTANCE, targetDistance - 0.4);
+                e.preventDefault();
+            }
+            if (key === 'o' || key === 'O') {
+                targetDistance = Math.min(MAX_DISTANCE, targetDistance + 0.4);
+                e.preventDefault();
+            }
+            
+            const keyLower = key.toLowerCase();
+            if (['w', 's', 'a', 'd'].includes(keyLower)) {
+                keyState[keyLower] = true;
+                e.preventDefault();
+            }
+            if (key === 'ArrowUp') {
+                keyState.ArrowUp = true;
+                e.preventDefault();
+            }
+            if (key === 'ArrowDown') {
+                keyState.ArrowDown = true;
+                e.preventDefault();
+            }
+            if (key === 'ArrowLeft') {
+                keyState.ArrowLeft = true;
+                e.preventDefault();
+            }
+            if (key === 'ArrowRight') {
+                keyState.ArrowRight = true;
+                e.preventDefault();
+            }
+        });
+        
+        window.addEventListener('keyup', (e) => {
+            if (isMobile) return;
+            const key = e.key.toLowerCase();
+            if (['w', 's', 'a', 'd'].includes(key)) {
+                keyState[key] = false;
+            }
+            if (e.key === 'ArrowUp') keyState.ArrowUp = false;
+            if (e.key === 'ArrowDown') keyState.ArrowDown = false;
+            if (e.key === 'ArrowLeft') keyState.ArrowLeft = false;
+            if (e.key === 'ArrowRight') keyState.ArrowRight = false;
+        });
+        
+        // Mobile Joystick
+        let joystickActive = false;
+        let joystickX = 0, joystickY = 0;
+        const joystickContainer = document.getElementById('joystickContainer');
+        const joystickThumb = document.getElementById('joystickThumb');
+        const cameraTouchArea = document.getElementById('cameraTouchArea');
+        let lastTouchX = 0, lastTouchY = 0;
+        let cameraTouchActive = false;
+        
+        if (isMobile) {
+            const joystickBase = joystickContainer.querySelector('.joystick-base');
+            const maxDist = 40;
+            let joystickCenter = { x: 0, y: 0 };
+            
+            function getJoystickCenter() {
+                const rect = joystickBase.getBoundingClientRect();
+                joystickCenter = { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+            }
+            
+            function handleJoystickStart(e) {
+                e.preventDefault();
+                joystickActive = true;
+                getJoystickCenter();
+                handleJoystickMove(e);
+            }
+            
+            function handleJoystickMove(e) {
+                if (!joystickActive) return;
+                e.preventDefault();
+                const touch = e.touches ? e.touches[0] : e;
+                const dx = touch.clientX - joystickCenter.x;
+                const dy = touch.clientY - joystickCenter.y;
+                const dist = Math.min(maxDist, Math.hypot(dx, dy));
+                const angle = Math.atan2(dy, dx);
+                const thumbX = Math.cos(angle) * dist;
+                const thumbY = Math.sin(angle) * dist;
+                joystickThumb.style.transform = `translate(${thumbX}px, ${thumbY}px)`;
+                joystickX = (thumbX / maxDist);
+                joystickY = (thumbY / maxDist);
+            }
+            
+            function handleJoystickEnd(e) {
+                joystickActive = false;
+                joystickX = joystickY = 0;
+                joystickThumb.style.transform = `translate(0px, 0px)`;
+            }
+            
+            joystickContainer.addEventListener('touchstart', handleJoystickStart);
+            window.addEventListener('touchmove', handleJoystickMove);
+            window.addEventListener('touchend', handleJoystickEnd);
+            
+            function handleCameraStart(e) {
+                e.preventDefault();
+                cameraTouchActive = true;
+                const touch = e.touches[0];
+                lastTouchX = touch.clientX;
+                lastTouchY = touch.clientY;
+            }
+            
+            function handleCameraMove(e) {
+                if (!cameraTouchActive) return;
+                e.preventDefault();
+                const touch = e.touches[0];
+                const dx = touch.clientX - lastTouchX;
+                const dy = touch.clientY - lastTouchY;
+                
+                cameraYaw -= dx * 0.008;
+                cameraPitch += dy * 0.008;
+                cameraPitch = Math.max(-Math.PI / 2.2, Math.min(Math.PI / 2.2, cameraPitch));
+                
+                lastTouchX = touch.clientX;
+                lastTouchY = touch.clientY;
+            }
+            
+            function handleCameraEnd(e) {
+                cameraTouchActive = false;
+            }
+            
+            cameraTouchArea.addEventListener('touchstart', handleCameraStart);
+            cameraTouchArea.addEventListener('touchmove', handleCameraMove);
+            cameraTouchArea.addEventListener('touchend', handleCameraEnd);
+            
+            document.getElementById('jumpBtn').addEventListener('click', () => {
+                startJump();
+            });
+        }
+        
+        // ===== CHAT SYSTEM =====
+        let isChatOpen = true;
+        let isChatFocused = false;
+        const chatPanel = document.getElementById('chatPanel');
+        const chatToggleBtn = document.getElementById('chatToggleBtn');
+        const chatInputElem = document.getElementById('chatInputField');
+        const charCounterElem = document.getElementById('charCounter');
+        const chatMsgContainer = document.getElementById('chatMessages');
+        const sendBtn = document.getElementById('sendChatBtn');
+        const PLAYER_NAME = "Minibloxia";
+        
+        function toggleChat() {
+            isChatOpen = !isChatOpen;
+            if (isChatOpen) chatPanel.classList.remove('closed');
+            else {
+                chatPanel.classList.add('closed');
+                chatInputElem.blur();
+            }
+        }
+        chatToggleBtn.addEventListener('click', toggleChat);
+        
+        chatInputElem.addEventListener('focus', () => { 
+            isChatFocused = true; 
+            if (!isChatOpen) {
+                isChatOpen = true;
+                chatPanel.classList.remove('closed');
+            }
+        });
+        chatInputElem.addEventListener('blur', () => { isChatFocused = false; });
+        chatInputElem.addEventListener('input', () => {
+            const len = chatInputElem.value.length;
+            charCounterElem.textContent = `${len}/100`;
+            if (len >= 100) charCounterElem.classList.add('limit-reached');
+            else charCounterElem.classList.remove('limit-reached');
+        });
+        
+        window.addEventListener('keydown', (e) => {
+            if (e.key === '/' && isChatOpen && !isChatFocused && !isMobile) {
+                e.preventDefault();
+                chatInputElem.focus();
+            }
+        });
+        
+        function addChatMessage(name, message) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = 'chat-message';
+            msgDiv.innerHTML = `<span class="message-name">${name}:</span><span class="message-text"> ${message}</span>`;
+            chatMsgContainer.appendChild(msgDiv);
+            chatMsgContainer.scrollTop = chatMsgContainer.scrollHeight;
+            while (chatMsgContainer.children.length > 100) chatMsgContainer.removeChild(chatMsgContainer.firstChild);
+        }
+        
+        function addSystemBlockedAlert(reason = 'inappropriate content detected') {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = 'system-alert-message';
+            msgDiv.textContent = `⚠️ Message blocked (${reason})`;
+            chatMsgContainer.appendChild(msgDiv);
+            chatMsgContainer.scrollTop = chatMsgContainer.scrollHeight;
+            setTimeout(() => {
+                if (msgDiv.parentNode) msgDiv.remove();
+            }, 5000);
+        }
+        
+        let recentMessagesLog = [];
+        let spamMuteEndTime = 0;
+        let activeCountdownInterval = null;
+        
+        function triggerSpamCooldownAlert(initialSeconds) {
+            const existingAlert = document.getElementById('liveSpamAlertTrack');
+            if (existingAlert) existingAlert.remove();
+            const msgDiv = document.createElement('div');
+            msgDiv.className = 'system-alert-message';
+            msgDiv.id = 'liveSpamAlertTrack';
+            msgDiv.textContent = `⏰ Spam detected! Please wait ${initialSeconds} seconds.`;
+            chatMsgContainer.appendChild(msgDiv);
+            chatMsgContainer.scrollTop = chatMsgContainer.scrollHeight;
+            if (activeCountdownInterval) clearInterval(activeCountdownInterval);
+            let timeLeft = initialSeconds;
+            activeCountdownInterval = setInterval(() => {
+                timeLeft--;
+                const trackingEl = document.getElementById('liveSpamAlertTrack');
+                if (trackingEl) {
+                    if (timeLeft <= 0) {
+                        trackingEl.textContent = "✅ Cooldown expired. You can chat again.";
+                        setTimeout(() => trackingEl.remove(), 3000);
+                        clearInterval(activeCountdownInterval);
+                        activeCountdownInterval = null;
+                    } else {
+                        trackingEl.textContent = `⏰ Spam detected! Please wait ${timeLeft} seconds.`;
+                    }
+                } else {
+                    clearInterval(activeCountdownInterval);
+                    activeCountdownInterval = null;
+                }
+            }, 1000);
+        }
+        
+        function sendMessage() {
+            const currentTime = Date.now();
+            if (currentTime < spamMuteEndTime) {
+                const remainingSec = Math.ceil((spamMuteEndTime - currentTime) / 1000);
+                triggerSpamCooldownAlert(remainingSec);
+                chatInputElem.value = "";
+                charCounterElem.textContent = "0/100";
+                return;
+            }
+            let msg = chatInputElem.value.trim();
+            if (msg === "") return;
+            
+            recentMessagesLog.push({ text: msg, time: currentTime });
+            recentMessagesLog = recentMessagesLog.filter(m => currentTime - m.time < 6000);
+            let evaluateSpam = false;
+            if (recentMessagesLog.length >= 4) {
+                const totalWindow = currentTime - recentMessagesLog[recentMessagesLog.length - 4].time;
+                if (totalWindow < 2500) evaluateSpam = true;
+                let streak = 0;
+                for(let i = recentMessagesLog.length-1; i > 0; i--) {
+                    if (recentMessagesLog[i].text.toLowerCase() === recentMessagesLog[i-1].text.toLowerCase()) streak++;
+                }
+                if (streak >= 2) evaluateSpam = true;
+            }
+            if (evaluateSpam) {
+                spamMuteEndTime = currentTime + 15000;
+                triggerSpamCooldownAlert(15);
+                chatInputElem.value = "";
+                charCounterElem.textContent = "0/100";
+                chatInputElem.blur();
+                return;
+            }
+            
+            // Check moderation
+            if (advancedModerationFilter(msg)) {
+                addSystemBlockedAlert('inappropriate content detected');
+                // Clear the message buffer for sequential detection
+                messageBuffer = [];
+            } else {
+                addChatMessage(PLAYER_NAME, msg);
+            }
+            chatInputElem.value = "";
+            charCounterElem.textContent = "0/100";
+            chatInputElem.blur();
+        }
+        
+        sendBtn.addEventListener('click', sendMessage);
+        chatInputElem.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
+        
+        // Setup UI based on device
+        const mobileControls = document.getElementById('mobileControls');
+        const deviceIndicator = document.getElementById('deviceIndicator');
+        const controlsHint = document.getElementById('controlsHint');
+        
+        if (isMobile) {
+            mobileControls.classList.add('active');
+            deviceIndicator.innerHTML = '📱 MOBILE MODE - Touch Controls';
+            deviceIndicator.style.color = '#4caf50';
+            controlsHint.innerHTML = '📱 Left Joystick Move | Right Screen Drag Camera | Jump Button';
+        } else {
+            mobileControls.classList.remove('active');
+            deviceIndicator.innerHTML = '💻 PC MODE - S=Forward W=Back | TAB=Players | ←→ Rotate | ↑↓ Pitch';
+            deviceIndicator.style.color = '#ffd966';
+            controlsHint.innerHTML = '🎮 S=Forward W=Backward | A/D Strafe | ← → Rotate Camera | ↑ ↓ Pitch Camera | TAB=Players | SPACE Jump | I/O Zoom';
+        }
+        
+        // Rendering
+        const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        container.appendChild(renderer.domElement);
+        
+        player.position.y = GROUND_Y;
+        let lastTime = performance.now();
+        
+        function animate() {
+            const now = performance.now();
+            let delta = Math.min(0.033, (now - lastTime) / 1000);
+            lastTime = now;
+            
+            updateAirborneMechanics(delta);
+            updateMovement(delta);
+            updateCamera(delta);
+            
+            renderer.render(scene, camera);
+            requestAnimationFrame(animate);
+        }
+        
+        animate();
+        
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+        
+        if (!isMobile) {
+            setTimeout(() => container.requestPointerLock(), 100);
+        }
+        
+        // Add some decorative floating particles
+        const particleGeometry = new THREE.BufferGeometry();
+        const particleCount = 200;
+        const particlePositions = new Float32Array(particleCount * 3);
+        for (let i = 0; i < particleCount; i++) {
+            particlePositions[i*3] = (Math.random() - 0.5) * 200;
+            particlePositions[i*3+1] = Math.random() * 20;
+            particlePositions[i*3+2] = (Math.random() - 0.5) * 200;
+        }
+        particleGeometry.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
+        const particleMaterial = new THREE.PointsMaterial({ color: 0x88aaff, size: 0.1 });
+        const particles = new THREE.Points(particleGeometry, particleMaterial);
+        scene.add(particles);
+    </script>
 </body>
 </html>
