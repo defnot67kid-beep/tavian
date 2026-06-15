@@ -464,7 +464,7 @@ header{background:white;padding:15px 20px;border-bottom:1px solid #ddd;position:
 
 <script>
 // ============================================
-// TAVIAN PLATFORM - WITH CATALOG & AVATAR & CREATE
+// COMPLETE FIXED JAVASCRIPT FOR TAVIAN PLATFORM
 // ============================================
 
 // API Configuration
@@ -480,7 +480,7 @@ function formatTavix(amount){
 // USER SYSTEM
 let currentUser = null;
 let allUsers = [];
-let avatarItems = []; // Store all uploaded avatar items
+let avatarItems = [];
 
 // ============ TOKEN MANAGEMENT ============
 function setAuthToken(token) {
@@ -548,7 +548,6 @@ async function loadAvatarItems() {
             avatarItems = await response.json();
             localStorage.setItem('tavian_avatar_items', JSON.stringify(avatarItems));
         } else {
-            // Fallback to localStorage
             const saved = localStorage.getItem('tavian_avatar_items');
             if (saved) avatarItems = JSON.parse(saved);
         }
@@ -726,7 +725,7 @@ async function refreshUserData() {
             backupUserData(freshUser);
             updateTavixDisplay();
             updateNotifications();
-            if (document.getElementById("profilePage").style.display === "block") renderProfile();
+            if (document.getElementById("profilePage") && document.getElementById("profilePage").style.display === "block") renderProfile();
             console.log('✅ User data refreshed');
         }
     } catch(e) { console.log('Background refresh failed:', e); }
@@ -876,6 +875,7 @@ function getUserBadge(username){
     if(lowerUsername === "plstealme2") return { icon: "🛡️", class: "admin" };
     return null;
 }
+
 function renderBadge(username){
     const badge = getUserBadge(username);
     if(badge) return `<span class="badge ${badge.class}">${badge.icon}</span>`;
@@ -1169,33 +1169,113 @@ async function saveAvatar(){
     }
 }
 
-// ============ AVATAR ITEMS FUNCTIONS ============
+// ============ FIXED AVATAR ITEMS FUNCTIONS ============
 
 // Validate template is exactly 1024x1024
 function validateTemplate(file) {
     return new Promise((resolve) => {
+        if (!file) {
+            resolve(false);
+            return;
+        }
+        
         const img = new Image();
+        let timeout = setTimeout(() => {
+            console.log('Validation timeout');
+            URL.revokeObjectURL(img.src);
+            resolve(false);
+        }, 5000);
+        
         img.onload = () => {
+            clearTimeout(timeout);
             const isValid = img.width === 1024 && img.height === 1024;
+            console.log(`Dimensions: ${img.width}x${img.height}, Valid: ${isValid}`);
             URL.revokeObjectURL(img.src);
             resolve(isValid);
         };
-        img.onerror = () => resolve(false);
+        img.onerror = () => {
+            clearTimeout(timeout);
+            console.log('Failed to load image for validation');
+            URL.revokeObjectURL(img.src);
+            resolve(false);
+        };
         img.src = URL.createObjectURL(file);
     });
 }
 
-// Preview template on canvas
+// Clear preview function
+function clearPreview() {
+    const canvas = document.getElementById('previewCanvas');
+    if (canvas) {
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#e0e0e0';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // Draw instructions
+        ctx.font = '14px Arial';
+        ctx.fillStyle = '#666';
+        ctx.fillText('Select a 1024x1024 PNG template', 50, 150);
+        ctx.fillText('to preview here', 100, 180);
+    }
+    document.getElementById('previewText').innerHTML = 'Upload a template to preview';
+    const infoSpan = document.getElementById('templateInfo');
+    if (infoSpan) {
+        infoSpan.innerHTML = 'No file selected';
+        infoSpan.style.color = '#666';
+    }
+}
+
+// Update template info display
+function updateTemplateInfo(file) {
+    const infoSpan = document.getElementById('templateInfo');
+    if (!infoSpan) return;
+    
+    if (!file) {
+        infoSpan.innerHTML = 'No file selected';
+        infoSpan.style.color = '#666';
+        return;
+    }
+    
+    infoSpan.innerHTML = `${file.name} (${(file.size / 1024).toFixed(1)} KB) - Validating dimensions...`;
+    infoSpan.style.color = '#666';
+    
+    validateTemplate(file).then(isValid => {
+        if (isValid) {
+            infoSpan.innerHTML = `${file.name} (${(file.size / 1024).toFixed(1)} KB) - ✅ 1024x1024 valid`;
+            infoSpan.style.color = '#10b981';
+        } else {
+            infoSpan.innerHTML = `${file.name} - ❌ Must be 1024x1024 pixels`;
+            infoSpan.style.color = '#dc2626';
+        }
+    });
+}
+
+// FIXED: Preview template on canvas - properly updates every time
 function previewTemplate(file) {
+    if (!file) {
+        console.log('No file selected');
+        clearPreview();
+        return;
+    }
+    
+    console.log('Previewing file:', file.name, file.type, file.size);
+    
     const reader = new FileReader();
     reader.onload = (e) => {
         const img = new Image();
         img.onload = () => {
+            console.log('Image loaded:', img.width, 'x', img.height);
+            
             // Draw preview on canvas
             const canvas = document.getElementById('previewCanvas');
+            if (!canvas) {
+                console.error('Canvas not found');
+                return;
+            }
+            
             const ctx = canvas.getContext('2d');
             
-            // Clear canvas
+            // Clear canvas with background
             ctx.fillStyle = '#e0e0e0';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
@@ -1218,10 +1298,17 @@ function previewTemplate(file) {
             const pattern = ctx.createPattern(img, 'no-repeat');
             if (pattern) {
                 ctx.fillStyle = pattern;
+                console.log('Pattern created successfully');
             } else {
                 ctx.fillStyle = '#4a90e2';
+                console.log('Using fallback color');
             }
             ctx.fillRect(torsoX, torsoY, torsoWidth, torsoHeight);
+            
+            // Add a subtle border to show where the texture is applied
+            ctx.strokeStyle = '#ff0000';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(torsoX, torsoY, torsoWidth, torsoHeight);
             
             // Arms
             ctx.fillStyle = '#ffcc99';
@@ -1235,14 +1322,87 @@ function previewTemplate(file) {
             
             ctx.restore();
             
-            document.getElementById('previewText').innerHTML = '✅ Preview ready! Looks good? Click Upload.';
+            // Add text to show it's working
+            ctx.font = '12px Arial';
+            ctx.fillStyle = '#333';
+            ctx.fillText('Texture applied to torso area (red border)', torsoX + 5, torsoY + torsoHeight + 15);
+            
+            document.getElementById('previewText').innerHTML = '✅ Preview ready! The texture is applied to the torso area (outlined in red).';
+        };
+        img.onerror = (err) => {
+            console.error('Failed to load image:', err);
+            document.getElementById('previewText').innerHTML = '❌ Failed to load image. Make sure it\'s a valid PNG file.';
+            clearPreview();
         };
         img.src = e.target.result;
+    };
+    reader.onerror = (err) => {
+        console.error('FileReader error:', err);
+        document.getElementById('previewText').innerHTML = '❌ Failed to read file.';
+        clearPreview();
     };
     reader.readAsDataURL(file);
 }
 
-// Upload avatar item
+// Setup file input with proper change handling
+function setupFileInput() {
+    const fileInput = document.getElementById('templateUpload');
+    if (!fileInput) return;
+    
+    // Remove existing listeners to prevent duplicates
+    const newFileInput = fileInput.cloneNode(true);
+    fileInput.parentNode.replaceChild(newFileInput, fileInput);
+    
+    newFileInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        const errorDiv = document.getElementById('uploadError');
+        
+        if (!file) {
+            clearPreview();
+            updateTemplateInfo(null);
+            return;
+        }
+        
+        console.log('File selected:', file.name, file.type, file.size);
+        updateTemplateInfo(file);
+        
+        // Check file type
+        if (file.type !== 'image/png') {
+            errorDiv.textContent = '❌ Only PNG images are allowed';
+            errorDiv.style.display = 'block';
+            clearPreview();
+            return;
+        }
+        
+        // Check file size (max 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            errorDiv.textContent = '❌ File too large! Max 5MB';
+            errorDiv.style.display = 'block';
+            clearPreview();
+            return;
+        }
+        
+        errorDiv.style.display = 'none';
+        
+        // Preview the image immediately
+        previewTemplate(file);
+        
+        // Also validate dimensions asynchronously
+        validateTemplate(file).then(isValid => {
+            if (!isValid) {
+                errorDiv.textContent = '❌ Template must be exactly 1024x1024 pixels';
+                errorDiv.style.display = 'block';
+            } else {
+                console.log('✅ Template dimensions valid: 1024x1024');
+                document.getElementById('previewText').innerHTML = '✅ Template dimensions valid! Ready to upload.';
+            }
+        });
+    });
+    
+    return newFileInput;
+}
+
+// FIXED: Upload avatar item with proper state management
 async function uploadAvatarItem() {
     if (!currentUser) {
         alert('Please login to upload items');
@@ -1291,6 +1451,12 @@ async function uploadAvatarItem() {
         return;
     }
     
+    // Show loading state
+    const uploadBtn = document.getElementById('uploadBtn');
+    const originalText = uploadBtn.textContent;
+    uploadBtn.textContent = '⏳ Uploading...';
+    uploadBtn.disabled = true;
+    
     // Convert to base64 for storage
     const reader = new FileReader();
     reader.onload = async (e) => {
@@ -1324,19 +1490,30 @@ async function uploadAvatarItem() {
         document.getElementById('itemName').value = '';
         document.getElementById('templateUpload').value = '';
         document.getElementById('itemPrice').value = '10';
-        document.getElementById('previewText').innerHTML = 'Upload a template to preview';
         
-        // Clear canvas
-        const canvas = document.getElementById('previewCanvas');
-        const ctx = canvas.getContext('2d');
-        ctx.fillStyle = '#e0e0e0';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        // Clear preview
+        clearPreview();
+        updateTemplateInfo(null);
+        
+        // Reset file input
+        const fileInput = document.getElementById('templateUpload');
+        if (fileInput) fileInput.value = '';
         
         // Refresh displays
         renderMyUploads();
         renderCatalog();
         
+        // Reset button
+        uploadBtn.textContent = originalText;
+        uploadBtn.disabled = false;
+        
         alert(`✅ "${itemName}" uploaded successfully!`);
+    };
+    reader.onerror = () => {
+        uploadBtn.textContent = originalText;
+        uploadBtn.disabled = false;
+        errorDiv.textContent = 'Failed to read image file';
+        errorDiv.style.display = 'block';
     };
     reader.readAsDataURL(file);
 }
@@ -1529,6 +1706,7 @@ function showCreate(){
     document.getElementById("avatar").style.display = "none";
     document.getElementById("createPage").style.display = "block";
     renderMyUploads();
+    setupFileInput(); // Initialize file input handler
 }
 
 function showTOS(){
@@ -1627,7 +1805,7 @@ function showAuthForm(t){
 
 // ============ TAVIX MODAL FUNCTIONS ============
 let tavixDropdownOpen=false,notifDropdownOpen=false;
-document.addEventListener("click",function(e){const td=document.getElementById("tavixDropdown");const nd=document.getElementById("notificationDropdown");const tb=document.getElementById("tavixBtn")||document.getElementById("tavixBtnProfile");const nb=document.getElementById("notificationBtnHome")||document.getElementById("notificationBtnProfile");if(td&&tb&&!tb.contains(e.target)&&!td.contains(e.target)){td.style.display="none";tavixDropdownOpen=false;}if(nd&&nb&&!nb.contains(e.target)&&!nd.contains(e.target)){nd.style.display="none";notifDropdownOpen=false;}});
+
 function toggleTavix(){const d=document.getElementById("tavixDropdown");if(tavixDropdownOpen){d.style.display="none";tavixDropdownOpen=false;}else{updateTavixDisplay();d.style.display="block";tavixDropdownOpen=true;}}
 function toggleNotifications(){const d=document.getElementById("notificationDropdown");if(notifDropdownOpen){d.style.display="none";notifDropdownOpen=false;}else{updateNotifications();d.style.display="block";notifDropdownOpen=true;}}
 function openBuyModal(){closeModals();document.getElementById("buyModal").style.display="flex";}
@@ -1669,6 +1847,8 @@ async function sendGift(){
 function closeModals(){document.querySelectorAll(".modal-overlay").forEach(m=>m.style.display="none");}
 
 // ============ EVENT LISTENERS ============
+document.addEventListener("click",function(e){const td=document.getElementById("tavixDropdown");const nd=document.getElementById("notificationDropdown");const tb=document.getElementById("tavixBtn")||document.getElementById("tavixBtnProfile");const nb=document.getElementById("notificationBtnHome")||document.getElementById("notificationBtnProfile");if(td&&tb&&!tb.contains(e.target)&&!td.contains(e.target)){td.style.display="none";tavixDropdownOpen=false;}if(nd&&nb&&!nb.contains(e.target)&&!nd.contains(e.target)){nd.style.display="none";notifDropdownOpen=false;}});
+
 document.getElementById("searchBtnHome")?.addEventListener("click",openSearch);
 document.getElementById("searchBtnProfile")?.addEventListener("click",openSearch);
 document.getElementById("profileBtnHome")?.addEventListener("click", () => { if(currentUser) navigateToUserProfile(currentUser.id); else navigateTo("signin"); });
@@ -1680,11 +1860,6 @@ document.getElementById("globalSearchInput")?.addEventListener("keypress",handle
 document.getElementById("globalLogoutBtn")?.addEventListener("click",logoutGlobal);
 document.getElementById("searchOverlay")?.addEventListener("click",function(e){if(e.target===this)closeSearchGlobal();});
 document.getElementById("settingsOverlay")?.addEventListener("click",function(e){if(e.target===this)closeSettingsGlobal();});
-document.getElementById("uploadBtn")?.addEventListener("click",uploadAvatarItem);
-document.getElementById("templateUpload")?.addEventListener("change", function(e) {
-    const file = e.target.files[0];
-    if (file) previewTemplate(file);
-});
 
 const tb1=document.getElementById("tavixBtn");if(tb1)tb1.onclick=toggleTavix;
 const tb2=document.getElementById("tavixBtnProfile");if(tb2)tb2.onclick=toggleTavix;
@@ -1731,7 +1906,7 @@ window.onload = async function(){
     await autoLogin();
     if (currentUser) setInterval(async () => { await refreshUserData(); }, 10 * 60 * 1000);
     handleRoute();
-    console.log('✅ Tavian Platform Ready with Catalog, Avatar & Create!');
+    console.log('✅ Tavian Platform Ready with Fixed Preview!');
 };
 </script>
 </body>
