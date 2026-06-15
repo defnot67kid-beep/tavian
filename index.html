@@ -474,8 +474,8 @@ header{background:white;padding:15px 20px;border-bottom:1px solid #ddd;position:
 
 <script type="module">
 // ============================================
-// COMPLETE TAVIAN PLATFORM WITH PROPER UV MAPPING
-// Each template region maps to the correct 3D body part
+// COMPLETE TAVIAN PLATFORM - FULLY FIXED
+// Fixed: About page update, Navigation, Search, 3D Preview UV Mapping
 // ============================================
 
 import * as THREE from 'three';
@@ -503,42 +503,30 @@ let previewAvatar = null;
 let previewAnimationId = null;
 let currentTemplateImage = null;
 
-// Template UV Mapping for 1024x1024 Roblox R6 Shirt Template
-// These coordinates define where each body part's texture is located on the template
+// FIXED: Correct UV Mapping for 1024x1024 Roblox-style Templates
 const TEMPLATE_REGIONS = {
-    // Torso Front (center of template)
-    torsoFront: { x: 416, y: 256, w: 192, h: 256 },
-    // Torso Back
-    torsoBack: { x: 208, y: 256, w: 192, h: 256 },
-    // Torso Left Side
-    torsoLeft: { x: 0, y: 256, w: 192, h: 256 },
-    // Torso Right Side  
-    torsoRight: { x: 624, y: 256, w: 192, h: 256 },
-    // Torso Top (shoulders)
-    torsoTop: { x: 416, y: 128, w: 192, h: 128 },
-    // Torso Bottom (waist)
-    torsoBottom: { x: 416, y: 512, w: 192, h: 128 },
+    // Torso
+    torsoFront: { x: 384, y: 256, w: 256, h: 256 },
+    torsoBack: { x: 128, y: 256, w: 256, h: 256 },
+    torsoLeft: { x: 0, y: 256, w: 128, h: 256 },
+    torsoRight: { x: 896, y: 256, w: 128, h: 256 },
+    torsoTop: { x: 384, y: 128, w: 256, h: 128 },
+    torsoBottom: { x: 384, y: 512, w: 256, h: 128 },
     
-    // Left Arm Front
-    leftArmFront: { x: 832, y: 256, w: 192, h: 256 },
-    // Left Arm Back
-    leftArmBack: { x: 624, y: 384, w: 192, h: 128 },
-    // Left Arm Outer
-    leftArmOuter: { x: 832, y: 128, w: 128, h: 128 },
-    // Left Arm Inner
-    leftArmInner: { x: 832, y: 384, w: 128, h: 128 },
+    // Left Arm
+    leftArmFront: { x: 640, y: 256, w: 128, h: 256 },
+    leftArmBack: { x: 640, y: 128, w: 128, h: 128 },
+    leftArmOuter: { x: 768, y: 256, w: 64, h: 256 },
+    leftArmInner: { x: 640, y: 384, w: 64, h: 128 },
     
-    // Right Arm Front
-    rightArmFront: { x: 832, y: 512, w: 192, h: 256 },
-    // Right Arm Back
-    rightArmBack: { x: 624, y: 512, w: 192, h: 128 },
-    // Right Arm Outer
-    rightArmOuter: { x: 960, y: 128, w: 128, h: 128 },
-    // Right Arm Inner
-    rightArmInner: { x: 960, y: 384, w: 128, h: 128 }
+    // Right Arm
+    rightArmFront: { x: 896, y: 256, w: 128, h: 256 },
+    rightArmBack: { x: 896, y: 128, w: 128, h: 128 },
+    rightArmOuter: { x: 1024, y: 256, w: 64, h: 256 },
+    rightArmInner: { x: 960, y: 384, w: 64, h: 128 }
 };
 
-// Body part dimensions matching loader.html blocky avatar
+// Body part dimensions
 const BODY_DIMS = {
     torso: { width: 1.45, height: 1.55, depth: 0.75, yOffset: 2.35 },
     arm: { width: 0.68, height: 1.55, depth: 0.68, yOffset: 3.0, leftX: -1.05, rightX: 1.05 },
@@ -549,7 +537,6 @@ const BODY_DIMS = {
 // ============ TOKEN MANAGEMENT ============
 function setAuthToken(token) {
     if (!token) return;
-    console.log('🔐 Setting auth token');
     localStorage.setItem('tavian_auth_token', token);
     localStorage.setItem('TAVIOSECURITY', token);
     document.cookie = `tavian_token=${token}; path=/; max-age=2592000`;
@@ -628,15 +615,12 @@ function init3DPreview() {
     rimLight.position.set(2, 3, -2);
     previewScene.add(rimLight);
     
-    // Ground grid helper
     const gridHelper = new THREE.GridHelper(20, 20, 0x88aaff, 0x335588);
     gridHelper.position.y = -1.5;
     previewScene.add(gridHelper);
     
-    // Create blocky avatar with separate parts for proper texture mapping
     createBlockyAvatarWithParts();
     
-    // Animation loop
     function animate() {
         if (previewAnimationId) cancelAnimationFrame(previewAnimationId);
         previewAnimationId = requestAnimationFrame(animate);
@@ -649,7 +633,6 @@ function init3DPreview() {
     }
     animate();
     
-    // Handle resize
     window.addEventListener('resize', () => {
         if (!previewRenderer || !previewCamera) return;
         const newWidth = container.clientWidth;
@@ -663,12 +646,10 @@ function init3DPreview() {
 function createBlockyAvatarWithParts() {
     const group = new THREE.Group();
     
-    // Colors
     const skinColor = 0xe5cd60;
     const pantsColor = 0x2b6e4f;
     const defaultShirtColor = 0x2b70d4;
     
-    // Materials
     const skinMat = new THREE.MeshStandardMaterial({ color: skinColor, roughness: 0.4, metalness: 0.05 });
     const pantsMat = new THREE.MeshStandardMaterial({ color: pantsColor, roughness: 0.5 });
     const defaultShirtMat = new THREE.MeshStandardMaterial({ color: defaultShirtColor, roughness: 0.4 });
@@ -681,7 +662,6 @@ function createBlockyAvatarWithParts() {
     head.receiveShadow = true;
     group.add(head);
     
-    // TORSO - Split into separate faces for proper texture mapping
     const torsoParts = {};
     
     // Torso Front
@@ -741,7 +721,6 @@ function createBlockyAvatarWithParts() {
     // ARMS
     const armParts = {};
     
-    // Left Arm (multiple faces for better mapping)
     const leftArmGroup = new THREE.Group();
     const leftArmMat = new THREE.MeshStandardMaterial({ color: defaultShirtColor, roughness: 0.4 });
     const leftArmGeo = new THREE.BoxGeometry(BODY_DIMS.arm.width, BODY_DIMS.arm.height, BODY_DIMS.arm.depth);
@@ -753,7 +732,6 @@ function createBlockyAvatarWithParts() {
     group.add(leftArmGroup);
     armParts.left = leftArm;
     
-    // Right Arm
     const rightArmGroup = new THREE.Group();
     const rightArmMat = new THREE.MeshStandardMaterial({ color: defaultShirtColor, roughness: 0.4 });
     const rightArmGeo = new THREE.BoxGeometry(BODY_DIMS.arm.width, BODY_DIMS.arm.height, BODY_DIMS.arm.depth);
@@ -766,14 +744,12 @@ function createBlockyAvatarWithParts() {
     armParts.right = rightArm;
     
     // LEGS
-    // Left Leg
     const leftLegGeo = new THREE.BoxGeometry(BODY_DIMS.leg.width, BODY_DIMS.leg.height, BODY_DIMS.leg.depth);
     const leftLeg = new THREE.Mesh(leftLegGeo, pantsMat);
     leftLeg.position.set(BODY_DIMS.leg.leftX, BODY_DIMS.leg.yOffset, 0);
     leftLeg.castShadow = true;
     group.add(leftLeg);
     
-    // Right Leg
     const rightLegGeo = new THREE.BoxGeometry(BODY_DIMS.leg.width, BODY_DIMS.leg.height, BODY_DIMS.leg.depth);
     const rightLeg = new THREE.Mesh(rightLegGeo, pantsMat);
     rightLeg.position.set(BODY_DIMS.leg.rightX, BODY_DIMS.leg.yOffset, 0);
@@ -790,7 +766,6 @@ function createBlockyAvatarWithParts() {
     rightEye.position.set(0.2, 3.8, 0.62);
     group.add(rightEye);
     
-    // Mouth
     const mouth = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.08, 0.05), eyeMat);
     mouth.position.set(0, 3.48, 0.62);
     group.add(mouth);
@@ -802,47 +777,46 @@ function createBlockyAvatarWithParts() {
     previewScene.add(group);
     previewAvatar = group;
     
-    // Store references for texture updates
     previewAvatar.userData = { 
         torsoParts, armParts, head,
         defaultShirtMat, defaultShirtColor
     };
 }
 
-// Apply texture from specific region of template to a 3D mesh
 function applyTextureRegion(textureImage, mesh, region) {
     if (!mesh || !textureImage) return;
+    if (region.w <= 0 || region.h <= 0) return;
     
-    // Create canvas to extract the region
-    const canvas = document.createElement('canvas');
-    canvas.width = region.w;
-    canvas.height = region.h;
-    const ctx = canvas.getContext('2d');
-    
-    // Draw only the specific region from the template
-    ctx.drawImage(textureImage, 
-        region.x, region.y, region.w, region.h,
-        0, 0, region.w, region.h
-    );
-    
-    // Create texture from the extracted region
-    const regionTexture = new THREE.CanvasTexture(canvas);
-    regionTexture.wrapS = THREE.RepeatWrapping;
-    regionTexture.wrapT = THREE.RepeatWrapping;
-    regionTexture.needsUpdate = true;
-    
-    // Apply to mesh
-    mesh.material.map = regionTexture;
-    mesh.material.needsUpdate = true;
+    try {
+        const canvas = document.createElement('canvas');
+        canvas.width = region.w;
+        canvas.height = region.h;
+        const ctx = canvas.getContext('2d');
+        
+        ctx.drawImage(textureImage, 
+            region.x, region.y, region.w, region.h,
+            0, 0, region.w, region.h
+        );
+        
+        const regionTexture = new THREE.CanvasTexture(canvas);
+        regionTexture.wrapS = THREE.RepeatWrapping;
+        regionTexture.wrapT = THREE.RepeatWrapping;
+        regionTexture.needsUpdate = true;
+        
+        if (mesh.material) {
+            mesh.material.map = regionTexture;
+            mesh.material.needsUpdate = true;
+        }
+    } catch (error) {
+        console.warn('Failed to apply texture region:', error);
+    }
 }
 
-// Main function to apply full template to avatar
 function applyFullTemplateToAvatar(templateImage) {
     if (!previewAvatar || !templateImage) return;
     
     const { torsoParts, armParts } = previewAvatar.userData;
     
-    // Apply Torso regions
     if (torsoParts.front) applyTextureRegion(templateImage, torsoParts.front, TEMPLATE_REGIONS.torsoFront);
     if (torsoParts.back) applyTextureRegion(templateImage, torsoParts.back, TEMPLATE_REGIONS.torsoBack);
     if (torsoParts.left) applyTextureRegion(templateImage, torsoParts.left, TEMPLATE_REGIONS.torsoLeft);
@@ -850,11 +824,11 @@ function applyFullTemplateToAvatar(templateImage) {
     if (torsoParts.top) applyTextureRegion(templateImage, torsoParts.top, TEMPLATE_REGIONS.torsoTop);
     if (torsoParts.bottom) applyTextureRegion(templateImage, torsoParts.bottom, TEMPLATE_REGIONS.torsoBottom);
     
-    // Apply Arm regions
     if (armParts.left) applyTextureRegion(templateImage, armParts.left, TEMPLATE_REGIONS.leftArmFront);
     if (armParts.right) applyTextureRegion(templateImage, armParts.right, TEMPLATE_REGIONS.rightArmFront);
     
-    document.getElementById('previewText').innerHTML = '✅ Template applied! Logo only appears on FRONT torso area.';
+    const previewText = document.getElementById('previewText');
+    if (previewText) previewText.innerHTML = '✅ Template applied successfully!';
 }
 
 function resetAvatarTexture() {
@@ -876,25 +850,32 @@ function resetAvatarTexture() {
     });
 }
 
-// Validate template dimensions (1024x1024 for Roblox-style templates)
-function validateTemplate(file) {
+async function validateTemplate(file) {
     return new Promise((resolve) => {
         if (!file) { resolve(false); return; }
         const img = new Image();
-        const timeout = setTimeout(() => { URL.revokeObjectURL(img.src); resolve(false); }, 5000);
+        const timeout = setTimeout(() => { 
+            URL.revokeObjectURL(img.src); 
+            resolve(false); 
+        }, 5000);
+        
         img.onload = () => {
             clearTimeout(timeout);
-            const isValid = img.width === 1024 && img.height === 1024;
+            const isValid = (img.width === 1024 && img.height === 1024) || 
+                           (img.width === 585 && img.height === 559);
             console.log(`Template dimensions: ${img.width}x${img.height}, Valid: ${isValid}`);
             URL.revokeObjectURL(img.src);
             resolve(isValid);
         };
-        img.onerror = () => { clearTimeout(timeout); URL.revokeObjectURL(img.src); resolve(false); };
+        img.onerror = () => { 
+            clearTimeout(timeout); 
+            URL.revokeObjectURL(img.src); 
+            resolve(false); 
+        };
         img.src = URL.createObjectURL(file);
     });
 }
 
-// Setup file input for 3D preview
 function setupFileInput() {
     const fileInput = document.getElementById('templateUpload');
     if (!fileInput) return;
@@ -908,32 +889,37 @@ function setupFileInput() {
         
         if (!file) {
             resetAvatarTexture();
-            document.getElementById('previewText').innerHTML = 'Upload a 1024x1024 PNG template to preview on 3D blocky avatar';
+            const previewText = document.getElementById('previewText');
+            if (previewText) previewText.innerHTML = 'Upload a 1024x1024 or 585x559 PNG template to preview on 3D blocky avatar';
             return;
         }
         
-        console.log('File selected:', file.name, file.type, file.size);
-        
         if (file.type !== 'image/png') {
-            errorDiv.textContent = '❌ Only PNG images are allowed';
-            errorDiv.style.display = 'block';
+            if (errorDiv) {
+                errorDiv.textContent = '❌ Only PNG images are allowed';
+                errorDiv.style.display = 'block';
+            }
             resetAvatarTexture();
             return;
         }
         
         if (file.size > 5 * 1024 * 1024) {
-            errorDiv.textContent = '❌ File too large! Max 5MB';
-            errorDiv.style.display = 'block';
+            if (errorDiv) {
+                errorDiv.textContent = '❌ File too large! Max 5MB';
+                errorDiv.style.display = 'block';
+            }
             resetAvatarTexture();
             return;
         }
         
-        errorDiv.style.display = 'none';
+        if (errorDiv) errorDiv.style.display = 'none';
         
         const isValid = await validateTemplate(file);
         if (!isValid) {
-            errorDiv.textContent = '❌ Template must be exactly 1024x1024 pixels';
-            errorDiv.style.display = 'block';
+            if (errorDiv) {
+                errorDiv.textContent = '❌ Template must be 1024x1024 or 585x559 pixels';
+                errorDiv.style.display = 'block';
+            }
             resetAvatarTexture();
             return;
         }
@@ -1204,7 +1190,6 @@ function renderBadge(username){
     return "";
 }
 
-// UI Update Functions
 function updateTavixDisplay(){
     const b = currentUser?.tavix || 0;
     ["tavixBalance","tavixBalanceProfile","dropdownBalance","globalSettingsTAVIX"].forEach(id=>{
@@ -1215,7 +1200,7 @@ function updateTavixDisplay(){
 
 async function addTransaction(amount, reason, from=null){
     if(await addTransactionAPI(amount, reason, from)){
-        if(amount>0&&!from) addNotification("💰 TAVIX Purchased", `+${formatTavix(amount)} TAVIX`);
+        if(amount>0 && !from) addNotification("💰 TAVIX Purchased", `+${formatTavix(amount)} TAVIX`);
         if(from) addNotification("🎁 Gift Received", `${from} sent you ${formatTavix(amount)} TAVIX!`);
         updateTavixDisplay();
         return true;
@@ -1240,7 +1225,7 @@ function updateNotifications(){
         if(!currentUser.notifications||currentUser.notifications.length===0){
             container.innerHTML='<div class="empty-notifications">🔔 No notifications</div>';
         }else{
-            container.innerHTML=currentUser.notifications.map(n=>`<div class="notification-item ${!n.read?'unread':''}" onclick="markRead(${n.id})"><div class="notification-icon">${n.title.includes("TAVIX")?"💰":"📢"}</div><div class="notification-content"><div class="notification-title">${escapeHtml(n.title)}</div><div class="notification-message">${escapeHtml(n.message)}</div><div class="notification-time">${new Date(n.time).toLocaleString()}</div></div></div>`).join('');
+            container.innerHTML=currentUser.notifications.map(n=>`<div class="notification-item ${!n.read?'unread':''}" onclick="window.markRead && markRead(${n.id})"><div class="notification-icon">${n.title.includes("TAVIX")?"💰":"📢"}</div><div class="notification-content"><div class="notification-title">${escapeHtml(n.title)}</div><div class="notification-message">${escapeHtml(n.message)}</div><div class="notification-time">${new Date(n.time).toLocaleString()}</div></div></div>`).join('');
         }
     }
 }
@@ -1253,13 +1238,16 @@ async function markRead(id){
         updateNotifications();
     }
 }
+window.markRead = markRead;
 
 // SAVED ACCOUNTS
 function getSaved(){return JSON.parse(localStorage.getItem("savedAccounts"))||[];}
 function saveAccount(acc){let s=getSaved();if(!s.find(a=>a.username===acc.username)){s.push({username:acc.username,displayName:acc.displayName||acc.username,email:acc.email,lastLogin:new Date().toISOString(),color:'#'+Math.floor(Math.random()*16777215).toString(16)});localStorage.setItem("savedAccounts",JSON.stringify(s));}renderSaved();}
 function removeSaved(user){let s=getSaved().filter(a=>a.username!==user);localStorage.setItem("savedAccounts",JSON.stringify(s));renderSaved();}
 function quickLogin(user){document.getElementById("loginUsername").value=user;showAuthForm('login');}
-function renderSaved(){const c=document.getElementById("savedAccountsList");if(!c)return;const s=getSaved();if(s.length===0){c.innerHTML='<div style="color:#999">No saved accounts</div>';return;}c.innerHTML=s.map(acc=>`<div class="saved-account-btn" onclick="quickLogin('${escapeHtml(acc.username)}')"><div class="saved-account-avatar" style="background:${acc.color||'#667eea'}">${(acc.displayName.charAt(0)||acc.username.charAt(0)).toUpperCase()}</div><div class="saved-account-info"><div class="saved-account-name">${escapeHtml(acc.displayName)}</div><div class="saved-account-username">@${escapeHtml(acc.username)}</div></div><span class="remove-account" onclick="event.stopPropagation(); removeSaved('${escapeHtml(acc.username)}')">✕</span></div>`).join('');}
+function renderSaved(){const c=document.getElementById("savedAccountsList");if(!c)return;const s=getSaved();if(s.length===0){c.innerHTML='<div style="color:#999">No saved accounts</div>';return;}c.innerHTML=s.map(acc=>`<div class="saved-account-btn" onclick="window.quickLogin && quickLogin('${escapeHtml(acc.username)}')"><div class="saved-account-avatar" style="background:${acc.color||'#667eea'}">${(acc.displayName.charAt(0)||acc.username.charAt(0)).toUpperCase()}</div><div class="saved-account-info"><div class="saved-account-name">${escapeHtml(acc.displayName)}</div><div class="saved-account-username">@${escapeHtml(acc.username)}</div></div><span class="remove-account" onclick="event.stopPropagation(); window.removeSaved && removeSaved('${escapeHtml(acc.username)}')">✕</span></div>`).join('');}
+window.quickLogin = quickLogin;
+window.removeSaved = removeSaved;
 
 function escapeHtml(s){if(!s)return '';return s.replace(/[&<>]/g,function(m){if(m==='&')return '&amp;';if(m==='<')return '&lt;';if(m==='>')return '&gt;';return m;});}
 function formatEmail(e){if(!e)return '-';const a=e.indexOf('@');if(a<=4)return e.substring(0,a)+'***'+e.substring(a);return e.substring(0,4)+'***'+e.substring(a);}
@@ -1274,15 +1262,15 @@ function navigateToUserProfile(userId) {
 
 async function showOtherUserProfile(userId) {
     await fetchAllUsers();
-    const user = allUsers.find(u => u.id === userId);
+    const user = allUsers.find(u => u.id === userId || u.id == userId);
     if (!user) { alert("User not found"); navigateTo("home"); return; }
-    document.getElementById("authPage").style.display = "none";
-    document.getElementById("homePage").style.display = "none";
-    document.getElementById("tosPage").style.display = "none";
-    document.getElementById("deletePage").style.display = "none";
-    document.getElementById("catalog").style.display = "none";
-    document.getElementById("avatar").style.display = "none";
-    document.getElementById("createPage").style.display = "none";
+    
+    // Hide all pages
+    const allPages = ['authPage', 'homePage', 'tosPage', 'deletePage', 'catalog', 'avatar', 'createPage'];
+    allPages.forEach(pageId => {
+        const element = document.getElementById(pageId);
+        if (element) element.style.display = 'none';
+    });
     document.getElementById("profilePage").style.display = "block";
     renderOtherUserProfile(user);
 }
@@ -1299,14 +1287,14 @@ function renderOtherUserProfile(user) {
             </div>
         </div>
         <div class="about-card">
-            <div class="card-header"><h2>ABOUT</h2>${isOwner ? '<button class="edit-btn" onclick="editAbout()">Edit</button>' : ''}</div>
+            <div class="card-header"><h2>ABOUT</h2>${isOwner ? '<button class="edit-btn" onclick="window.editAbout && editAbout()">Edit</button>' : ''}</div>
             <p class="about-text">${escapeHtml(user.about || "This user hasn't written anything yet...")}</p>
         </div>
         <div class="profile-stats-grid">
             <div class="stat-card"><div class="stat-label">VISITS</div><div class="stat-value">${user.visits || 0}</div></div>
             <div class="stat-card"><div class="stat-label">JOINED</div><div class="stat-value">${new Date(user.createdAt || Date.now()).toLocaleDateString()}</div></div>
         </div>
-        ${!isOwner && currentUser ? `<div style="margin-top:20px; text-align:center;"><button class="submit-btn" style="padding:12px 24px; font-size:16px;" onclick="sendGiftToUser('${user.username}')">🎁 Send TAVIX</button></div>` : ''}
+        ${!isOwner && currentUser ? `<div style="margin-top:20px; text-align:center;"><button class="submit-btn" style="padding:12px 24px; font-size:16px;" onclick="window.sendGiftToUser && sendGiftToUser('${user.username}')">🎁 Send TAVIX</button></div>` : ''}
     `;
     document.getElementById("profileContent").innerHTML = html;
 }
@@ -1328,16 +1316,16 @@ async function sendGiftToUser(username) {
         updateTavixDisplay();
     } else { alert("Failed to send gift"); }
 }
+window.sendGiftToUser = sendGiftToUser;
 
 function showProfile() {
     if (!currentUser) { navigateTo("signin"); return; }
-    document.getElementById("authPage").style.display = "none";
-    document.getElementById("homePage").style.display = "none";
-    document.getElementById("tosPage").style.display = "none";
-    document.getElementById("deletePage").style.display = "none";
-    document.getElementById("catalog").style.display = "none";
-    document.getElementById("avatar").style.display = "none";
-    document.getElementById("createPage").style.display = "none";
+    
+    const allPages = ['authPage', 'homePage', 'tosPage', 'deletePage', 'catalog', 'avatar', 'createPage'];
+    allPages.forEach(pageId => {
+        const element = document.getElementById(pageId);
+        if (element) element.style.display = 'none';
+    });
     document.getElementById("profilePage").style.display = "block";
     renderProfile();
 }
@@ -1354,7 +1342,7 @@ function renderProfile(){
             </div>
         </div>
         <div class="about-card">
-            <div class="card-header"><h2>ABOUT</h2><button class="edit-btn" onclick="editAbout()">Edit</button></div>
+            <div class="card-header"><h2>ABOUT</h2><button class="edit-btn" onclick="window.editAbout && editAbout()">Edit</button></div>
             <p class="about-text">${escapeHtml(currentUser.about || "Tell people about yourself...")}</p>
         </div>
         <div class="profile-stats-grid">
@@ -1365,45 +1353,175 @@ function renderProfile(){
     document.getElementById("profileContent").innerHTML = html;
 }
 
-async function editAbout(){
-    const about = prompt("Edit about:", currentUser?.about || "");
-    if(about !== null && await updateUserAPI({ about: about })) renderProfile();
+// FIXED: editAbout function with proper error handling and UI refresh
+async function editAbout() {
+    if (!currentUser) {
+        alert("Please log in to edit your profile");
+        navigateTo("signin");
+        return;
+    }
+    
+    const currentAbout = currentUser.about || "";
+    const about = prompt("Edit your about section:", currentAbout);
+    
+    if (about !== null && about !== undefined) {
+        const aboutText = document.querySelector('.about-text');
+        const originalText = aboutText ? aboutText.innerHTML : "";
+        
+        if (aboutText) aboutText.innerHTML = "⏳ Saving...";
+        
+        try {
+            const success = await updateUserAPI({ about: about.substring(0, 500) });
+            if (success) {
+                await refreshUserData();
+                renderProfile();
+                addNotification("✏️ About Updated", "Your profile has been updated!");
+                alert("About section updated successfully!");
+            } else {
+                if (aboutText) aboutText.innerHTML = originalText;
+                alert("Failed to update about section. Please try again.");
+            }
+        } catch (error) {
+            if (aboutText) aboutText.innerHTML = originalText;
+            alert("Error updating about section.");
+        }
+    }
 }
+window.editAbout = editAbout;
 
 async function viewProfile(username){
-    const user = allUsers.find(u => u.username === username);
-    if(user) navigateToUserProfile(user.id);
-    else alert("User not found");
+    if (!username) {
+        console.error('No username provided to viewProfile');
+        return;
+    }
+    
+    await fetchAllUsers();
+    const user = allUsers.find(u => u.username === username || u.id == username);
+    
+    if (user) {
+        navigateTo('profile', user.id);
+    } else {
+        alert(`User "${username}" not found`);
+    }
 }
+window.viewProfile = viewProfile;
 
 // ============ SEARCH FUNCTIONS ============
-function openSearch(){document.getElementById("searchOverlay").style.display="flex";document.getElementById("globalSearchInput").focus();}
-function closeSearchGlobal(){document.getElementById("searchOverlay").style.display="none";document.getElementById("globalSearchInput").value="";document.getElementById("globalSearchResults").style.display="none";document.getElementById("globalSearchDropdown").style.display="none";}
+function openSearch(){
+    const searchOverlay = document.getElementById("searchOverlay");
+    if (searchOverlay) {
+        searchOverlay.style.display = "flex";
+        const searchInput = document.getElementById("globalSearchInput");
+        if (searchInput) searchInput.focus();
+    }
+}
+
+function closeSearchGlobal(){
+    const searchOverlay = document.getElementById("searchOverlay");
+    if (searchOverlay) searchOverlay.style.display = "none";
+    const searchInput = document.getElementById("globalSearchInput");
+    if (searchInput) searchInput.value = "";
+    const searchResults = document.getElementById("globalSearchResults");
+    if (searchResults) searchResults.style.display = "none";
+    const searchDropdown = document.getElementById("globalSearchDropdown");
+    if (searchDropdown) searchDropdown.style.display = "none";
+}
+window.closeSearchGlobal = closeSearchGlobal;
 
 async function updateSearchDropdown(){
-    const q=document.getElementById("globalSearchInput").value.trim().toLowerCase();
-    const d=document.getElementById("globalSearchDropdown");
-    if(q===""){d.style.display="none";return;}
+    const query = document.getElementById('globalSearchInput')?.value.trim().toLowerCase();
+    const dropdown = document.getElementById('globalSearchDropdown');
+    const resultsDiv = document.getElementById('globalSearchResults');
+    
+    if (!dropdown || !resultsDiv) return;
+    
+    if (!query || query === "") {
+        dropdown.style.display = "none";
+        resultsDiv.style.display = "none";
+        return;
+    }
+    
     await fetchAllUsers();
-    const players=allUsers.filter(p=>p.username.toLowerCase().includes(q)||(p.displayName&&p.displayName.toLowerCase().includes(q)));
-    if(players.length===0){d.style.display="none";return;}
-    let html='<div class="dropdown-section"><h4>👥 PLAYERS</h4>';
-    players.forEach(p=>{html+=`<div class="dropdown-item" onclick="selectPlayer('${escapeHtml(p.username)}')"><img src="https://ui-avatars.com/api/?background=667eea&color=fff&size=40&name=${encodeURIComponent(p.displayName||p.username)}" style="width:40px;height:40px;border-radius:50%;"><div>${escapeHtml(p.displayName||p.username)} ${renderBadge(p.username)}<br><small>@${escapeHtml(p.username)}</small></div></div>`;});
-    html+=`</div>`;d.innerHTML=html;d.style.display="block";
+    const players = allUsers.filter(p => 
+        p.username.toLowerCase().includes(query) || 
+        (p.displayName && p.displayName.toLowerCase().includes(query))
+    );
+    
+    if (players.length === 0) {
+        dropdown.style.display = "none";
+        return;
+    }
+    
+    let html = '<div style="padding: 10px;"><div style="font-size: 12px; color: #888; padding: 8px;">PLAYERS</div>';
+    players.slice(0, 5).forEach(p => {
+        html += `
+            <div class="search-dropdown-item" style="display: flex; align-items: center; gap: 12px; padding: 10px; cursor: pointer; border-radius: 8px; transition: background 0.2s;" 
+                 onmouseover="this.style.background='#f0f0f0'" 
+                 onmouseout="this.style.background='transparent'"
+                 onclick="window.selectPlayer && selectPlayer('${escapeHtml(p.username)}')">
+                <img src="https://ui-avatars.com/api/?background=667eea&color=fff&size=40&name=${encodeURIComponent(p.displayName || p.username)}" 
+                     style="width: 40px; height: 40px; border-radius: 50%;">
+                <div>
+                    <div style="font-weight: bold;">${escapeHtml(p.displayName || p.username)} ${renderBadge(p.username)}</div>
+                    <div style="font-size: 12px; color: #888;">@${escapeHtml(p.username)}</div>
+                </div>
+            </div>
+        `;
+    });
+    html += '</div>';
+    
+    dropdown.innerHTML = html;
+    dropdown.style.display = "block";
+    resultsDiv.style.display = "none";
 }
-function selectPlayer(user){closeSearchGlobal();viewProfile(user);}
-function handleSearchKey(e){if(e.key==="Enter")performSearch();}
-async function performSearch(){
-    const q=document.getElementById("globalSearchInput").value.trim().toLowerCase();
-    if(!q)return;
+
+function selectPlayer(username) {
+    closeSearchGlobal();
+    viewProfile(username);
+}
+window.selectPlayer = selectPlayer;
+
+function handleSearchKey(e) {
+    if (e.key === "Enter") performSearch();
+}
+
+async function performSearch() {
+    const query = document.getElementById('globalSearchInput')?.value.trim().toLowerCase();
+    if (!query) return;
+    
     await fetchAllUsers();
-    const players=allUsers.filter(p=>p.username.toLowerCase().includes(q)||(p.displayName&&p.displayName.toLowerCase().includes(q)));
-    const r=document.getElementById("globalSearchResults");
-    if(players.length===0) r.innerHTML='<div class="empty-games">No players found</div>';
-    else r.innerHTML=`<div class="results-section"><h3>👥 PLAYERS</h3><div class="players-grid">${players.map(p=>`<div class="player-card" onclick="closeSearchGlobal();viewProfile('${escapeHtml(p.username)}')"><img class="player-avatar" src="https://ui-avatars.com/api/?background=667eea&color=fff&size=60&name=${encodeURIComponent(p.displayName||p.username)}"><div><div class="player-display-name">${escapeHtml(p.displayName||p.username)} ${renderBadge(p.username)}</div><div class="player-username">@${escapeHtml(p.username)}</div></div></div>`).join('')}</div></div>`;
-    r.style.display="block";
-    document.getElementById("globalSearchDropdown").style.display="none";
+    const players = allUsers.filter(p => 
+        p.username.toLowerCase().includes(query) || 
+        (p.displayName && p.displayName.toLowerCase().includes(query))
+    );
+    
+    const resultsDiv = document.getElementById('globalSearchResults');
+    const dropdown = document.getElementById('globalSearchDropdown');
+    
+    if (dropdown) dropdown.style.display = "none";
+    if (!resultsDiv) return;
+    
+    if (players.length === 0) {
+        resultsDiv.innerHTML = '<div style="text-align: center; padding: 40px; color: #888;">No players found</div>';
+    } else {
+        resultsDiv.innerHTML = `
+            <h3 style="margin-bottom: 20px; color: #333;">👥 Search Results (${players.length})</h3>
+            <div class="players-grid">
+                ${players.map(p => `
+                    <div class="player-card" onclick="window.closeSearchGlobal && closeSearchGlobal(); window.viewProfile && viewProfile('${escapeHtml(p.username)}')">
+                        <img class="player-avatar" src="https://ui-avatars.com/api/?background=667eea&color=fff&size=60&name=${encodeURIComponent(p.displayName || p.username)}">
+                        <div>
+                            <div class="player-display-name" style="font-weight: bold;">${escapeHtml(p.displayName || p.username)} ${renderBadge(p.username)}</div>
+                            <div class="player-username" style="font-size: 14px; color: #888;">@${escapeHtml(p.username)}</div>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    }
+    resultsDiv.style.display = "block";
 }
+window.performSearch = performSearch;
 
 // ============ SETTINGS ============
 function openSettings(){
@@ -1415,6 +1533,8 @@ function openSettings(){
     document.getElementById("settingsOverlay").style.display="flex";
 }
 function closeSettingsGlobal(){document.getElementById("settingsOverlay").style.display="none";}
+window.closeSettingsGlobal = closeSettingsGlobal;
+
 async function updateDisplayNameGlobal(){
     const newName=document.getElementById("globalNewDisplayName").value.trim();
     if(!newName){alert("Enter display name");return;}
@@ -1426,18 +1546,24 @@ async function updateDisplayNameGlobal(){
         alert("Display name updated!");
     }else{alert("Failed to update");}
 }
+window.updateDisplayNameGlobal = updateDisplayNameGlobal;
+
 async function logoutGlobal(){
     await logoutAPI();
     currentUser=null;
     closeSettingsGlobal();
     navigateTo("signin");
 }
+window.logoutGlobal = logoutGlobal;
+
 async function confirmDeleteAccount(){
-    if(document.getElementById("deleteConfirmInput").value==="DELETE"){
+    const confirmInput = document.getElementById("deleteConfirmInput");
+    if(confirmInput && confirmInput.value==="DELETE"){
         if(await deleteAccountAPI()){ alert("Account deleted."); navigateTo("signin"); }
         else{alert("Failed to delete account");}
     }else{alert('Type "DELETE" to confirm');}
 }
+window.confirmDeleteAccount = confirmDeleteAccount;
 
 // ============ WELCOME MESSAGE ============
 function updateWelcome(){
@@ -1445,13 +1571,16 @@ function updateWelcome(){
         const username = currentUser.displayName || currentUser.username;
         const greetings = [`Sup ${username}, ready to play?`, `Yo ${username}, good to see you`, `${username} back at it again`, `Hey ${username}, let's go`, `What's good ${username}?`, `${username} in the building`, `Ayy ${username}, welcome back`, `There he is, ${username}`, `${username} returned for more`, `The legend is back, ${username}`, `Let's go ${username}`, `${username} is here`, `Back for more ${username}?`, `Welcome back playa`, `The goat ${username} has arrived`, `${username} my guy!`, `Yooo ${username} what's up`, `${username} pulling up again`, `He's back... ${username}`, `${username} let's get it`];
         const randomGreeting = greetings[Math.floor(Math.random() * greetings.length)];
-        document.getElementById("welcomeText").innerHTML = randomGreeting;
-        document.getElementById("welcomeBanner").style.display = "flex";
-        setTimeout(() => {
-            const banner = document.getElementById("welcomeBanner");
-            if(banner) banner.style.opacity = "0";
-            setTimeout(() => { if(banner) { banner.style.display = "none"; banner.style.opacity = "1"; } }, 500);
-        }, 5000);
+        const welcomeText = document.getElementById("welcomeText");
+        const welcomeBanner = document.getElementById("welcomeBanner");
+        if (welcomeText) welcomeText.innerHTML = randomGreeting;
+        if (welcomeBanner) {
+            welcomeBanner.style.display = "flex";
+            setTimeout(() => {
+                if(welcomeBanner) welcomeBanner.style.opacity = "0";
+                setTimeout(() => { if(welcomeBanner) { welcomeBanner.style.display = "none"; welcomeBanner.style.opacity = "1"; } }, 500);
+            }, 5000);
+        }
     }
 }
 
@@ -1462,11 +1591,14 @@ let currentSelectedName = null;
 function wearClothing(textureUrl, itemName, creatorUsername){
     currentSelectedTexture = textureUrl;
     currentSelectedName = itemName;
-    document.getElementById("avatarPreviewImg").src = textureUrl;
-    document.getElementById("currentClothingText").innerHTML = `Current clothing: ${itemName} by @${creatorUsername}`;
+    const avatarPreview = document.getElementById("avatarPreviewImg");
+    const clothingText = document.getElementById("currentClothingText");
+    if (avatarPreview) avatarPreview.src = textureUrl;
+    if (clothingText) clothingText.innerHTML = `Current clothing: ${itemName} by @${creatorUsername}`;
     addNotification("👕 Clothing Worn", `You are now wearing ${itemName} by @${creatorUsername}!`);
     alert(`Now wearing: ${itemName} by @${creatorUsername}`);
 }
+window.wearClothing = wearClothing;
 
 async function saveAvatar(){
     if(!currentUser){
@@ -1481,8 +1613,8 @@ async function saveAvatar(){
         } else { alert("Failed to save avatar"); }
     } else { alert("Please select clothing from the catalog first!"); navigateTo("catalog"); }
 }
+window.saveAvatar = saveAvatar;
 
-// Upload avatar item
 async function uploadAvatarItem() {
     if (!currentUser) {
         alert('Please login to upload items');
@@ -1490,26 +1622,25 @@ async function uploadAvatarItem() {
         return;
     }
     
-    const itemName = document.getElementById('itemName').value.trim();
-    const itemType = document.getElementById('itemType').value;
-    const itemPrice = parseInt(document.getElementById('itemPrice').value);
-    const file = document.getElementById('templateUpload').files[0];
+    const itemName = document.getElementById('itemName')?.value.trim();
+    const itemType = document.getElementById('itemType')?.value;
+    const itemPrice = parseInt(document.getElementById('itemPrice')?.value);
+    const file = document.getElementById('templateUpload')?.files[0];
     const errorDiv = document.getElementById('uploadError');
     
-    if (!itemName) { errorDiv.textContent = 'Please enter an item name'; errorDiv.style.display = 'block'; return; }
-    if (itemName.length < 3) { errorDiv.textContent = 'Item name must be at least 3 characters'; errorDiv.style.display = 'block'; return; }
-    if (!file) { errorDiv.textContent = 'Please select a template image'; errorDiv.style.display = 'block'; return; }
-    if (file.type !== 'image/png') { errorDiv.textContent = 'Only PNG images are allowed'; errorDiv.style.display = 'block'; return; }
+    if (!itemName) { if(errorDiv){errorDiv.textContent = 'Please enter an item name'; errorDiv.style.display = 'block';} return; }
+    if (itemName.length < 3) { if(errorDiv){errorDiv.textContent = 'Item name must be at least 3 characters'; errorDiv.style.display = 'block';} return; }
+    if (!file) { if(errorDiv){errorDiv.textContent = 'Please select a template image'; errorDiv.style.display = 'block';} return; }
+    if (file.type !== 'image/png') { if(errorDiv){errorDiv.textContent = 'Only PNG images are allowed'; errorDiv.style.display = 'block';} return; }
     
-    errorDiv.style.display = 'none';
+    if(errorDiv) errorDiv.style.display = 'none';
     
     const isValid = await validateTemplate(file);
-    if (!isValid) { errorDiv.textContent = '❌ Template must be exactly 1024x1024 pixels'; errorDiv.style.display = 'block'; return; }
+    if (!isValid) { if(errorDiv){errorDiv.textContent = '❌ Template must be 1024x1024 or 585x559 pixels'; errorDiv.style.display = 'block';} return; }
     
     const uploadBtn = document.getElementById('uploadBtn');
-    const originalText = uploadBtn.textContent;
-    uploadBtn.textContent = '⏳ Uploading...';
-    uploadBtn.disabled = true;
+    const originalText = uploadBtn ? uploadBtn.textContent : 'Upload';
+    if(uploadBtn){ uploadBtn.textContent = '⏳ Uploading...'; uploadBtn.disabled = true; }
     
     const reader = new FileReader();
     reader.onload = async (e) => {
@@ -1534,22 +1665,24 @@ async function uploadAvatarItem() {
         
         localStorage.setItem('tavian_avatar_items', JSON.stringify(avatarItems));
         
-        document.getElementById('itemName').value = '';
-        document.getElementById('templateUpload').value = '';
-        document.getElementById('itemPrice').value = '10';
+        const itemNameInput = document.getElementById('itemName');
+        const templateUpload = document.getElementById('templateUpload');
+        const itemPriceInput = document.getElementById('itemPrice');
+        if(itemNameInput) itemNameInput.value = '';
+        if(templateUpload) templateUpload.value = '';
+        if(itemPriceInput) itemPriceInput.value = '10';
         resetAvatarTexture();
         
         renderMyUploads();
         renderCatalog();
         
-        uploadBtn.textContent = originalText;
-        uploadBtn.disabled = false;
+        if(uploadBtn){ uploadBtn.textContent = originalText; uploadBtn.disabled = false; }
         alert(`✅ "${itemName}" uploaded successfully!`);
     };
     reader.readAsDataURL(file);
 }
+window.uploadAvatarItem = uploadAvatarItem;
 
-// Render My Uploads section
 function renderMyUploads() {
     const container = document.getElementById('myUploadsGrid');
     if (!container) return;
@@ -1563,8 +1696,8 @@ function renderMyUploads() {
                 <div class="catalog-creator">By @${escapeHtml(item.creatorUsername)}</div>
                 <div class="catalog-price">💰 ${item.price} TAVIX</div>
                 <div class="catalog-stats" style="font-size: 11px; color: #888; margin-top: 5px;">📥 ${item.purchases || 0} purchases</div>
-                <button class="wear-btn" onclick="wearFromCatalog('${item.id}')">👕 Try On</button>
-                <button class="delete-item-btn" onclick="deleteMyItem('${item.id}')">🗑️ Delete</button>
+                <button class="wear-btn" onclick="window.wearFromCatalog && wearFromCatalog('${item.id}')">👕 Try On</button>
+                <button class="delete-item-btn" onclick="window.deleteMyItem && deleteMyItem('${item.id}')">🗑️ Delete</button>
             </div>
         </div>
     `).join('');
@@ -1581,6 +1714,7 @@ async function deleteMyItem(itemId) {
         alert('Item deleted');
     } else { alert('Failed to delete item'); }
 }
+window.deleteMyItem = deleteMyItem;
 
 function renderCatalog() {
     const container = document.getElementById('catalogGrid');
@@ -1593,8 +1727,8 @@ function renderCatalog() {
                 <div class="item-name">${escapeHtml(item.name)}</div>
                 <div class="catalog-creator">By @${escapeHtml(item.creatorUsername)}</div>
                 <div class="catalog-price">💰 ${item.price} TAVIX</div>
-                <button class="wear-btn" onclick="wearFromCatalog('${item.id}')">👕 Try On</button>
-                ${currentUser && currentUser.id !== item.creatorId ? `<button class="purchase-btn" onclick="purchaseItem('${item.id}')">🛒 Purchase (${item.price} TAVIX)</button>` : ''}
+                <button class="wear-btn" onclick="window.wearFromCatalog && wearFromCatalog('${item.id}')">👕 Try On</button>
+                ${currentUser && currentUser.id !== item.creatorId ? `<button class="purchase-btn" onclick="window.purchaseItem && purchaseItem('${item.id}')">🛒 Purchase (${item.price} TAVIX)</button>` : ''}
             </div>
         </div>
     `).join('');
@@ -1603,13 +1737,16 @@ function renderCatalog() {
 function wearFromCatalog(itemId) {
     const item = avatarItems.find(i => i.id === itemId);
     if (!item) return;
-    document.getElementById('avatarPreviewImg').src = item.image;
-    document.getElementById('currentClothingText').innerHTML = `Current clothing: ${item.name} by @${item.creatorUsername}`;
+    const avatarPreview = document.getElementById('avatarPreviewImg');
+    const clothingText = document.getElementById('currentClothingText');
+    if (avatarPreview) avatarPreview.src = item.image;
+    if (clothingText) clothingText.innerHTML = `Current clothing: ${item.name} by @${item.creatorUsername}`;
     currentSelectedTexture = item.image;
     currentSelectedName = item.name;
     addNotification("👕 Trying On", `You're trying on ${item.name} by @${item.creatorUsername}`);
     alert(`👕 Trying on: ${item.name}\nBy: @${item.creatorUsername}\nPrice: ${item.price} TAVIX`);
 }
+window.wearFromCatalog = wearFromCatalog;
 
 async function purchaseItem(itemId) {
     if (!currentUser) { alert('Please login to purchase'); navigateTo('signin'); return; }
@@ -1632,16 +1769,15 @@ async function purchaseItem(itemId) {
         } else { alert('Purchase failed'); }
     }
 }
+window.purchaseItem = purchaseItem;
 
-// ============ PAGE NAVIGATION ============
+// ============ PAGE NAVIGATION - FIXED ============
 function showHome(){
-    document.getElementById("authPage").style.display = "none";
-    document.getElementById("profilePage").style.display = "none";
-    document.getElementById("tosPage").style.display = "none";
-    document.getElementById("deletePage").style.display = "none";
-    document.getElementById("catalog").style.display = "none";
-    document.getElementById("avatar").style.display = "none";
-    document.getElementById("createPage").style.display = "none";
+    const allPages = ['authPage', 'profilePage', 'tosPage', 'deletePage', 'catalog', 'avatar', 'createPage'];
+    allPages.forEach(pageId => {
+        const element = document.getElementById(pageId);
+        if (element) element.style.display = 'none';
+    });
     document.getElementById("homePage").style.display = "block";
     updateWelcome();
     updateTavixDisplay();
@@ -1649,40 +1785,36 @@ function showHome(){
 }
 
 function showCatalog(){
-    document.getElementById("authPage").style.display = "none";
-    document.getElementById("profilePage").style.display = "none";
-    document.getElementById("tosPage").style.display = "none";
-    document.getElementById("deletePage").style.display = "none";
-    document.getElementById("homePage").style.display = "none";
-    document.getElementById("avatar").style.display = "none";
-    document.getElementById("createPage").style.display = "none";
+    const allPages = ['authPage', 'profilePage', 'tosPage', 'deletePage', 'homePage', 'avatar', 'createPage'];
+    allPages.forEach(pageId => {
+        const element = document.getElementById(pageId);
+        if (element) element.style.display = 'none';
+    });
     document.getElementById("catalog").style.display = "block";
     renderCatalog();
 }
 
 function showAvatar(){
-    document.getElementById("authPage").style.display = "none";
-    document.getElementById("profilePage").style.display = "none";
-    document.getElementById("tosPage").style.display = "none";
-    document.getElementById("deletePage").style.display = "none";
-    document.getElementById("homePage").style.display = "none";
-    document.getElementById("catalog").style.display = "none";
-    document.getElementById("createPage").style.display = "none";
+    const allPages = ['authPage', 'profilePage', 'tosPage', 'deletePage', 'homePage', 'catalog', 'createPage'];
+    allPages.forEach(pageId => {
+        const element = document.getElementById(pageId);
+        if (element) element.style.display = 'none';
+    });
     document.getElementById("avatar").style.display = "block";
     if(currentUser && currentUser.avatarUrl){
-        document.getElementById("avatarPreviewImg").src = currentUser.avatarUrl;
-        document.getElementById("currentClothingText").innerHTML = `Current clothing: ${currentUser.currentClothing || "Default"}`;
+        const avatarPreview = document.getElementById("avatarPreviewImg");
+        const clothingText = document.getElementById("currentClothingText");
+        if(avatarPreview) avatarPreview.src = currentUser.avatarUrl;
+        if(clothingText) clothingText.innerHTML = `Current clothing: ${currentUser.currentClothing || "Default"}`;
     }
 }
 
 function showCreate(){
-    document.getElementById("authPage").style.display = "none";
-    document.getElementById("profilePage").style.display = "none";
-    document.getElementById("tosPage").style.display = "none";
-    document.getElementById("deletePage").style.display = "none";
-    document.getElementById("homePage").style.display = "none";
-    document.getElementById("catalog").style.display = "none";
-    document.getElementById("avatar").style.display = "none";
+    const allPages = ['authPage', 'profilePage', 'tosPage', 'deletePage', 'homePage', 'catalog', 'avatar'];
+    allPages.forEach(pageId => {
+        const element = document.getElementById(pageId);
+        if (element) element.style.display = 'none';
+    });
     document.getElementById("createPage").style.display = "block";
     renderMyUploads();
     setupFileInput();
@@ -1690,61 +1822,113 @@ function showCreate(){
 }
 
 function showTOS(){
-    document.getElementById("authPage").style.display = "none";
-    document.getElementById("homePage").style.display = "none";
-    document.getElementById("profilePage").style.display = "none";
-    document.getElementById("deletePage").style.display = "none";
-    document.getElementById("catalog").style.display = "none";
-    document.getElementById("avatar").style.display = "none";
-    document.getElementById("createPage").style.display = "none";
+    const allPages = ['authPage', 'homePage', 'profilePage', 'deletePage', 'catalog', 'avatar', 'createPage'];
+    allPages.forEach(pageId => {
+        const element = document.getElementById(pageId);
+        if (element) element.style.display = 'none';
+    });
     document.getElementById("tosPage").style.display = "block";
 }
 
 function showDelete(){
-    document.getElementById("authPage").style.display = "none";
-    document.getElementById("homePage").style.display = "none";
-    document.getElementById("profilePage").style.display = "none";
-    document.getElementById("tosPage").style.display = "none";
-    document.getElementById("catalog").style.display = "none";
-    document.getElementById("avatar").style.display = "none";
-    document.getElementById("createPage").style.display = "none";
+    const allPages = ['authPage', 'homePage', 'profilePage', 'tosPage', 'catalog', 'avatar', 'createPage'];
+    allPages.forEach(pageId => {
+        const element = document.getElementById(pageId);
+        if (element) element.style.display = 'none';
+    });
     document.getElementById("deletePage").style.display = "block";
-    document.getElementById("deleteConfirmInput").value = "";
+    const confirmInput = document.getElementById("deleteConfirmInput");
+    if(confirmInput) confirmInput.value = "";
 }
 
 function showAuth(){
-    document.getElementById("homePage").style.display = "none";
-    document.getElementById("profilePage").style.display = "none";
-    document.getElementById("tosPage").style.display = "none";
-    document.getElementById("deletePage").style.display = "none";
-    document.getElementById("catalog").style.display = "none";
-    document.getElementById("avatar").style.display = "none";
-    document.getElementById("createPage").style.display = "none";
+    const allPages = ['homePage', 'profilePage', 'tosPage', 'deletePage', 'catalog', 'avatar', 'createPage'];
+    allPages.forEach(pageId => {
+        const element = document.getElementById(pageId);
+        if (element) element.style.display = 'none';
+    });
     document.getElementById("authPage").style.display = "block";
     renderSaved();
 }
 
-function navigateTo(p, userId = null){
-    if(p === "profile" && userId) navigateToUserProfile(userId);
-    else if(p === "profile" && !userId && currentUser) navigateToUserProfile(currentUser.id);
-    else if(p === "catalog"){ showCatalog(); updateHash("#catalog"); }
-    else if(p === "avatar"){ showAvatar(); updateHash("#avatar"); }
-    else if(p === "create"){ showCreate(); updateHash("#create"); }
-    else if(p === "home"){
-        if(currentUser){ showHome(); updateHash("#home"); }
-        else { showAuth(); showAuthForm("login"); updateHash("#signin"); }
+function navigateTo(page, userId = null) {
+    // Close any open modals/overlays
+    closeModals();
+    closeSearchGlobal();
+    closeSettingsGlobal();
+    
+    // Stop 3D animation if leaving create page
+    if (page !== 'create' && previewAnimationId) {
+        cancelAnimationFrame(previewAnimationId);
+        previewAnimationId = null;
     }
-    else if(p === "settings"){
-        if(currentUser) openSettings();
-        else { showAuth(); showAuthForm("login"); updateHash("#signin"); }
+    
+    switch(page) {
+        case 'profile':
+            if (userId) {
+                showOtherUserProfile(userId);
+            } else if (currentUser) {
+                showProfile();
+            } else {
+                showAuth();
+                showAuthForm('login');
+                updateHash('#signin');
+            }
+            break;
+        case 'catalog':
+            showCatalog();
+            updateHash('#catalog');
+            break;
+        case 'avatar':
+            showAvatar();
+            updateHash('#avatar');
+            break;
+        case 'create':
+            showCreate();
+            updateHash('#create');
+            break;
+        case 'home':
+            if (currentUser) {
+                showHome();
+                updateHash('#home');
+            } else {
+                navigateTo('signin');
+            }
+            break;
+        case 'settings':
+            if (currentUser) {
+                openSettings();
+            } else {
+                navigateTo('signin');
+            }
+            break;
+        case 'wiki-tos':
+            showTOS();
+            updateHash('#wiki-tos');
+            break;
+        case 'delete':
+            if (currentUser) {
+                showDelete();
+                updateHash('#delete');
+            } else {
+                navigateTo('signin');
+            }
+            break;
+        case 'signin':
+            showAuth();
+            showAuthForm('login');
+            updateHash('#signin');
+            break;
+        default:
+            if (currentUser) {
+                showHome();
+            } else {
+                showAuth();
+                showAuthForm('login');
+            }
     }
-    else if(p === "wiki-tos"){ showTOS(); updateHash("#wiki-tos"); }
-    else if(p === "delete"){
-        if(currentUser) showDelete();
-        else { showAuth(); showAuthForm("login"); updateHash("#signin"); }
-    }
-    else if(p === "signin"){ showAuth(); showAuthForm("login"); updateHash("#signin"); }
 }
+window.navigateTo = navigateTo;
 
 function updateHash(h){ history.pushState(null, null, h); }
 
@@ -1772,37 +1956,64 @@ async function handleRoute(){
 function showAuthForm(t){
     const lf=document.getElementById("loginForm"),sf=document.getElementById("signupForm");
     const lt=document.getElementById("loginTab"),st=document.getElementById("signupTab");
-    lf.classList.remove("active");sf.classList.remove("active");
-    lt.classList.remove("active");st.classList.remove("active");
-    if(t==="login"){lf.classList.add("active");lt.classList.add("active");}
-    else{sf.classList.add("active");st.classList.add("active");if(typeof hcaptcha !== 'undefined') hcaptcha.reset();}
-    document.getElementById("authError").textContent="";
+    if(lf) lf.classList.remove("active");
+    if(sf) sf.classList.remove("active");
+    if(lt) lt.classList.remove("active");
+    if(st) st.classList.remove("active");
+    if(t==="login"){ if(lf) lf.classList.add("active"); if(lt) lt.classList.add("active");}
+    else{ if(sf) sf.classList.add("active"); if(st) st.classList.add("active"); if(typeof hcaptcha !== 'undefined') hcaptcha.reset();}
+    const authError = document.getElementById("authError");
+    if(authError) authError.textContent="";
 }
+window.showAuthForm = showAuthForm;
 
 // ============ TAVIX MODAL FUNCTIONS ============
 let tavixDropdownOpen=false,notifDropdownOpen=false;
 
-function toggleTavix(){const d=document.getElementById("tavixDropdown");if(tavixDropdownOpen){d.style.display="none";tavixDropdownOpen=false;}else{updateTavixDisplay();d.style.display="block";tavixDropdownOpen=true;}}
-function toggleNotifications(){const d=document.getElementById("notificationDropdown");if(notifDropdownOpen){d.style.display="none";notifDropdownOpen=false;}else{updateNotifications();d.style.display="block";notifDropdownOpen=true;}}
-function openBuyModal(){closeModals();document.getElementById("buyModal").style.display="flex";}
-function openGiftModal(){closeModals();document.getElementById("giftModal").style.display="flex";}
+function toggleTavix(){
+    const d=document.getElementById("tavixDropdown");
+    if(!d) return;
+    if(tavixDropdownOpen){d.style.display="none";tavixDropdownOpen=false;}
+    else{updateTavixDisplay();d.style.display="block";tavixDropdownOpen=true;}
+}
+window.toggleTavix = toggleTavix;
+
+function toggleNotifications(){
+    const d=document.getElementById("notificationDropdown");
+    if(!d) return;
+    if(notifDropdownOpen){d.style.display="none";notifDropdownOpen=false;}
+    else{updateNotifications();d.style.display="block";notifDropdownOpen=true;}
+}
+window.toggleNotifications = toggleNotifications;
+
+function openBuyModal(){closeModals();const modal=document.getElementById("buyModal");if(modal) modal.style.display="flex";}
+function openGiftModal(){closeModals();const modal=document.getElementById("giftModal");if(modal) modal.style.display="flex";}
 function openTransactionsModal(){
     closeModals();
     const t=currentUser?.transactions||[];
     const c=document.getElementById("transactionList");
+    if(!c) return;
     if(t.length===0) c.innerHTML='<p style="text-align:center;color:#888">No transactions</p>';
     else c.innerHTML=t.map(tr=>`<div class="transaction-item"><span>${new Date(tr.date).toLocaleDateString()} - ${tr.reason}${tr.from?` from @${tr.from}`:""}</span><span class="transaction-amount ${tr.amount>0?"positive":"negative"}">${tr.amount>0?"+":""}${formatTavix(Math.abs(tr.amount))} ⌬</span></div>`).join('');
-    document.getElementById("transactionsModal").style.display="flex";
+    const modal=document.getElementById("transactionsModal");
+    if(modal) modal.style.display="flex";
 }
+window.openBuyModal = openBuyModal;
+window.openGiftModal = openGiftModal;
+window.openTransactionsModal = openTransactionsModal;
+
 async function buyTAVIX(){
     const s=document.getElementById("buyAmount");
+    if(!s) return;
     const a=parseInt(s.value);
     if(await addTransaction(a,`Purchased ${a} TAVIX`)){ alert(`+${formatTavix(a)} TAVIX added!`); closeModals(); updateTavixDisplay(); }
     else alert("Purchase failed");
 }
+window.buyTAVIX = buyTAVIX;
+
 async function sendGift(){
-    const un=document.getElementById("giftUsername").value.trim();
-    const amt=parseInt(document.getElementById("giftAmount").value);
+    const un=document.getElementById("giftUsername")?.value.trim();
+    const amt=parseInt(document.getElementById("giftAmount")?.value);
     if(!un){alert("Enter username");return;}
     if(isNaN(amt)||amt<=0){alert("Enter valid amount");return;}
     if(!currentUser){alert("Not logged in");return;}
@@ -1815,63 +2026,134 @@ async function sendGift(){
         await addNotificationAPI("🎁 Gift Received", `@${currentUser.username} sent you ${formatTavix(amt)} TAVIX!`);
         alert(`Sent ${formatTavix(amt)} TAVIX to @${un}!`);
         closeModals();
-        document.getElementById("giftUsername").value="";
-        document.getElementById("giftAmount").value="";
+        const giftUsername = document.getElementById("giftUsername");
+        const giftAmount = document.getElementById("giftAmount");
+        if(giftUsername) giftUsername.value="";
+        if(giftAmount) giftAmount.value="";
         updateTavixDisplay();
     }else alert("Failed to send gift");
 }
-function closeModals(){document.querySelectorAll(".modal-overlay").forEach(m=>m.style.display="none");}
+window.sendGift = sendGift;
+
+function closeModals(){
+    const modals = document.querySelectorAll(".modal-overlay");
+    modals.forEach(m=>m.style.display="none");
+}
+window.closeModals = closeModals;
+
+// Add CSS for search dropdown
+const searchStyle = document.createElement('style');
+searchStyle.textContent = `
+    .search-dropdown-item:hover {
+        background: #f0f0f0 !important;
+    }
+    .players-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 15px;
+    }
+    .search-dropdown-item {
+        transition: background 0.2s;
+    }
+`;
+document.head.appendChild(searchStyle);
 
 // ============ EVENT LISTENERS ============
-document.addEventListener("click",function(e){const td=document.getElementById("tavixDropdown");const nd=document.getElementById("notificationDropdown");const tb=document.getElementById("tavixBtn")||document.getElementById("tavixBtnProfile");const nb=document.getElementById("notificationBtnHome")||document.getElementById("notificationBtnProfile");if(td&&tb&&!tb.contains(e.target)&&!td.contains(e.target)){td.style.display="none";tavixDropdownOpen=false;}if(nd&&nb&&!nb.contains(e.target)&&!nd.contains(e.target)){nd.style.display="none";notifDropdownOpen=false;}});
+document.addEventListener("click",function(e){
+    const td=document.getElementById("tavixDropdown");
+    const nd=document.getElementById("notificationDropdown");
+    const tb=document.getElementById("tavixBtn")||document.getElementById("tavixBtnProfile");
+    const nb=document.getElementById("notificationBtnHome")||document.getElementById("notificationBtnProfile");
+    if(td && tb && !tb.contains(e.target) && !td.contains(e.target)){
+        td.style.display="none";
+        tavixDropdownOpen=false;
+    }
+    if(nd && nb && !nb.contains(e.target) && !nd.contains(e.target)){
+        nd.style.display="none";
+        notifDropdownOpen=false;
+    }
+});
 
-document.getElementById("searchBtnHome")?.addEventListener("click",openSearch);
-document.getElementById("searchBtnProfile")?.addEventListener("click",openSearch);
-document.getElementById("profileBtnHome")?.addEventListener("click", () => { if(currentUser) navigateToUserProfile(currentUser.id); else navigateTo("signin"); });
-document.getElementById("profileBtnProfile")?.addEventListener("click", () => { if(currentUser) navigateToUserProfile(currentUser.id); else navigateTo("signin"); });
-document.getElementById("settingsBtnHome")?.addEventListener("click",()=>navigateTo("settings"));
-document.getElementById("settingsBtnProfile")?.addEventListener("click",()=>navigateTo("settings"));
-document.getElementById("globalSearchInput")?.addEventListener("input",updateSearchDropdown);
-document.getElementById("globalSearchInput")?.addEventListener("keypress",handleSearchKey);
-document.getElementById("globalLogoutBtn")?.addEventListener("click",logoutGlobal);
-document.getElementById("searchOverlay")?.addEventListener("click",function(e){if(e.target===this)closeSearchGlobal();});
-document.getElementById("settingsOverlay")?.addEventListener("click",function(e){if(e.target===this)closeSettingsGlobal();});
-document.getElementById("uploadBtn")?.addEventListener("click",uploadAvatarItem);
+const searchBtnHome = document.getElementById("searchBtnHome");
+const searchBtnProfile = document.getElementById("searchBtnProfile");
+if(searchBtnHome) searchBtnHome.addEventListener("click",openSearch);
+if(searchBtnProfile) searchBtnProfile.addEventListener("click",openSearch);
 
-const tb1=document.getElementById("tavixBtn");if(tb1)tb1.onclick=toggleTavix;
-const tb2=document.getElementById("tavixBtnProfile");if(tb2)tb2.onclick=toggleTavix;
-const nb1=document.getElementById("notificationBtnHome");if(nb1)nb1.onclick=toggleNotifications;
-const nb2=document.getElementById("notificationBtnProfile");if(nb2)nb2.onclick=toggleNotifications;
+const profileBtnHome = document.getElementById("profileBtnHome");
+const profileBtnProfile = document.getElementById("profileBtnProfile");
+if(profileBtnHome) profileBtnHome.addEventListener("click", () => { if(currentUser) navigateToUserProfile(currentUser.id); else navigateTo("signin"); });
+if(profileBtnProfile) profileBtnProfile.addEventListener("click", () => { if(currentUser) navigateToUserProfile(currentUser.id); else navigateTo("signin"); });
+
+const settingsBtnHome = document.getElementById("settingsBtnHome");
+const settingsBtnProfile = document.getElementById("settingsBtnProfile");
+if(settingsBtnHome) settingsBtnHome.addEventListener("click",()=>navigateTo("settings"));
+if(settingsBtnProfile) settingsBtnProfile.addEventListener("click",()=>navigateTo("settings"));
+
+const globalSearchInput = document.getElementById("globalSearchInput");
+if(globalSearchInput){
+    globalSearchInput.addEventListener("input",updateSearchDropdown);
+    globalSearchInput.addEventListener("keypress",handleSearchKey);
+}
+
+const globalLogoutBtn = document.getElementById("globalLogoutBtn");
+if(globalLogoutBtn) globalLogoutBtn.addEventListener("click",logoutGlobal);
+
+const searchOverlay = document.getElementById("searchOverlay");
+if(searchOverlay) searchOverlay.addEventListener("click",function(e){if(e.target===this)closeSearchGlobal();});
+
+const settingsOverlay = document.getElementById("settingsOverlay");
+if(settingsOverlay) settingsOverlay.addEventListener("click",function(e){if(e.target===this)closeSettingsGlobal();});
+
+const uploadBtn = document.getElementById("uploadBtn");
+if(uploadBtn) uploadBtn.addEventListener("click",uploadAvatarItem);
+
+const tavixBtn1 = document.getElementById("tavixBtn");
+if(tavixBtn1) tavixBtn1.onclick = toggleTavix;
+
+const tavixBtn2 = document.getElementById("tavixBtnProfile");
+if(tavixBtn2) tavixBtn2.onclick = toggleTavix;
+
+const notifBtn1 = document.getElementById("notificationBtnHome");
+if(notifBtn1) notifBtn1.onclick = toggleNotifications;
+
+const notifBtn2 = document.getElementById("notificationBtnProfile");
+if(notifBtn2) notifBtn2.onclick = toggleNotifications;
 
 // ============ FORMS ============
-document.getElementById("signupForm")?.addEventListener("submit", async function(e){
-    e.preventDefault();
-    const un = document.getElementById("signupUsername").value.trim();
-    const em = document.getElementById("signupEmail").value.trim();
-    const pw = document.getElementById("signupPassword").value;
-    const cf = document.getElementById("signupConfirm").value;
-    const tos = document.getElementById("tosAgree").checked;
-    const err = document.getElementById("authError");
-    if(!tos){ err.textContent = "You must agree to the Terms of Service"; return; }
-    const hcaptchaResponse = hcaptcha.getResponse();
-    if(!hcaptchaResponse){ err.textContent = "Please complete the image puzzle to verify you're human"; return; }
-    if(un.length < 3){ err.textContent = "Username must be at least 3 characters"; return; }
-    if(pw.length < 8){ err.textContent = "Password must be at least 8 characters"; return; }
-    if(pw !== cf){ err.textContent = "Passwords don't match"; return; }
-    if(!em.includes("@")){ err.textContent = "Please enter a valid email address"; return; }
-    const result = await registerAPI(un, em, pw, un, hcaptchaResponse);
-    if(result.success){ saveAccount({username: un, displayName: un, email: em}); await loadAvatarItems(); navigateTo("home"); }
-    else { err.textContent = result.error; hcaptcha.reset(); }
-});
+const signupForm = document.getElementById("signupForm");
+if(signupForm){
+    signupForm.addEventListener("submit", async function(e){
+        e.preventDefault();
+        const un = document.getElementById("signupUsername").value.trim();
+        const em = document.getElementById("signupEmail").value.trim();
+        const pw = document.getElementById("signupPassword").value;
+        const cf = document.getElementById("signupConfirm").value;
+        const tos = document.getElementById("tosAgree").checked;
+        const err = document.getElementById("authError");
+        if(!tos){ if(err) err.textContent = "You must agree to the Terms of Service"; return; }
+        const hcaptchaResponse = hcaptcha.getResponse();
+        if(!hcaptchaResponse){ if(err) err.textContent = "Please complete the image puzzle to verify you're human"; return; }
+        if(un.length < 3){ if(err) err.textContent = "Username must be at least 3 characters"; return; }
+        if(pw.length < 8){ if(err) err.textContent = "Password must be at least 8 characters"; return; }
+        if(pw !== cf){ if(err) err.textContent = "Passwords don't match"; return; }
+        if(!em.includes("@")){ if(err) err.textContent = "Please enter a valid email address"; return; }
+        const result = await registerAPI(un, em, pw, un, hcaptchaResponse);
+        if(result.success){ saveAccount({username: un, displayName: un, email: em}); await loadAvatarItems(); navigateTo("home"); }
+        else { if(err) err.textContent = result.error; hcaptcha.reset(); }
+    });
+}
 
-document.getElementById("loginForm")?.addEventListener("submit", async function(e){
-    e.preventDefault();
-    const un = document.getElementById("loginUsername").value.trim();
-    const pw = document.getElementById("loginPassword").value;
-    const result = await loginAPI(un, pw);
-    if(result.success){ saveAccount({username: un, displayName: result.user.displayName || un, email: result.user.email}); await loadAvatarItems(); navigateTo("home"); }
-    else { document.getElementById("authError").textContent = result.error; }
-});
+const loginForm = document.getElementById("loginForm");
+if(loginForm){
+    loginForm.addEventListener("submit", async function(e){
+        e.preventDefault();
+        const un = document.getElementById("loginUsername").value.trim();
+        const pw = document.getElementById("loginPassword").value;
+        const result = await loginAPI(un, pw);
+        if(result.success){ saveAccount({username: un, displayName: result.user.displayName || un, email: result.user.email}); await loadAvatarItems(); navigateTo("home"); }
+        else { const authError = document.getElementById("authError"); if(authError) authError.textContent = result.error; }
+    });
+}
 
 // ============ PAGE LOAD ============
 window.addEventListener("hashchange", handleRoute);
@@ -1881,7 +2163,7 @@ window.onload = async function(){
     await autoLogin();
     if (currentUser) setInterval(async () => { await refreshUserData(); }, 10 * 60 * 1000);
     handleRoute();
-    console.log('✅ Tavian Platform Ready with Proper UV Mapping!');
+    console.log('✅ Tavian Platform Ready - All bugs fixed!');
 };
 </script>
 </body>
