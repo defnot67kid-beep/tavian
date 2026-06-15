@@ -503,7 +503,7 @@ let previewAvatar = null;
 let previewAnimationId = null;
 let currentTemplateImage = null;
 
-// FIXED: Correct UV Mapping for 1024x1024 Roblox-style Templates
+// FIXED: Correct UV Mapping for 1254x1254 Roblox-style Templates
 const TEMPLATE_REGIONS = {
     // Torso
     torsoFront: { x: 384, y: 256, w: 256, h: 256 },
@@ -522,7 +522,7 @@ const TEMPLATE_REGIONS = {
     // Right Arm
     rightArmFront: { x: 896, y: 256, w: 128, h: 256 },
     rightArmBack: { x: 896, y: 128, w: 128, h: 128 },
-    rightArmOuter: { x: 1024, y: 256, w: 64, h: 256 },
+    rightArmOuter: { x: 1254, y: 256, w: 64, h: 256 },
     rightArmInner: { x: 960, y: 384, w: 64, h: 128 }
 };
 
@@ -599,8 +599,8 @@ function init3DPreview() {
     mainLight.position.set(5, 10, 7);
     mainLight.castShadow = true;
     mainLight.receiveShadow = true;
-    mainLight.shadow.mapSize.width = 1024;
-    mainLight.shadow.mapSize.height = 1024;
+    mainLight.shadow.mapSize.width = 1254;
+    mainLight.shadow.mapSize.height = 1254;
     previewScene.add(mainLight);
     
     const fillLight = new THREE.PointLight(0x4466cc, 0.4);
@@ -861,7 +861,7 @@ async function validateTemplate(file) {
         
         img.onload = () => {
             clearTimeout(timeout);
-            const isValid = (img.width === 1024 && img.height === 1024) || 
+            const isValid = (img.width === 1254 && img.height === 1254) || 
                            (img.width === 585 && img.height === 559);
             console.log(`Template dimensions: ${img.width}x${img.height}, Valid: ${isValid}`);
             URL.revokeObjectURL(img.src);
@@ -890,7 +890,7 @@ function setupFileInput() {
         if (!file) {
             resetAvatarTexture();
             const previewText = document.getElementById('previewText');
-            if (previewText) previewText.innerHTML = 'Upload a 1024x1024 or 585x559 PNG template to preview on 3D blocky avatar';
+            if (previewText) previewText.innerHTML = 'Upload a 1254x1254 or 585x559 PNG template to preview on 3D blocky avatar';
             return;
         }
         
@@ -903,7 +903,7 @@ function setupFileInput() {
             return;
         }
         
-        if (file.size > 5 * 1024 * 1024) {
+        if (file.size > 5 * 1254 * 1254) {
             if (errorDiv) {
                 errorDiv.textContent = '❌ File too large! Max 5MB';
                 errorDiv.style.display = 'block';
@@ -917,7 +917,7 @@ function setupFileInput() {
         const isValid = await validateTemplate(file);
         if (!isValid) {
             if (errorDiv) {
-                errorDiv.textContent = '❌ Template must be 1024x1024 or 585x559 pixels';
+                errorDiv.textContent = '❌ Template must be 1254x1254 or 585x559 pixels';
                 errorDiv.style.display = 'block';
             }
             resetAvatarTexture();
@@ -1636,7 +1636,7 @@ async function uploadAvatarItem() {
     if(errorDiv) errorDiv.style.display = 'none';
     
     const isValid = await validateTemplate(file);
-    if (!isValid) { if(errorDiv){errorDiv.textContent = '❌ Template must be 1024x1024 or 585x559 pixels'; errorDiv.style.display = 'block';} return; }
+    if (!isValid) { if(errorDiv){errorDiv.textContent = '❌ Template must be 1254x1254 or 585x559 pixels'; errorDiv.style.display = 'block';} return; }
     
     const uploadBtn = document.getElementById('uploadBtn');
     const originalText = uploadBtn ? uploadBtn.textContent : 'Upload';
