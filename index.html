@@ -17,6 +17,7 @@ body{background:#f4f4f4;overflow-x:hidden;}
 
 header{background:white;padding:15px 20px;border-bottom:1px solid #ddd;position:sticky;top:0;z-index:100;}
 .topbar{display:flex;justify-content:space-between;align-items:center;}
+.topbar-left{display:flex;align-items:center;gap:15px;}
 .logo{font-size:42px;font-weight:900;cursor:pointer;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
 .nav-icons{display:flex;align-items:center;gap:10px;position:relative;}
 .icon-btn{width:50px;height:50px;border:none;border-radius:10px;background:white;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:0.2s;}
@@ -170,21 +171,28 @@ header{background:white;padding:15px 20px;border-bottom:1px solid #ddd;position:
 .back-to-home{position:fixed;bottom:30px;right:30px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;border:none;padding:12px 24px;border-radius:50px;cursor:pointer;font-weight:bold;box-shadow:0 4px 12px rgba(0,0,0,0.2);z-index:100;}
 .back-to-home:hover{opacity:0.9;}
 
-/* CATALOG STYLES */
-.catalog-page{display:none;max-width:1200px;margin:0 auto;padding:25px;}
-.catalog-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;}
-.catalog-header h1{font-size:32px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+/* CATALOG & AVATAR STYLES */
+.page{display:none;max-width:1200px;margin:0 auto;padding:25px;}
+.page-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;}
+.page-header h1{font-size:32px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.back-btn{background:#e0e0e0;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-size:14px;}
+.back-btn:hover{background:#d0d0d0;}
+
 .catalog-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:25px;}
-.catalog-item{background:white;border-radius:16px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.05);transition:transform 0.2s,box-shadow 0.2s;cursor:pointer;}
+.catalog-item{background:white;border-radius:16px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.05);transition:transform 0.2s,box-shadow 0.2s;}
 .catalog-item:hover{transform:translateY(-4px);box-shadow:0 8px 25px rgba(0,0,0,0.1);}
 .catalog-item img{width:100%;height:200px;object-fit:cover;background:#f0f0f0;}
 .catalog-item-info{padding:15px;}
 .item-name{font-weight:bold;font-size:18px;color:#333;margin-bottom:8px;}
-.item-price{color:#f0b800;font-weight:bold;margin-bottom:12px;}
-.save-btn{width:100%;padding:10px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;border:none;border-radius:8px;cursor:pointer;font-weight:bold;transition:opacity 0.2s;}
-.save-btn:hover{opacity:0.9;}
-.catalog-back-btn{background:#e0e0e0;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-size:14px;}
-.catalog-back-btn:hover{background:#d0d0d0;}
+.wear-btn{width:100%;padding:10px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;border:none;border-radius:8px;cursor:pointer;font-weight:bold;transition:opacity 0.2s;}
+.wear-btn:hover{opacity:0.9;}
+
+.avatar-editor{background:white;border-radius:24px;padding:30px;box-shadow:0 2px 10px rgba(0,0,0,0.05);}
+.avatar-preview{text-align:center;margin-bottom:30px;}
+.avatar-preview img{width:200px;height:200px;border-radius:50%;object-fit:cover;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);border:4px solid white;box-shadow:0 4px 15px rgba(0,0,0,0.1);}
+.current-clothing{text-align:center;margin-top:15px;color:#666;font-size:14px;}
+.save-avatar-btn{width:100%;max-width:300px;margin:20px auto 0;display:block;padding:14px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;border:none;border-radius:12px;cursor:pointer;font-weight:bold;font-size:18px;}
+.save-avatar-btn:hover{opacity:0.9;}
 
 @media (max-width:768px){.logo{font-size:28px;}.players-grid{grid-template-columns:1fr;}.display-name{font-size:42px;}}
 </style>
@@ -229,22 +237,43 @@ header{background:white;padding:15px 20px;border-bottom:1px solid #ddd;position:
 <div id="deletePage" class="delete-page"><h1>⚠️ Delete Account</h1><p>This action is <strong>permanent</strong> and cannot be undone.</p><div class="warning-text">All your data will be erased.</div><p>Type <strong style="color:#dc2626;">DELETE</strong> to confirm:</p><input type="text" id="deleteConfirmInput" class="delete-input" placeholder="Type DELETE here"><div class="delete-buttons"><button class="cancel-delete" onclick="navigateTo('home')">Cancel</button><button class="confirm-delete" onclick="confirmDeleteAccount()">Permanently Delete</button></div></div>
 
 <!-- HOME PAGE -->
-<div id="homePage" style="display:none;"><header><div class="topbar"><div class="logo" onclick="navigateTo('home')">TAVIAN</div><div class="nav-icons"><button class="icon-btn search-btn" id="searchBtnHome"><span class="material-icons">search</span></button><button class="icon-btn catalog-nav-btn" onclick="navigateTo('catalog')" style="background:#6b46ff; color:white;"><span class="material-icons" style="color:white;">store</span></button><div class="tavix-btn" id="tavixBtn"><span class="tavix-icon">⌬</span><span class="tavix-amount" id="tavixBalance">0</span></div><button class="icon-btn profile-btn" id="profileBtnHome"><span class="material-icons">person</span></button><button class="icon-btn notification-badge" id="notificationBtnHome"><span class="material-icons">notifications</span><span class="badge-count" id="notificationCount">0</span></button><button class="icon-btn settings-btn" id="settingsBtnHome"><span class="material-icons">settings</span></button></div></div></header><div id="tavixDropdown" class="tavix-dropdown"><div class="tavix-dropdown-header"><div class="balance" id="dropdownBalance">0 ⌬</div><div class="label">TAVIX Balance</div></div><div class="tavix-dropdown-item" onclick="openBuyModal()"><div class="icon">💰</div><div class="info"><div class="title">Buy TAVIX</div><div class="desc">Purchase TAVIX with real money</div></div></div><div class="tavix-dropdown-item" onclick="openGiftModal()"><div class="icon">🎁</div><div class="info"><div class="title">Gift TAVIX</div><div class="desc">Send TAVIX to a friend</div></div></div><div class="tavix-dropdown-item" onclick="openTransactionsModal()"><div class="icon">📜</div><div class="info"><div class="title">Transactions</div><div class="desc">View your TAVIX history</div></div></div></div><div id="welcomeBanner" class="welcome-message" style="display:none;"><span class="welcome-text" id="welcomeText"></span></div><div id="mainContent"><div class="section"><h2>FRIENDS</h2><div class="friends-box"><div>No friends 😭</div><button class="friend-arrow">&gt;</button></div></div><div class="section"><h2>GAMES</h2><div class="empty-games">No games available</div></div><footer style="margin-top:40px; background:white; padding:20px; text-align:center;"></footer></div></div>
+<div id="homePage" style="display:none;">
+    <header>
+        <div class="topbar">
+            <div class="logo" onclick="navigateTo('home')">TAVIAN</div>
+            <div class="nav-icons">
+                <button class="icon-btn search-btn" id="searchBtnHome"><span class="material-icons">search</span></button>
+                <button class="icon-btn catalog-nav-btn" onclick="navigateTo('catalog')" style="background:#6b46ff; color:white;"><span class="material-icons" style="color:white;">store</span></button>
+                <button class="icon-btn avatar-nav-btn" onclick="navigateTo('avatar')" style="background:#10b981; color:white;"><span class="material-icons" style="color:white;">face</span></button>
+                <div class="tavix-btn" id="tavixBtn"><span class="tavix-icon">⌬</span><span class="tavix-amount" id="tavixBalance">0</span></div>
+                <button class="icon-btn profile-btn" id="profileBtnHome"><span class="material-icons">person</span></button>
+                <button class="icon-btn notification-badge" id="notificationBtnHome"><span class="material-icons">notifications</span><span class="badge-count" id="notificationCount">0</span></button>
+                <button class="icon-btn settings-btn" id="settingsBtnHome"><span class="material-icons">settings</span></button>
+            </div>
+        </div>
+    </header>
+    <div id="tavixDropdown" class="tavix-dropdown"><div class="tavix-dropdown-header"><div class="balance" id="dropdownBalance">0 ⌬</div><div class="label">TAVIX Balance</div></div><div class="tavix-dropdown-item" onclick="openBuyModal()"><div class="icon">💰</div><div class="info"><div class="title">Buy TAVIX</div><div class="desc">Purchase TAVIX with real money</div></div></div><div class="tavix-dropdown-item" onclick="openGiftModal()"><div class="icon">🎁</div><div class="info"><div class="title">Gift TAVIX</div><div class="desc">Send TAVIX to a friend</div></div></div><div class="tavix-dropdown-item" onclick="openTransactionsModal()"><div class="icon">📜</div><div class="info"><div class="title">Transactions</div><div class="desc">View your TAVIX history</div></div></div></div>
+    <div id="welcomeBanner" class="welcome-message" style="display:none;"><span class="welcome-text" id="welcomeText"></span></div>
+    <div id="mainContent">
+        <div class="section"><h2>FRIENDS</h2><div class="friends-box"><div>No friends 😭</div><button class="friend-arrow">&gt;</button></div></div>
+        <div class="section"><h2>GAMES</h2><div class="empty-games">No games available</div></div>
+        <footer style="margin-top:40px; background:white; padding:20px; text-align:center;"></footer>
+    </div>
+</div>
 
 <!-- CATALOG PAGE -->
-<div id="catalogPage" class="catalog-page">
-    <div class="catalog-header">
+<div id="catalog" class="page">
+    <div class="page-header">
         <h1>🛍️ Catalog</h1>
-        <button class="catalog-back-btn" onclick="navigateTo('home')">← Back to Home</button>
+        <button class="back-btn" onclick="navigateTo('home')">← Back</button>
     </div>
     <div class="catalog-grid" id="catalogGrid">
-        <!-- Template Clothing Item - Copy this block to add more items -->
-        <div class="catalog-item" data-item-id="1" data-item-name="My Shirt" data-item-price="100">
-            <img src="https://placehold.co/400x400/e0e0e0/333?text=Your+Shirt+Image" alt="Template Shirt">
+        <!-- TEMPLATE CLOTHING ITEM - Copy this block to add more items -->
+        <div class="catalog-item" data-item-id="1" data-item-name="Example Shirt" data-item-texture="https://placehold.co/400x400/667eea/white?text=Example+Shirt">
+            <img src="https://placehold.co/400x400/667eea/white?text=Example+Shirt" alt="Example Shirt">
             <div class="catalog-item-info">
-                <div class="item-name">My Shirt</div>
-                <div class="item-price">100 ⌬</div>
-                <button class="save-btn" onclick="saveClothingItem(1, 'My Shirt', 100)">💾 Save</button>
+                <div class="item-name">Example Shirt</div>
+                <button class="wear-btn" onclick="wearClothing('https://placehold.co/400x400/667eea/white?text=Example+Shirt', 'Example Shirt')">👕 Wear</button>
             </div>
         </div>
         <!-- 
@@ -252,17 +281,47 @@ header{background:white;padding:15px 20px;border-bottom:1px solid #ddd;position:
             Copy the div.catalog-item above and change:
             - data-item-id to a unique number (2, 3, 4...)
             - data-item-name to your clothing name
-            - data-item-price to your price in TAVIX
             - img src to your image URL
             - The text inside .item-name
-            - The price in .item-price
-            - Update the onclick parameters with the new ID, name, and price
+            - Update the onclick parameters with the new image URL and name
         -->
     </div>
 </div>
 
+<!-- AVATAR EDITOR PAGE -->
+<div id="avatar" class="page">
+    <div class="page-header">
+        <h1>🎨 Avatar Editor</h1>
+        <button class="back-btn" onclick="navigateTo('home')">← Back</button>
+    </div>
+    <div class="avatar-editor">
+        <div class="avatar-preview">
+            <img id="avatarPreviewImg" src="https://placehold.co/400x400/667eea/white?text=Default+Avatar" alt="Avatar">
+        </div>
+        <div class="current-clothing" id="currentClothingText">Current clothing: Default Avatar</div>
+        <button class="save-avatar-btn" onclick="saveAvatar()">💾 Save Avatar</button>
+    </div>
+</div>
+
 <!-- PROFILE PAGE -->
-<div id="profilePage" style="display:none;"><header><div class="topbar"><div class="logo" onclick="navigateTo('home')">TAVIAN</div><div class="nav-icons"><button class="icon-btn search-btn" id="searchBtnProfile"><span class="material-icons">search</span></button><button class="icon-btn catalog-nav-btn" onclick="navigateTo('catalog')" style="background:#6b46ff; color:white;"><span class="material-icons" style="color:white;">store</span></button><div class="tavix-btn" id="tavixBtnProfile"><span class="tavix-icon">⌬</span><span class="tavix-amount" id="tavixBalanceProfile">0</span></div><button class="icon-btn profile-btn" id="profileBtnProfile"><span class="material-icons">person</span></button><button class="icon-btn notification-badge" id="notificationBtnProfile"><span class="material-icons">notifications</span><span class="badge-count" id="notificationCountProfile">0</span></button><button class="icon-btn settings-btn" id="settingsBtnProfile"><span class="material-icons">settings</span></button></div></div></header><div id="profileContent" class="profile-page"></div><footer style="margin-top:40px; background:white; padding:20px; text-align:center;"></footer></div>
+<div id="profilePage" style="display:none;">
+    <header>
+        <div class="topbar">
+            <div class="logo" onclick="navigateTo('home')">TAVIAN</div>
+            <div class="nav-icons">
+                <button class="icon-btn search-btn" id="searchBtnProfile"><span class="material-icons">search</span></button>
+                <button class="icon-btn catalog-nav-btn" onclick="navigateTo('catalog')" style="background:#6b46ff; color:white;"><span class="material-icons" style="color:white;">store</span></button>
+                <button class="icon-btn avatar-nav-btn" onclick="navigateTo('avatar')" style="background:#10b981; color:white;"><span class="material-icons" style="color:white;">face</span></button>
+                <div class="tavix-btn" id="tavixBtnProfile"><span class="tavix-icon">⌬</span><span class="tavix-amount" id="tavixBalanceProfile">0</span></div>
+                <button class="icon-btn profile-btn" id="profileBtnProfile"><span class="material-icons">person</span></button>
+                <button class="icon-btn notification-badge" id="notificationBtnProfile"><span class="material-icons">notifications</span><span class="badge-count" id="notificationCountProfile">0</span></button>
+                <button class="icon-btn settings-btn" id="settingsBtnProfile"><span class="material-icons">settings</span></button>
+            </div>
+        </div>
+    </header>
+    <div id="profileContent" class="profile-page"></div>
+    <footer style="margin-top:40px; background:white; padding:20px; text-align:center;"></footer>
+</div>
 
 <!-- TERMS OF SERVICE PAGE -->
 <div id="tosPage" class="tos-page">
@@ -338,8 +397,7 @@ header{background:white;padding:15px 20px;border-bottom:1px solid #ddd;position:
 
 <script>
 // ============================================
-// TAVIAN PLATFORM - NO GUEST TOKENS
-// Only authenticated users get tokens
+// TAVIAN PLATFORM - WITH CATALOG & AVATAR
 // ============================================
 
 // API Configuration
@@ -356,33 +414,22 @@ function formatTavix(amount){
 let currentUser = null;
 let allUsers = [];
 
-// ============ TOKEN MANAGEMENT - NO GUESTS ============
-// Only store authenticated tokens - NO GUEST TOKENS EVER
-
+// ============ TOKEN MANAGEMENT ============
 function setAuthToken(token) {
     if (!token) return;
-    
     console.log('🔐 Setting auth token');
-    
-    // Store the authenticated token
     localStorage.setItem('tavian_auth_token', token);
     localStorage.setItem('TAVIOSECURITY', token);
-    
-    // Set cookies
     document.cookie = `tavian_token=${token}; path=/; max-age=2592000`;
     document.cookie = `TAVIOSECURITY=${token}; path=/; max-age=2592000`;
-    
     console.log('✅ Auth token stored');
 }
 
 function getAuthToken() {
-    // Only return token if it exists (no guest tokens)
     let token = localStorage.getItem('TAVIOSECURITY');
     if (token) return token;
-    
     token = localStorage.getItem('tavian_auth_token');
     if (token) return token;
-    
     return null;
 }
 
@@ -392,7 +439,6 @@ function clearAuthToken() {
     localStorage.removeItem('TAVIOSECURITY');
     localStorage.removeItem('tavian_user_backup');
     sessionStorage.removeItem('tavian_token');
-    
     document.cookie = 'tavian_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
     document.cookie = 'TAVIOSECURITY=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
 }
@@ -458,7 +504,6 @@ async function getCurrentUserFromAPI(){
             backupUserData(currentUser);
             return currentUser;
         } else {
-            // Token invalid, clear it
             clearAuthToken();
         }
     }catch(e){}
@@ -468,12 +513,9 @@ async function getCurrentUserFromAPI(){
 async function autoLogin(){
     console.log('🔍 Checking for existing session...');
     
-    // First check for existing token
     const savedToken = getAuthToken();
-    
     if (savedToken) {
         console.log('🔑 Found auth token, validating...');
-        
         try {
             const response = await fetch(`${API_URL}/me`, {
                 headers: {
@@ -482,7 +524,6 @@ async function autoLogin(){
                 },
                 credentials: 'include'
             });
-            
             if (response.ok) {
                 currentUser = await response.json();
                 backupUserData(currentUser);
@@ -497,36 +538,23 @@ async function autoLogin(){
         }
     }
     
-    // Try cookie-based auto-login
     try{
         const response = await fetch(`${API_URL}/auto-login`, {
             method: 'GET',
             credentials: 'include'
         });
-        
         if(response.ok){
             const data = await response.json();
             if(data.success && data.user){
                 currentUser = data.user;
                 backupUserData(currentUser);
-                
-                if (data.token) {
-                    setAuthToken(data.token);
-                } else {
-                    const token = getCookie('tavian_token') || getCookie('TAVIOSECURITY');
-                    if (token) {
-                        setAuthToken(token);
-                    }
-                }
-                console.log('✅ Auto-login successful via cookie! User:', currentUser?.username);
+                if (data.token) setAuthToken(data.token);
+                console.log('✅ Auto-login successful via cookie!');
                 return true;
             }
         }
-    } catch(e){
-        console.log('Cookie auto-login failed:', e);
-    }
+    } catch(e){}
     
-    // Load from backup as last resort
     const backupUser = getBackupUser();
     if (backupUser) {
         currentUser = backupUser;
@@ -543,12 +571,9 @@ async function refreshUserData() {
     try {
         const token = getAuthToken();
         if (!token) return;
-        
         const response = await fetch(`${API_URL}/me`, {
             credentials: 'include',
-            headers: {
-                'Authorization': token ? `Bearer ${token}` : ''
-            }
+            headers: { 'Authorization': token ? `Bearer ${token}` : '' }
         });
         if (response.ok) {
             const freshUser = await response.json();
@@ -556,121 +581,65 @@ async function refreshUserData() {
             backupUserData(freshUser);
             updateTavixDisplay();
             updateNotifications();
-            if (document.getElementById("profilePage").style.display === "block") {
-                renderProfile();
-            }
+            if (document.getElementById("profilePage").style.display === "block") renderProfile();
             console.log('✅ User data refreshed');
         }
-    } catch(e) {
-        console.log('Background refresh failed:', e);
-    }
+    } catch(e) { console.log('Background refresh failed:', e); }
 }
 
 async function loginAPI(username, password){
     try{
         console.log('🔐 Attempting login for:', username);
-        
-        // Clear any existing tokens before login
         clearAuthToken();
-        
         const response = await fetch(`${API_URL}/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
             body: JSON.stringify({ username, password })
         });
-        
         if(response.ok){
             currentUser = await response.json();
-            console.log('✅ Login successful! User:', currentUser.username);
-            
+            console.log('✅ Login successful!');
             backupUserData(currentUser);
-            
-            // Get the token from cookies
             let token = getCookie('tavian_token') || getCookie('TAVIOSECURITY');
-            
-            const setCookieHeader = response.headers.get('set-cookie');
-            if (setCookieHeader && !token) {
-                const tokenMatch = setCookieHeader.match(/tavian_token=([^;]+)/);
-                if (tokenMatch && tokenMatch[1]) {
-                    token = tokenMatch[1];
-                }
-            }
-            
-            if (token) {
-                setAuthToken(token);
-                console.log('🔑 Auth token stored');
-            }
-            
+            if (token) setAuthToken(token);
             return { success: true, user: currentUser };
         } else {
             const error = await response.json();
-            console.log('❌ Login failed:', error.error);
             return { success: false, error: error.error };
         }
     }catch(e){ 
-        console.log('❌ Login network error:', e);
         return { success: false, error: "Network error" }; 
     }
 }
 
 async function registerAPI(username, email, password, displayName, hcaptchaResponse){
     try{
-        console.log('🔐 Registering new user:', username);
-        
         clearAuthToken();
-        
         const response = await fetch(`${API_URL}/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
-            body: JSON.stringify({ 
-                username, 
-                email, 
-                password, 
-                displayName,
-                hcaptchaResponse
-            })
+            body: JSON.stringify({ username, email, password, displayName, hcaptchaResponse })
         });
-        
         if(response.ok){
             currentUser = await response.json();
-            console.log('✅ Registration successful! User:', currentUser.username);
-            
             backupUserData(currentUser);
-            
             let token = getCookie('tavian_token') || getCookie('TAVIOSECURITY');
-            
-            const setCookieHeader = response.headers.get('set-cookie');
-            if (setCookieHeader && !token) {
-                const tokenMatch = setCookieHeader.match(/tavian_token=([^;]+)/);
-                if (tokenMatch && tokenMatch[1]) {
-                    token = tokenMatch[1];
-                }
-            }
-            
-            if (token) {
-                setAuthToken(token);
-                console.log('🔑 Auth token stored');
-            }
-            
+            if (token) setAuthToken(token);
             return { success: true, user: currentUser };
         } else {
             const error = await response.json();
-            console.log('❌ Registration failed:', error.error);
             return { success: false, error: error.error };
         }
     }catch(e){ 
-        console.log('❌ Registration network error:', e);
         return { success: false, error: "Network error" }; 
     }
 }
 
 async function logoutAPI(){
-    console.log('🚪 Logging out, clearing all tokens...');
-    try{
-        await fetch(`${API_URL}/logout`, { method: 'POST', credentials: 'include' });
-    }catch(e){}
+    console.log('🚪 Logging out...');
+    try{ await fetch(`${API_URL}/logout`, { method: 'POST', credentials: 'include' }); }catch(e){}
     currentUser = null;
     clearAuthToken();
 }
@@ -743,9 +712,7 @@ async function deleteAccountAPI(){
         const token = getAuthToken();
         const response = await fetch(`${API_URL}/user/${currentUser.username}`, {
             method: 'DELETE',
-            headers: {
-                'Authorization': token ? `Bearer ${token}` : ''
-            },
+            headers: { 'Authorization': token ? `Bearer ${token}` : '' },
             credentials: 'include'
         });
         if(response.ok){
@@ -820,7 +787,7 @@ async function markRead(id){
     }
 }
 
-// SAVED ACCOUNTS (local only - for quick login, NOT for authentication)
+// SAVED ACCOUNTS
 function getSaved(){return JSON.parse(localStorage.getItem("savedAccounts"))||[];}
 function saveAccount(acc){let s=getSaved();if(!s.find(a=>a.username===acc.username)){s.push({username:acc.username,displayName:acc.displayName||acc.username,email:acc.email,lastLogin:new Date().toISOString(),color:'#'+Math.floor(Math.random()*16777215).toString(16)});localStorage.setItem("savedAccounts",JSON.stringify(s));}renderSaved();}
 function removeSaved(user){let s=getSaved().filter(a=>a.username!==user);localStorage.setItem("savedAccounts",JSON.stringify(s));renderSaved();}
@@ -834,7 +801,6 @@ function formatEmail(e){if(!e)return '-';const a=e.indexOf('@');if(a<=4)return e
 function navigateToUserProfile(userId) {
     if (!userId) return;
     updateHash(`#${userId}-profile`);
-    
     if (currentUser && currentUser.id === userId) {
         showProfile();
     } else {
@@ -845,57 +811,37 @@ function navigateToUserProfile(userId) {
 async function showOtherUserProfile(userId) {
     await fetchAllUsers();
     const user = allUsers.find(u => u.id === userId);
-    
-    if (!user) {
-        alert("User not found");
-        navigateTo("home");
-        return;
-    }
-    
+    if (!user) { alert("User not found"); navigateTo("home"); return; }
     document.getElementById("authPage").style.display = "none";
     document.getElementById("homePage").style.display = "none";
     document.getElementById("tosPage").style.display = "none";
     document.getElementById("deletePage").style.display = "none";
+    document.getElementById("catalog").style.display = "none";
+    document.getElementById("avatar").style.display = "none";
     document.getElementById("profilePage").style.display = "block";
-    
     renderOtherUserProfile(user);
 }
 
 function renderOtherUserProfile(user) {
     const isOwner = currentUser && currentUser.id === user.id;
-    
     const html = `
         <div class="profile-header">
             <img class="profile-pfp" src="https://ui-avatars.com/api/?background=667eea&color=fff&size=120&name=${encodeURIComponent(user.displayName || user.username)}">
             <div>
                 <div class="display-name">${escapeHtml(user.displayName || user.username)} ${renderBadge(user.username)}</div>
                 <div class="username">@${escapeHtml(user.username)}</div>
-                <div class="social-stats">
-                    <span>0 Friends</span>
-                    <span>2 Followers</span>
-                </div>
+                <div class="social-stats"><span>0 Friends</span><span>2 Followers</span></div>
             </div>
         </div>
         <div class="about-card">
-            <div class="card-header">
-                <h2>ABOUT</h2>
-                ${isOwner ? '<button class="edit-btn" onclick="editAbout()">Edit</button>' : ''}
-            </div>
+            <div class="card-header"><h2>ABOUT</h2>${isOwner ? '<button class="edit-btn" onclick="editAbout()">Edit</button>' : ''}</div>
             <p class="about-text">${escapeHtml(user.about || "This user hasn't written anything yet...")}</p>
         </div>
         <div class="profile-stats-grid">
-            <div class="stat-card">
-                <div class="stat-label">VISITS</div>
-                <div class="stat-value">${user.visits || 0}</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">JOINED</div>
-                <div class="stat-value">${new Date(user.createdAt || Date.now()).toLocaleDateString()}</div>
-            </div>
+            <div class="stat-card"><div class="stat-label">VISITS</div><div class="stat-value">${user.visits || 0}</div></div>
+            <div class="stat-card"><div class="stat-label">JOINED</div><div class="stat-value">${new Date(user.createdAt || Date.now()).toLocaleDateString()}</div></div>
         </div>
-        ${!isOwner && currentUser ? `<div style="margin-top:20px; text-align:center;">
-            <button class="submit-btn" style="padding:12px 24px; font-size:16px;" onclick="sendGiftToUser('${user.username}')">🎁 Send TAVIX</button>
-        </div>` : ''}
+        ${!isOwner && currentUser ? `<div style="margin-top:20px; text-align:center;"><button class="submit-btn" style="padding:12px 24px; font-size:16px;" onclick="sendGiftToUser('${user.username}')">🎁 Send TAVIX</button></div>` : ''}
     `;
     document.getElementById("profileContent").innerHTML = html;
 }
@@ -903,57 +849,30 @@ function renderOtherUserProfile(user) {
 async function sendGiftToUser(username) {
     const amount = prompt(`How much TAVIX to send to ${username}?`, "10");
     if (!amount) return;
-    
     const amt = parseInt(amount);
-    if (isNaN(amt) || amt <= 0) {
-        alert("Enter valid amount");
-        return;
-    }
-    
-    if (!currentUser) {
-        alert("You must be logged in to send TAVIX");
-        navigateTo("signin");
-        return;
-    }
-    
-    if ((currentUser.tavix || 0) < amt) {
-        alert("Insufficient TAVIX");
-        return;
-    }
-    
+    if (isNaN(amt) || amt <= 0) { alert("Enter valid amount"); return; }
+    if (!currentUser) { alert("You must be logged in to send TAVIX"); navigateTo("signin"); return; }
+    if ((currentUser.tavix || 0) < amt) { alert("Insufficient TAVIX"); return; }
     await fetchAllUsers();
     const recipient = allUsers.find(x => x.username === username);
-    if (!recipient) {
-        alert("User not found");
-        return;
-    }
-    
+    if (!recipient) { alert("User not found"); return; }
     if (await addTransactionAPI(-amt, `Gifted ${formatTavix(amt)} TAVIX to @${username}`)) {
         await addTransactionAPI(amt, `Received ${formatTavix(amt)} TAVIX from @${currentUser.username}`, currentUser.username);
         await addNotificationAPI("🎁 Gift Received", `@${currentUser.username} sent you ${formatTavix(amt)} TAVIX!`);
         alert(`Sent ${formatTavix(amt)} TAVIX to @${username}!`);
         updateTavixDisplay();
-        
-        if (window.location.hash === `#${recipient.id}-profile`) {
-            showOtherUserProfile(recipient.id);
-        }
-    } else {
-        alert("Failed to send gift");
-    }
+    } else { alert("Failed to send gift"); }
 }
 
 function showProfile() {
-    if (!currentUser) {
-        navigateTo("signin");
-        return;
-    }
-    
+    if (!currentUser) { navigateTo("signin"); return; }
     document.getElementById("authPage").style.display = "none";
     document.getElementById("homePage").style.display = "none";
     document.getElementById("tosPage").style.display = "none";
     document.getElementById("deletePage").style.display = "none";
+    document.getElementById("catalog").style.display = "none";
+    document.getElementById("avatar").style.display = "none";
     document.getElementById("profilePage").style.display = "block";
-    
     renderProfile();
 }
 
@@ -961,32 +880,20 @@ function renderProfile(){
     if(!currentUser) return;
     const html = `
         <div class="profile-header">
-            <img class="profile-pfp" src="https://ui-avatars.com/api/?background=667eea&color=fff&size=120&name=${encodeURIComponent(currentUser.displayName || currentUser.username)}">
+            <img class="profile-pfp" src="${currentUser.avatarUrl || 'https://ui-avatars.com/api/?background=667eea&color=fff&size=120&name=' + encodeURIComponent(currentUser.displayName || currentUser.username)}">
             <div>
                 <div class="display-name">${escapeHtml(currentUser.displayName || currentUser.username)} ${renderBadge(currentUser.username)}</div>
                 <div class="username">@${escapeHtml(currentUser.username)}</div>
-                <div class="social-stats">
-                    <span>0 Friends</span>
-                    <span>2 Followers</span>
-                </div>
+                <div class="social-stats"><span>0 Friends</span><span>2 Followers</span></div>
             </div>
         </div>
         <div class="about-card">
-            <div class="card-header">
-                <h2>ABOUT</h2>
-                <button class="edit-btn" onclick="editAbout()">Edit</button>
-            </div>
+            <div class="card-header"><h2>ABOUT</h2><button class="edit-btn" onclick="editAbout()">Edit</button></div>
             <p class="about-text">${escapeHtml(currentUser.about || "Tell people about yourself...")}</p>
         </div>
         <div class="profile-stats-grid">
-            <div class="stat-card">
-                <div class="stat-label">VISITS</div>
-                <div class="stat-value">${currentUser.visits || 0}</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">JOINED</div>
-                <div class="stat-value">${new Date(currentUser.createdAt || Date.now()).toLocaleDateString()}</div>
-            </div>
+            <div class="stat-card"><div class="stat-label">VISITS</div><div class="stat-value">${currentUser.visits || 0}</div></div>
+            <div class="stat-card"><div class="stat-label">JOINED</div><div class="stat-value">${new Date(currentUser.createdAt || Date.now()).toLocaleDateString()}</div></div>
         </div>
     `;
     document.getElementById("profileContent").innerHTML = html;
@@ -994,26 +901,18 @@ function renderProfile(){
 
 async function editAbout(){
     const about = prompt("Edit about:", currentUser?.about || "");
-    if(about !== null){
-        if(await updateUserAPI({ about: about })){
-            renderProfile();
-        }
-    }
+    if(about !== null && await updateUserAPI({ about: about })) renderProfile();
 }
 
 async function viewProfile(username){
     const user = allUsers.find(u => u.username === username);
-    if(user){
-        navigateToUserProfile(user.id);
-    } else {
-        alert("User not found");
-    }
+    if(user) navigateToUserProfile(user.id);
+    else alert("User not found");
 }
 
 // ============ SEARCH FUNCTIONS ============
 function openSearch(){document.getElementById("searchOverlay").style.display="flex";document.getElementById("globalSearchInput").focus();}
 function closeSearchGlobal(){document.getElementById("searchOverlay").style.display="none";document.getElementById("globalSearchInput").value="";document.getElementById("globalSearchResults").style.display="none";document.getElementById("globalSearchDropdown").style.display="none";}
-function closeSearch(){closeSearchGlobal();}
 
 async function updateSearchDropdown(){
     const q=document.getElementById("globalSearchInput").value.trim().toLowerCase();
@@ -1026,21 +925,16 @@ async function updateSearchDropdown(){
     players.forEach(p=>{html+=`<div class="dropdown-item" onclick="selectPlayer('${escapeHtml(p.username)}')"><img src="https://ui-avatars.com/api/?background=667eea&color=fff&size=40&name=${encodeURIComponent(p.displayName||p.username)}" style="width:40px;height:40px;border-radius:50%;"><div>${escapeHtml(p.displayName||p.username)} ${renderBadge(p.username)}<br><small>@${escapeHtml(p.username)}</small></div></div>`;});
     html+=`</div>`;d.innerHTML=html;d.style.display="block";
 }
-
-function selectPlayer(user){closeSearch();viewProfile(user);}
+function selectPlayer(user){closeSearchGlobal();viewProfile(user);}
 function handleSearchKey(e){if(e.key==="Enter")performSearch();}
-
 async function performSearch(){
     const q=document.getElementById("globalSearchInput").value.trim().toLowerCase();
     if(!q)return;
     await fetchAllUsers();
     const players=allUsers.filter(p=>p.username.toLowerCase().includes(q)||(p.displayName&&p.displayName.toLowerCase().includes(q)));
     const r=document.getElementById("globalSearchResults");
-    if(players.length===0){
-        r.innerHTML='<div class="empty-games">No players found</div>';
-    }else{
-        r.innerHTML=`<div class="results-section"><h3>👥 PLAYERS</h3><div class="players-grid">${players.map(p=>`<div class="player-card" onclick="closeSearch();viewProfile('${escapeHtml(p.username)}')"><img class="player-avatar" src="https://ui-avatars.com/api/?background=667eea&color=fff&size=60&name=${encodeURIComponent(p.displayName||p.username)}"><div><div class="player-display-name">${escapeHtml(p.displayName||p.username)} ${renderBadge(p.username)}</div><div class="player-username">@${escapeHtml(p.username)}</div></div></div>`).join('')}</div></div>`;
-    }
+    if(players.length===0) r.innerHTML='<div class="empty-games">No players found</div>';
+    else r.innerHTML=`<div class="results-section"><h3>👥 PLAYERS</h3><div class="players-grid">${players.map(p=>`<div class="player-card" onclick="closeSearchGlobal();viewProfile('${escapeHtml(p.username)}')"><img class="player-avatar" src="https://ui-avatars.com/api/?background=667eea&color=fff&size=60&name=${encodeURIComponent(p.displayName||p.username)}"><div><div class="player-display-name">${escapeHtml(p.displayName||p.username)} ${renderBadge(p.username)}</div><div class="player-username">@${escapeHtml(p.username)}</div></div></div>`).join('')}</div></div>`;
     r.style.display="block";
     document.getElementById("globalSearchDropdown").style.display="none";
 }
@@ -1074,10 +968,8 @@ async function logoutGlobal(){
 }
 async function confirmDeleteAccount(){
     if(document.getElementById("deleteConfirmInput").value==="DELETE"){
-        if(await deleteAccountAPI()){
-            alert("Account deleted.");
-            navigateTo("signin");
-        }else{alert("Failed to delete account");}
+        if(await deleteAccountAPI()){ alert("Account deleted."); navigateTo("signin"); }
+        else{alert("Failed to delete account");}
     }else{alert('Type "DELETE" to confirm');}
 }
 
@@ -1085,31 +977,48 @@ async function confirmDeleteAccount(){
 function updateWelcome(){
     if(currentUser){
         const username = currentUser.displayName || currentUser.username;
-        const greetings = [
-            `Sup ${username}, ready to play?`, `Yo ${username}, good to see you`,
-            `${username} back at it again`, `Hey ${username}, let's go`,
-            `What's good ${username}?`, `${username} in the building`,
-            `Ayy ${username}, welcome back`, `There he is, ${username}`,
-            `${username} returned for more`, `The legend is back, ${username}`,
-            `Let's go ${username}`, `${username} is here`,
-            `Back for more ${username}?`, `Welcome back playa`,
-            `The goat ${username} has arrived`, `${username} my guy!`,
-            `Yooo ${username} what's up`, `${username} pulling up again`,
-            `He's back... ${username}`, `${username} let's get it`
-        ];
+        const greetings = [`Sup ${username}, ready to play?`, `Yo ${username}, good to see you`, `${username} back at it again`, `Hey ${username}, let's go`, `What's good ${username}?`, `${username} in the building`, `Ayy ${username}, welcome back`, `There he is, ${username}`, `${username} returned for more`, `The legend is back, ${username}`, `Let's go ${username}`, `${username} is here`, `Back for more ${username}?`, `Welcome back playa`, `The goat ${username} has arrived`, `${username} my guy!`, `Yooo ${username} what's up`, `${username} pulling up again`, `He's back... ${username}`, `${username} let's get it`];
         const randomGreeting = greetings[Math.floor(Math.random() * greetings.length)];
         document.getElementById("welcomeText").innerHTML = randomGreeting;
         document.getElementById("welcomeBanner").style.display = "flex";
         setTimeout(() => {
             const banner = document.getElementById("welcomeBanner");
             if(banner) banner.style.opacity = "0";
-            setTimeout(() => {
-                if(banner) {
-                    banner.style.display = "none";
-                    banner.style.opacity = "1";
-                }
-            }, 500);
+            setTimeout(() => { if(banner) { banner.style.display = "none"; banner.style.opacity = "1"; } }, 500);
         }, 5000);
+    }
+}
+
+// ============ CATALOG & AVATAR FUNCTIONS ============
+let currentSelectedTexture = null;
+let currentSelectedName = null;
+
+function wearClothing(textureUrl, itemName){
+    currentSelectedTexture = textureUrl;
+    currentSelectedName = itemName;
+    document.getElementById("avatarPreviewImg").src = textureUrl;
+    document.getElementById("currentClothingText").innerHTML = `Current clothing: ${itemName}`;
+    addNotification("👕 Clothing Worn", `You are now wearing ${itemName}!`);
+    alert(`Now wearing: ${itemName}`);
+}
+
+async function saveAvatar(){
+    if(!currentUser){
+        alert("Please log in to save your avatar");
+        navigateTo("signin");
+        return;
+    }
+    
+    if(currentSelectedTexture){
+        if(await updateUserAPI({ avatarUrl: currentSelectedTexture })){
+            alert("Avatar saved successfully!");
+            addNotification("✨ Avatar Updated", "Your avatar has been updated!");
+        } else {
+            alert("Failed to save avatar");
+        }
+    } else {
+        alert("Please select clothing from the catalog first!");
+        navigateTo("catalog");
     }
 }
 
@@ -1119,7 +1028,8 @@ function showHome(){
     document.getElementById("profilePage").style.display = "none";
     document.getElementById("tosPage").style.display = "none";
     document.getElementById("deletePage").style.display = "none";
-    document.getElementById("catalogPage").style.display = "none";
+    document.getElementById("catalog").style.display = "none";
+    document.getElementById("avatar").style.display = "none";
     document.getElementById("homePage").style.display = "block";
     updateWelcome();
     updateTavixDisplay();
@@ -1132,7 +1042,23 @@ function showCatalog(){
     document.getElementById("tosPage").style.display = "none";
     document.getElementById("deletePage").style.display = "none";
     document.getElementById("homePage").style.display = "none";
-    document.getElementById("catalogPage").style.display = "block";
+    document.getElementById("avatar").style.display = "none";
+    document.getElementById("catalog").style.display = "block";
+}
+
+function showAvatar(){
+    document.getElementById("authPage").style.display = "none";
+    document.getElementById("profilePage").style.display = "none";
+    document.getElementById("tosPage").style.display = "none";
+    document.getElementById("deletePage").style.display = "none";
+    document.getElementById("homePage").style.display = "none";
+    document.getElementById("catalog").style.display = "none";
+    document.getElementById("avatar").style.display = "block";
+    
+    if(currentUser && currentUser.avatarUrl){
+        document.getElementById("avatarPreviewImg").src = currentUser.avatarUrl;
+        document.getElementById("currentClothingText").innerHTML = `Current clothing: ${currentUser.currentClothing || "Default"}`;
+    }
 }
 
 function showTOS(){
@@ -1140,7 +1066,8 @@ function showTOS(){
     document.getElementById("homePage").style.display = "none";
     document.getElementById("profilePage").style.display = "none";
     document.getElementById("deletePage").style.display = "none";
-    document.getElementById("catalogPage").style.display = "none";
+    document.getElementById("catalog").style.display = "none";
+    document.getElementById("avatar").style.display = "none";
     document.getElementById("tosPage").style.display = "block";
 }
 
@@ -1149,7 +1076,8 @@ function showDelete(){
     document.getElementById("homePage").style.display = "none";
     document.getElementById("profilePage").style.display = "none";
     document.getElementById("tosPage").style.display = "none";
-    document.getElementById("catalogPage").style.display = "none";
+    document.getElementById("catalog").style.display = "none";
+    document.getElementById("avatar").style.display = "none";
     document.getElementById("deletePage").style.display = "block";
     document.getElementById("deleteConfirmInput").value = "";
 }
@@ -1159,98 +1087,56 @@ function showAuth(){
     document.getElementById("profilePage").style.display = "none";
     document.getElementById("tosPage").style.display = "none";
     document.getElementById("deletePage").style.display = "none";
-    document.getElementById("catalogPage").style.display = "none";
+    document.getElementById("catalog").style.display = "none";
+    document.getElementById("avatar").style.display = "none";
     document.getElementById("authPage").style.display = "block";
     renderSaved();
 }
 
 function navigateTo(p, userId = null){
-    if(p === "profile" && userId){
-        navigateToUserProfile(userId);
-    } else if(p === "profile" && !userId && currentUser){
-        navigateToUserProfile(currentUser.id);
-    } else if(p === "catalog"){
-        showCatalog();
-        updateHash("#catalog");
-    } else if(p === "home"){
-        if(currentUser){
-            showHome();
-            updateHash("#home");
-        } else {
-            showAuth();
-            showAuthForm("login");
-            updateHash("#signin");
-        }
-    } else if(p === "settings"){
-        if(currentUser){
-            openSettings();
-        } else {
-            showAuth();
-            showAuthForm("login");
-            updateHash("#signin");
-        }
-    } else if(p === "wiki-tos"){
-        showTOS();
-        updateHash("#wiki-tos");
-    } else if(p === "delete"){
-        if(currentUser){
-            showDelete();
-        } else {
-            showAuth();
-            showAuthForm("login");
-            updateHash("#signin");
-        }
-    } else if(p === "signin"){
-        showAuth();
-        showAuthForm("login");
-        updateHash("#signin");
+    if(p === "profile" && userId) navigateToUserProfile(userId);
+    else if(p === "profile" && !userId && currentUser) navigateToUserProfile(currentUser.id);
+    else if(p === "catalog"){ showCatalog(); updateHash("#catalog"); }
+    else if(p === "avatar"){ showAvatar(); updateHash("#avatar"); }
+    else if(p === "home"){
+        if(currentUser){ showHome(); updateHash("#home"); }
+        else { showAuth(); showAuthForm("login"); updateHash("#signin"); }
     }
+    else if(p === "settings"){
+        if(currentUser) openSettings();
+        else { showAuth(); showAuthForm("login"); updateHash("#signin"); }
+    }
+    else if(p === "wiki-tos"){ showTOS(); updateHash("#wiki-tos"); }
+    else if(p === "delete"){
+        if(currentUser) showDelete();
+        else { showAuth(); showAuthForm("login"); updateHash("#signin"); }
+    }
+    else if(p === "signin"){ showAuth(); showAuthForm("login"); updateHash("#signin"); }
 }
 
-function updateHash(h){
-    history.pushState(null, null, h);
-}
+function updateHash(h){ history.pushState(null, null, h); }
 
 async function handleRoute(){
     const h = window.location.hash;
     await fetchAllUsers();
     
-    if(h === "#catalog"){
-        showCatalog();
-        return;
-    }
+    if(h === "#catalog"){ showCatalog(); return; }
+    if(h === "#avatar"){ showAvatar(); return; }
     
     const profileMatch = h.match(/^#(\d+)-profile$/);
     if(profileMatch){
         const userId = parseInt(profileMatch[1]);
-        if(currentUser && currentUser.id === userId){
-            showProfile();
-        } else {
-            await showOtherUserProfile(userId);
-        }
+        if(currentUser && currentUser.id === userId) showProfile();
+        else await showOtherUserProfile(userId);
         return;
     }
     
     if(h === "#wiki-tos"){ showTOS(); return; }
-    if(h === "#delete"){
-        if(currentUser){ showDelete(); }
-        else { showAuth(); showAuthForm("login"); updateHash("#signin"); }
-        return;
-    }
-    if(h === "#settings"){
-        if(currentUser){ showHome(); openSettings(); }
-        else { showAuth(); showAuthForm("login"); updateHash("#signin"); }
-        return;
-    }
+    if(h === "#delete"){ if(currentUser) showDelete(); else { showAuth(); showAuthForm("login"); updateHash("#signin"); } return; }
+    if(h === "#settings"){ if(currentUser){ showHome(); openSettings(); } else { showAuth(); showAuthForm("login"); updateHash("#signin"); } return; }
     
-    if(currentUser){
-        showHome();
-        if(window.location.hash !== "#home") updateHash("#home");
-    } else {
-        showAuth();
-        showAuthForm("login");
-        if(window.location.hash !== "#signin") updateHash("#signin");
-    }
+    if(currentUser){ showHome(); if(window.location.hash !== "#home") updateHash("#home"); }
+    else { showAuth(); showAuthForm("login"); if(window.location.hash !== "#signin") updateHash("#signin"); }
 }
 
 function showAuthForm(t){
@@ -1261,27 +1147,6 @@ function showAuthForm(t){
     if(t==="login"){lf.classList.add("active");lt.classList.add("active");}
     else{sf.classList.add("active");st.classList.add("active");if(typeof hcaptcha !== 'undefined') hcaptcha.reset();}
     document.getElementById("authError").textContent="";
-}
-
-// ============ CATALOG FUNCTIONS ============
-function saveClothingItem(itemId, itemName, price){
-    if(!currentUser){
-        alert("Please log in to save clothing items");
-        navigateTo("signin");
-        return;
-    }
-    
-    if((currentUser.tavix || 0) < price){
-        alert(`Insufficient TAVIX! You need ${price} TAVIX to purchase ${itemName}`);
-        return;
-    }
-    
-    if(confirm(`Purchase ${itemName} for ${price} TAVIX?`)){
-        addTransactionAPI(-price, `Purchased clothing: ${itemName}`);
-        addNotificationAPI("🛍️ Clothing Purchased", `You bought ${itemName} for ${price} TAVIX!`);
-        alert(`Successfully purchased ${itemName}!`);
-        updateTavixDisplay();
-    }
 }
 
 // ============ TAVIX MODAL FUNCTIONS ============
@@ -1295,18 +1160,15 @@ function openTransactionsModal(){
     closeModals();
     const t=currentUser?.transactions||[];
     const c=document.getElementById("transactionList");
-    if(t.length===0){c.innerHTML='<p style="text-align:center;color:#888">No transactions</p>';
-    }else{c.innerHTML=t.map(tr=>`<div class="transaction-item"><span>${new Date(tr.date).toLocaleDateString()} - ${tr.reason}${tr.from?` from @${tr.from}`:""}</span><span class="transaction-amount ${tr.amount>0?"positive":"negative"}">${tr.amount>0?"+":""}${formatTavix(Math.abs(tr.amount))} ⌬</span></div>`).join('');}
+    if(t.length===0) c.innerHTML='<p style="text-align:center;color:#888">No transactions</p>';
+    else c.innerHTML=t.map(tr=>`<div class="transaction-item"><span>${new Date(tr.date).toLocaleDateString()} - ${tr.reason}${tr.from?` from @${tr.from}`:""}</span><span class="transaction-amount ${tr.amount>0?"positive":"negative"}">${tr.amount>0?"+":""}${formatTavix(Math.abs(tr.amount))} ⌬</span></div>`).join('');
     document.getElementById("transactionsModal").style.display="flex";
 }
 async function buyTAVIX(){
     const s=document.getElementById("buyAmount");
     const a=parseInt(s.value);
-    if(await addTransaction(a,`Purchased ${a} TAVIX`)){
-        alert(`+${formatTavix(a)} TAVIX added!`);
-        closeModals();
-        updateTavixDisplay();
-    }else{alert("Purchase failed");}
+    if(await addTransaction(a,`Purchased ${a} TAVIX`)){ alert(`+${formatTavix(a)} TAVIX added!`); closeModals(); updateTavixDisplay(); }
+    else alert("Purchase failed");
 }
 async function sendGift(){
     const un=document.getElementById("giftUsername").value.trim();
@@ -1326,29 +1188,15 @@ async function sendGift(){
         document.getElementById("giftUsername").value="";
         document.getElementById("giftAmount").value="";
         updateTavixDisplay();
-    }else{alert("Failed to send gift");}
+    }else alert("Failed to send gift");
 }
 function closeModals(){document.querySelectorAll(".modal-overlay").forEach(m=>m.style.display="none");}
 
 // ============ EVENT LISTENERS ============
 document.getElementById("searchBtnHome")?.addEventListener("click",openSearch);
 document.getElementById("searchBtnProfile")?.addEventListener("click",openSearch);
-
-document.getElementById("profileBtnHome")?.addEventListener("click", () => {
-    if(currentUser){
-        navigateToUserProfile(currentUser.id);
-    } else {
-        navigateTo("signin");
-    }
-});
-document.getElementById("profileBtnProfile")?.addEventListener("click", () => {
-    if(currentUser){
-        navigateToUserProfile(currentUser.id);
-    } else {
-        navigateTo("signin");
-    }
-});
-
+document.getElementById("profileBtnHome")?.addEventListener("click", () => { if(currentUser) navigateToUserProfile(currentUser.id); else navigateTo("signin"); });
+document.getElementById("profileBtnProfile")?.addEventListener("click", () => { if(currentUser) navigateToUserProfile(currentUser.id); else navigateTo("signin"); });
 document.getElementById("settingsBtnHome")?.addEventListener("click",()=>navigateTo("settings"));
 document.getElementById("settingsBtnProfile")?.addEventListener("click",()=>navigateTo("settings"));
 document.getElementById("globalSearchInput")?.addEventListener("input",updateSearchDropdown);
@@ -1370,28 +1218,16 @@ document.getElementById("signupForm")?.addEventListener("submit", async function
     const cf = document.getElementById("signupConfirm").value;
     const tos = document.getElementById("tosAgree").checked;
     const err = document.getElementById("authError");
-    
     if(!tos){ err.textContent = "You must agree to the Terms of Service"; return; }
-    
     const hcaptchaResponse = hcaptcha.getResponse();
-    if(!hcaptchaResponse){
-        err.textContent = "Please complete the image puzzle to verify you're human";
-        return;
-    }
-    
+    if(!hcaptchaResponse){ err.textContent = "Please complete the image puzzle to verify you're human"; return; }
     if(un.length < 3){ err.textContent = "Username must be at least 3 characters"; return; }
     if(pw.length < 8){ err.textContent = "Password must be at least 8 characters"; return; }
     if(pw !== cf){ err.textContent = "Passwords don't match"; return; }
     if(!em.includes("@")){ err.textContent = "Please enter a valid email address"; return; }
-    
     const result = await registerAPI(un, em, pw, un, hcaptchaResponse);
-    if(result.success){
-        saveAccount({username: un, displayName: un, email: em});
-        navigateTo("home");
-    } else {
-        err.textContent = result.error;
-        hcaptcha.reset();
-    }
+    if(result.success){ saveAccount({username: un, displayName: un, email: em}); navigateTo("home"); }
+    else { err.textContent = result.error; hcaptcha.reset(); }
 });
 
 document.getElementById("loginForm")?.addEventListener("submit", async function(e){
@@ -1399,48 +1235,20 @@ document.getElementById("loginForm")?.addEventListener("submit", async function(
     const un = document.getElementById("loginUsername").value.trim();
     const pw = document.getElementById("loginPassword").value;
     const result = await loginAPI(un, pw);
-    if(result.success){
-        saveAccount({username: un, displayName: result.user.displayName || un, email: result.user.email});
-        navigateTo("home");
-    } else {
-        document.getElementById("authError").textContent = result.error;
-    }
+    if(result.success){ saveAccount({username: un, displayName: result.user.displayName || un, email: result.user.email}); navigateTo("home"); }
+    else { document.getElementById("authError").textContent = result.error; }
 });
 
 // ============ PAGE LOAD ============
 window.addEventListener("hashchange", handleRoute);
 window.onload = async function(){
     await fetchAllUsers();
-    
-    console.log('🔐 Tavian Auth System - NO GUEST TOKENS');
-    console.log('🔐 Only authenticated users get secure tokens');
-    
-    // Clear any leftover guest tokens that might exist
     const guestToken = localStorage.getItem('guest_token');
-    if (guestToken) {
-        console.log('🧹 Cleaning up leftover guest token...');
-        localStorage.removeItem('guest_token');
-    }
-    
-    const autoLoggedIn = await autoLogin();
-    
-    if(autoLoggedIn) {
-        console.log('✅ Auto-login successful! User:', currentUser?.username);
-    } else {
-        console.log('⚠️ No session found - user is not logged in');
-    }
-    
-    if (currentUser) {
-        setInterval(async () => {
-            await refreshUserData();
-        }, 10 * 60 * 1000);
-    }
-    
+    if (guestToken) localStorage.removeItem('guest_token');
+    await autoLogin();
+    if (currentUser) setInterval(async () => { await refreshUserData(); }, 10 * 60 * 1000);
     handleRoute();
-    
-    console.log('✅ Tavian Platform Ready');
-    const hasToken = getAuthToken() !== null;
-    console.log('📍 Authenticated:', hasToken ? 'YES' : 'NO');
+    console.log('✅ Tavian Platform Ready with Catalog & Avatar!');
 };
 </script>
 </body>
