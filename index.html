@@ -274,7 +274,7 @@ header{background:white;padding:15px 20px;border-bottom:1px solid #ddd;position:
             </div>
         </div>
     </header>
-    <div id="tavixDropdown" class="tavix-dropdown"><div class="tavix-dropdown-header"><div class="balance" id="dropdownBalance">0 ⌬</div><div class="label">TAVIX Balance</div></div><div class="tavix-dropdown-item" onclick="openBuyModal()"><div class="icon">💰</div><div class="info"><div class="title">Buy TAVIX</div><div class="desc">Purchase TAVIX with real money</div></div></div><div class="tavix-dropdown-item" onclick="openGiftModal()"><div class="icon">🎁</div><div class="info"><div class="title">Gift TAVIX</div><div class="desc">Send TAVIX to a friend</div></div></div><div class="tavix-dropdown-item" onclick="openTransactionsModal()"><div class="icon">📜</div><div class="info"><div class="title">Transactions</div><div class="desc">View your TAVIX history</div></div></div></div>
+    <div id="tavixDropdown" class="tavix-dropdown"><div class="tavix-dropdown-header"><div class="balance" id="dropdownBalance">0 ⌬</div><div class="label">TAVIX Balance</div></div><div class="avix-dropdown-item" onclick="openBuyModal()"><div class="icon">💰</div><div class="info"><div class="title">Buy TAVIX</div><div class="desc">Purchase TAVIX with real money</div></div></div><div class="tavix-dropdown-item" onclick="openGiftModal()"><div class="icon">🎁</div><div class="info"><div class="title">Gift TAVIX</div><div class="desc">Send TAVIX to a friend</div></div></div><div class="tavix-dropdown-item" onclick="openTransactionsModal()"><div class="icon">📜</div><div class="info"><div class="title">Transactions</div><div class="desc">View your TAVIX history</div></div></div></div>
     <div id="welcomeBanner" class="welcome-message" style="display:none;"><span class="welcome-text" id="welcomeText"></span></div>
     <div id="mainContent">
         <div class="section"><h2>FRIENDS</h2><div class="friends-box"><div>No friends 😭</div><button class="friend-arrow">&gt;</button></div></div>
@@ -340,9 +340,9 @@ header{background:white;padding:15px 20px;border-bottom:1px solid #ddd;position:
             </div>
             
             <div class="form-group">
-                <label>Template Image (1254 x 1254 PNG only)</label>
+                <label>Template Image (1024x1024 PNG only)</label>
                 <input type="file" id="templateUpload" accept="image/png">
-                <small>⚠️ Must be a 1254x1254 PNG shirt/pants template</small>
+                <small>⚠️ Must be a 1024x1024 PNG shirt/pants template</small>
             </div>
             
             <div id="uploadError" style="color:#dc2626; margin-bottom:15px; display:none;"></div>
@@ -1171,7 +1171,7 @@ async function saveAvatar(){
 
 // ============ FIXED AVATAR ITEMS FUNCTIONS ============
 
-// Validate template is exactly 1254x1254
+// Validate template is exactly 1024x1024
 function validateTemplate(file) {
     return new Promise((resolve) => {
         if (!file) {
@@ -1188,7 +1188,7 @@ function validateTemplate(file) {
         
         img.onload = () => {
             clearTimeout(timeout);
-            const isValid = img.width === 1254 && img.height === 1254;
+            const isValid = img.width === 1024 && img.height === 1024;
             console.log(`Dimensions: ${img.width}x${img.height}, Valid: ${isValid}`);
             URL.revokeObjectURL(img.src);
             resolve(isValid);
@@ -1214,15 +1214,10 @@ function clearPreview() {
         // Draw instructions
         ctx.font = '14px Arial';
         ctx.fillStyle = '#666';
-        ctx.fillText('Select a 1254x1254 PNG template', 50, 150);
+        ctx.fillText('Select a 1024x1024 PNG template', 50, 150);
         ctx.fillText('to preview here', 100, 180);
     }
     document.getElementById('previewText').innerHTML = 'Upload a template to preview';
-    const infoSpan = document.getElementById('templateInfo');
-    if (infoSpan) {
-        infoSpan.innerHTML = 'No file selected';
-        infoSpan.style.color = '#666';
-    }
 }
 
 // Update template info display
@@ -1236,15 +1231,15 @@ function updateTemplateInfo(file) {
         return;
     }
     
-    infoSpan.innerHTML = `${file.name} (${(file.size / 1254).toFixed(1)} KB) - Validating dimensions...`;
+    infoSpan.innerHTML = `${file.name} (${(file.size / 1024).toFixed(1)} KB) - Validating dimensions...`;
     infoSpan.style.color = '#666';
     
     validateTemplate(file).then(isValid => {
         if (isValid) {
-            infoSpan.innerHTML = `${file.name} (${(file.size / 1254).toFixed(1)} KB) - ✅ 1254x1254 valid`;
+            infoSpan.innerHTML = `${file.name} (${(file.size / 1024).toFixed(1)} KB) - ✅ 1024x1024 valid`;
             infoSpan.style.color = '#10b981';
         } else {
-            infoSpan.innerHTML = `${file.name} - ❌ Must be 1254x1254 pixels`;
+            infoSpan.innerHTML = `${file.name} - ❌ Must be 1024x1024 pixels`;
             infoSpan.style.color = '#dc2626';
         }
     });
@@ -1375,7 +1370,7 @@ function setupFileInput() {
         }
         
         // Check file size (max 5MB)
-        if (file.size > 5 * 1254 * 1254) {
+        if (file.size > 5 * 1024 * 1024) {
             errorDiv.textContent = '❌ File too large! Max 5MB';
             errorDiv.style.display = 'block';
             clearPreview();
@@ -1390,10 +1385,10 @@ function setupFileInput() {
         // Also validate dimensions asynchronously
         validateTemplate(file).then(isValid => {
             if (!isValid) {
-                errorDiv.textContent = '❌ Template must be exactly 1254x1254 pixels';
+                errorDiv.textContent = '❌ Template must be exactly 1024x1024 pixels';
                 errorDiv.style.display = 'block';
             } else {
-                console.log('✅ Template dimensions valid: 1254x1254');
+                console.log('✅ Template dimensions valid: 1024x1024');
                 document.getElementById('previewText').innerHTML = '✅ Template dimensions valid! Ready to upload.';
             }
         });
@@ -1446,7 +1441,7 @@ async function uploadAvatarItem() {
     // Validate dimensions
     const isValid = await validateTemplate(file);
     if (!isValid) {
-        errorDiv.textContent = '❌ Template must be exactly 1254x1254 pixels';
+        errorDiv.textContent = '❌ Template must be exactly 1024x1024 pixels';
         errorDiv.style.display = 'block';
         return;
     }
@@ -1906,7 +1901,7 @@ window.onload = async function(){
     await autoLogin();
     if (currentUser) setInterval(async () => { await refreshUserData(); }, 10 * 60 * 1000);
     handleRoute();
-    console.log('✅ Tavian Platform Ready with Fixed Preview!');
+    console.log('✅ Tavian Platform Ready with Fixed Blocky Avatar Preview!');
 };
 </script>
 </body>
