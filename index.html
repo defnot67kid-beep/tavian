@@ -340,9 +340,9 @@ header{background:white;padding:15px 20px;border-bottom:1px solid #ddd;position:
             </div>
             
             <div class="form-group">
-                <label>Template Image (1024x1024 PNG only)</label>
+                <label>Template Image (1254 x 1254 PNG only)</label>
                 <input type="file" id="templateUpload" accept="image/png">
-                <small>⚠️ Must be a 1024x1024 PNG shirt/pants template</small>
+                <small>⚠️ Must be a 1254x1254 PNG shirt/pants template</small>
             </div>
             
             <div id="uploadError" style="color:#dc2626; margin-bottom:15px; display:none;"></div>
@@ -1171,7 +1171,7 @@ async function saveAvatar(){
 
 // ============ FIXED AVATAR ITEMS FUNCTIONS ============
 
-// Validate template is exactly 1024x1024
+// Validate template is exactly 1254x1254
 function validateTemplate(file) {
     return new Promise((resolve) => {
         if (!file) {
@@ -1188,7 +1188,7 @@ function validateTemplate(file) {
         
         img.onload = () => {
             clearTimeout(timeout);
-            const isValid = img.width === 1024 && img.height === 1024;
+            const isValid = img.width === 1254 && img.height === 1254;
             console.log(`Dimensions: ${img.width}x${img.height}, Valid: ${isValid}`);
             URL.revokeObjectURL(img.src);
             resolve(isValid);
@@ -1214,7 +1214,7 @@ function clearPreview() {
         // Draw instructions
         ctx.font = '14px Arial';
         ctx.fillStyle = '#666';
-        ctx.fillText('Select a 1024x1024 PNG template', 50, 150);
+        ctx.fillText('Select a 1254x1254 PNG template', 50, 150);
         ctx.fillText('to preview here', 100, 180);
     }
     document.getElementById('previewText').innerHTML = 'Upload a template to preview';
@@ -1236,15 +1236,15 @@ function updateTemplateInfo(file) {
         return;
     }
     
-    infoSpan.innerHTML = `${file.name} (${(file.size / 1024).toFixed(1)} KB) - Validating dimensions...`;
+    infoSpan.innerHTML = `${file.name} (${(file.size / 1254).toFixed(1)} KB) - Validating dimensions...`;
     infoSpan.style.color = '#666';
     
     validateTemplate(file).then(isValid => {
         if (isValid) {
-            infoSpan.innerHTML = `${file.name} (${(file.size / 1024).toFixed(1)} KB) - ✅ 1024x1024 valid`;
+            infoSpan.innerHTML = `${file.name} (${(file.size / 1254).toFixed(1)} KB) - ✅ 1254x1254 valid`;
             infoSpan.style.color = '#10b981';
         } else {
-            infoSpan.innerHTML = `${file.name} - ❌ Must be 1024x1024 pixels`;
+            infoSpan.innerHTML = `${file.name} - ❌ Must be 1254x1254 pixels`;
             infoSpan.style.color = '#dc2626';
         }
     });
@@ -1375,7 +1375,7 @@ function setupFileInput() {
         }
         
         // Check file size (max 5MB)
-        if (file.size > 5 * 1024 * 1024) {
+        if (file.size > 5 * 1254 * 1254) {
             errorDiv.textContent = '❌ File too large! Max 5MB';
             errorDiv.style.display = 'block';
             clearPreview();
@@ -1390,10 +1390,10 @@ function setupFileInput() {
         // Also validate dimensions asynchronously
         validateTemplate(file).then(isValid => {
             if (!isValid) {
-                errorDiv.textContent = '❌ Template must be exactly 1024x1024 pixels';
+                errorDiv.textContent = '❌ Template must be exactly 1254x1254 pixels';
                 errorDiv.style.display = 'block';
             } else {
-                console.log('✅ Template dimensions valid: 1024x1024');
+                console.log('✅ Template dimensions valid: 1254x1254');
                 document.getElementById('previewText').innerHTML = '✅ Template dimensions valid! Ready to upload.';
             }
         });
@@ -1446,7 +1446,7 @@ async function uploadAvatarItem() {
     // Validate dimensions
     const isValid = await validateTemplate(file);
     if (!isValid) {
-        errorDiv.textContent = '❌ Template must be exactly 1024x1024 pixels';
+        errorDiv.textContent = '❌ Template must be exactly 1254x1254 pixels';
         errorDiv.style.display = 'block';
         return;
     }
