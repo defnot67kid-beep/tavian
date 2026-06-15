@@ -184,8 +184,14 @@ header{background:white;padding:15px 20px;border-bottom:1px solid #ddd;position:
 .catalog-item img{width:100%;height:200px;object-fit:cover;background:#f0f0f0;}
 .catalog-item-info{padding:15px;}
 .item-name{font-weight:bold;font-size:18px;color:#333;margin-bottom:8px;}
+.catalog-creator{font-size:12px;color:#888;margin-bottom:5px;}
+.catalog-price{font-weight:bold;color:#f0b800;margin-bottom:8px;font-size:14px;}
 .wear-btn{width:100%;padding:10px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;border:none;border-radius:8px;cursor:pointer;font-weight:bold;transition:opacity 0.2s;}
 .wear-btn:hover{opacity:0.9;}
+.purchase-btn{width:100%;padding:10px;background:#10b981;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:bold;margin-top:5px;transition:opacity 0.2s;}
+.purchase-btn:hover{opacity:0.9;}
+.delete-item-btn{width:100%;padding:8px;background:#dc2626;color:white;border:none;border-radius:8px;cursor:pointer;font-size:12px;margin-top:5px;transition:opacity 0.2s;}
+.delete-item-btn:hover{opacity:0.9;}
 
 .avatar-editor{background:white;border-radius:24px;padding:30px;box-shadow:0 2px 10px rgba(0,0,0,0.05);}
 .avatar-preview{text-align:center;margin-bottom:30px;}
@@ -194,7 +200,22 @@ header{background:white;padding:15px 20px;border-bottom:1px solid #ddd;position:
 .save-avatar-btn{width:100%;max-width:300px;margin:20px auto 0;display:block;padding:14px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;border:none;border-radius:12px;cursor:pointer;font-weight:bold;font-size:18px;}
 .save-avatar-btn:hover{opacity:0.9;}
 
-@media (max-width:768px){.logo{font-size:28px;}.players-grid{grid-template-columns:1fr;}.display-name{font-size:42px;}}
+/* CREATE PAGE STYLES */
+.create-container{display:grid;grid-template-columns:1fr 1fr;gap:30px;max-width:1200px;margin:0 auto;}
+.upload-panel,.preview-panel{background:white;border-radius:20px;padding:25px;transition:transform 0.2s,box-shadow 0.2s;}
+.upload-panel:hover,.preview-panel:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(0,0,0,0.1);}
+.form-group{margin-bottom:20px;}
+.form-group label{display:block;margin-bottom:8px;font-weight:bold;color:#333;}
+.form-group input,.form-group select{width:100%;padding:12px;border:2px solid #e0e0e0;border-radius:10px;font-size:16px;}
+.form-group input:focus,.form-group select:focus{outline:none;border-color:#667eea;}
+.form-group small{display:block;margin-top:5px;color:#666;font-size:12px;}
+#previewCanvas{box-shadow:0 4px 15px rgba(0,0,0,0.1);background:#e0e0e0;border-radius:10px;display:block;margin:0 auto;}
+#previewText{text-align:center;margin-top:15px;color:#666;}
+#uploadError{color:#dc2626;margin-bottom:15px;display:none;}
+.my-uploads{margin-top:40px;background:white;border-radius:20px;padding:25px;}
+.my-uploads h2{margin-bottom:20px;color:#333;}
+
+@media (max-width:768px){.logo{font-size:28px;}.players-grid{grid-template-columns:1fr;}.display-name{font-size:42px;}.create-container{grid-template-columns:1fr;}}
 </style>
 </head>
 <body>
@@ -245,6 +266,7 @@ header{background:white;padding:15px 20px;border-bottom:1px solid #ddd;position:
                 <button class="icon-btn search-btn" id="searchBtnHome"><span class="material-icons">search</span></button>
                 <button class="icon-btn catalog-nav-btn" onclick="navigateTo('catalog')" style="background:#6b46ff; color:white;"><span class="material-icons" style="color:white;">store</span></button>
                 <button class="icon-btn avatar-nav-btn" onclick="navigateTo('avatar')" style="background:#10b981; color:white;"><span class="material-icons" style="color:white;">face</span></button>
+                <button class="icon-btn create-nav-btn" onclick="navigateTo('create')" style="background:#ec489a; color:white;"><span class="material-icons" style="color:white;">create</span></button>
                 <div class="tavix-btn" id="tavixBtn"><span class="tavix-icon">⌬</span><span class="tavix-amount" id="tavixBalance">0</span></div>
                 <button class="icon-btn profile-btn" id="profileBtnHome"><span class="material-icons">person</span></button>
                 <button class="icon-btn notification-badge" id="notificationBtnHome"><span class="material-icons">notifications</span><span class="badge-count" id="notificationCount">0</span></button>
@@ -268,23 +290,7 @@ header{background:white;padding:15px 20px;border-bottom:1px solid #ddd;position:
         <button class="back-btn" onclick="navigateTo('home')">← Back</button>
     </div>
     <div class="catalog-grid" id="catalogGrid">
-        <!-- TEMPLATE CLOTHING ITEM - Copy this block to add more items -->
-        <div class="catalog-item" data-item-id="1" data-item-name="Example Shirt" data-item-texture="https://placehold.co/400x400/667eea/white?text=Example+Shirt">
-            <img src="https://placehold.co/400x400/667eea/white?text=Example+Shirt" alt="Example Shirt">
-            <div class="catalog-item-info">
-                <div class="item-name">Example Shirt</div>
-                <button class="wear-btn" onclick="wearClothing('https://placehold.co/400x400/667eea/white?text=Example+Shirt', 'Example Shirt')">👕 Wear</button>
-            </div>
-        </div>
-        <!-- 
-            TO ADD MORE CLOTHING ITEMS:
-            Copy the div.catalog-item above and change:
-            - data-item-id to a unique number (2, 3, 4...)
-            - data-item-name to your clothing name
-            - img src to your image URL
-            - The text inside .item-name
-            - Update the onclick parameters with the new image URL and name
-        -->
+        <!-- Items will be dynamically loaded here -->
     </div>
 </div>
 
@@ -303,6 +309,66 @@ header{background:white;padding:15px 20px;border-bottom:1px solid #ddd;position:
     </div>
 </div>
 
+<!-- CREATE PAGE -->
+<div id="createPage" class="page">
+    <div class="page-header">
+        <h1>🎨 Create Avatar Item</h1>
+        <button class="back-btn" onclick="navigateTo('home')">← Back</button>
+    </div>
+    
+    <div class="create-container">
+        <!-- Left: Upload Form -->
+        <div class="upload-panel">
+            <h2 style="margin-bottom: 20px;">📤 Upload New Item</h2>
+            
+            <div class="form-group">
+                <label>Item Name</label>
+                <input type="text" id="itemName" placeholder="e.g., Cool Black Shirt" maxlength="50">
+            </div>
+            
+            <div class="form-group">
+                <label>Item Type</label>
+                <select id="itemType">
+                    <option value="shirt">👕 Shirt</option>
+                    <option value="pants">👖 Pants</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Price (TAVIX)</label>
+                <input type="number" id="itemPrice" value="10" min="0" max="10000" step="5">
+            </div>
+            
+            <div class="form-group">
+                <label>Template Image (1024x1024 PNG only)</label>
+                <input type="file" id="templateUpload" accept="image/png">
+                <small>⚠️ Must be a 1024x1024 PNG shirt/pants template</small>
+            </div>
+            
+            <div id="uploadError" style="color:#dc2626; margin-bottom:15px; display:none;"></div>
+            
+            <button id="uploadBtn" class="submit-btn" style="width:100%;">✨ Upload Item</button>
+        </div>
+        
+        <!-- Right: Avatar Preview -->
+        <div class="preview-panel">
+            <h2 style="margin-bottom: 20px;">👤 Preview</h2>
+            <div style="text-align: center;">
+                <canvas id="previewCanvas" width="300" height="300" style="max-width:100%; background:#e0e0e0; border-radius:10px;"></canvas>
+            </div>
+            <p id="previewText" style="text-align:center; margin-top:15px; color:#666;">Upload a template to preview</p>
+        </div>
+    </div>
+    
+    <!-- My Uploads Section -->
+    <div class="my-uploads">
+        <h2>📦 My Uploads</h2>
+        <div id="myUploadsGrid" class="catalog-grid" style="grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));">
+            <!-- My items will appear here -->
+        </div>
+    </div>
+</div>
+
 <!-- PROFILE PAGE -->
 <div id="profilePage" style="display:none;">
     <header>
@@ -312,6 +378,7 @@ header{background:white;padding:15px 20px;border-bottom:1px solid #ddd;position:
                 <button class="icon-btn search-btn" id="searchBtnProfile"><span class="material-icons">search</span></button>
                 <button class="icon-btn catalog-nav-btn" onclick="navigateTo('catalog')" style="background:#6b46ff; color:white;"><span class="material-icons" style="color:white;">store</span></button>
                 <button class="icon-btn avatar-nav-btn" onclick="navigateTo('avatar')" style="background:#10b981; color:white;"><span class="material-icons" style="color:white;">face</span></button>
+                <button class="icon-btn create-nav-btn" onclick="navigateTo('create')" style="background:#ec489a; color:white;"><span class="material-icons" style="color:white;">create</span></button>
                 <div class="tavix-btn" id="tavixBtnProfile"><span class="tavix-icon">⌬</span><span class="tavix-amount" id="tavixBalanceProfile">0</span></div>
                 <button class="icon-btn profile-btn" id="profileBtnProfile"><span class="material-icons">person</span></button>
                 <button class="icon-btn notification-badge" id="notificationBtnProfile"><span class="material-icons">notifications</span><span class="badge-count" id="notificationCountProfile">0</span></button>
@@ -397,7 +464,7 @@ header{background:white;padding:15px 20px;border-bottom:1px solid #ddd;position:
 
 <script>
 // ============================================
-// TAVIAN PLATFORM - WITH CATALOG & AVATAR
+// TAVIAN PLATFORM - WITH CATALOG & AVATAR & CREATE
 // ============================================
 
 // API Configuration
@@ -413,6 +480,7 @@ function formatTavix(amount){
 // USER SYSTEM
 let currentUser = null;
 let allUsers = [];
+let avatarItems = []; // Store all uploaded avatar items
 
 // ============ TOKEN MANAGEMENT ============
 function setAuthToken(token) {
@@ -470,6 +538,83 @@ function getCookie(name) {
 
 function isLoggedIn() {
     return currentUser !== null && getAuthToken() !== null;
+}
+
+// ============ AVATAR ITEMS API CALLS ============
+async function loadAvatarItems() {
+    try {
+        const response = await fetch(`${API_URL}/avatar-items`);
+        if (response.ok) {
+            avatarItems = await response.json();
+            localStorage.setItem('tavian_avatar_items', JSON.stringify(avatarItems));
+        } else {
+            // Fallback to localStorage
+            const saved = localStorage.getItem('tavian_avatar_items');
+            if (saved) avatarItems = JSON.parse(saved);
+        }
+    } catch(e) {
+        console.log('Failed to load avatar items, using local cache');
+        const saved = localStorage.getItem('tavian_avatar_items');
+        if (saved) avatarItems = JSON.parse(saved);
+    }
+    return avatarItems;
+}
+
+async function uploadAvatarItemToAPI(itemData) {
+    try {
+        const token = getAuthToken();
+        const response = await fetch(`${API_URL}/avatar-items`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': token ? `Bearer ${token}` : ''
+            },
+            body: JSON.stringify(itemData)
+        });
+        if (response.ok) {
+            const newItem = await response.json();
+            return newItem;
+        }
+    } catch(e) {
+        console.log('Failed to upload to server');
+    }
+    return null;
+}
+
+async function deleteAvatarItemFromAPI(itemId) {
+    try {
+        const token = getAuthToken();
+        const response = await fetch(`${API_URL}/avatar-items/${itemId}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': token ? `Bearer ${token}` : ''
+            }
+        });
+        return response.ok;
+    } catch(e) {
+        console.log('Failed to delete from server');
+        return false;
+    }
+}
+
+async function purchaseItemFromAPI(itemId) {
+    try {
+        const token = getAuthToken();
+        const response = await fetch(`${API_URL}/avatar-items/${itemId}/purchase`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': token ? `Bearer ${token}` : ''
+            }
+        });
+        if (response.ok) {
+            const result = await response.json();
+            return result;
+        }
+    } catch(e) {
+        console.log('Failed to purchase from server');
+    }
+    return null;
 }
 
 // ============ API CALLS ============
@@ -818,6 +963,7 @@ async function showOtherUserProfile(userId) {
     document.getElementById("deletePage").style.display = "none";
     document.getElementById("catalog").style.display = "none";
     document.getElementById("avatar").style.display = "none";
+    document.getElementById("createPage").style.display = "none";
     document.getElementById("profilePage").style.display = "block";
     renderOtherUserProfile(user);
 }
@@ -872,6 +1018,7 @@ function showProfile() {
     document.getElementById("deletePage").style.display = "none";
     document.getElementById("catalog").style.display = "none";
     document.getElementById("avatar").style.display = "none";
+    document.getElementById("createPage").style.display = "none";
     document.getElementById("profilePage").style.display = "block";
     renderProfile();
 }
@@ -993,13 +1140,13 @@ function updateWelcome(){
 let currentSelectedTexture = null;
 let currentSelectedName = null;
 
-function wearClothing(textureUrl, itemName){
+function wearClothing(textureUrl, itemName, creatorUsername){
     currentSelectedTexture = textureUrl;
     currentSelectedName = itemName;
     document.getElementById("avatarPreviewImg").src = textureUrl;
-    document.getElementById("currentClothingText").innerHTML = `Current clothing: ${itemName}`;
-    addNotification("👕 Clothing Worn", `You are now wearing ${itemName}!`);
-    alert(`Now wearing: ${itemName}`);
+    document.getElementById("currentClothingText").innerHTML = `Current clothing: ${itemName} by @${creatorUsername}`;
+    addNotification("👕 Clothing Worn", `You are now wearing ${itemName} by @${creatorUsername}!`);
+    alert(`Now wearing: ${itemName} by @${creatorUsername}`);
 }
 
 async function saveAvatar(){
@@ -1022,7 +1169,314 @@ async function saveAvatar(){
     }
 }
 
-// ============ NAVIGATION ============
+// ============ AVATAR ITEMS FUNCTIONS ============
+
+// Validate template is exactly 1024x1024
+function validateTemplate(file) {
+    return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => {
+            const isValid = img.width === 1024 && img.height === 1024;
+            URL.revokeObjectURL(img.src);
+            resolve(isValid);
+        };
+        img.onerror = () => resolve(false);
+        img.src = URL.createObjectURL(file);
+    });
+}
+
+// Preview template on canvas
+function previewTemplate(file) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+            // Draw preview on canvas
+            const canvas = document.getElementById('previewCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Clear canvas
+            ctx.fillStyle = '#e0e0e0';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.save();
+            
+            // Draw simple avatar shape with texture
+            // Head
+            ctx.fillStyle = '#ffcc99';
+            ctx.beginPath();
+            ctx.arc(150, 80, 40, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Torso with texture
+            const torsoWidth = 70;
+            const torsoHeight = 90;
+            const torsoX = canvas.width/2 - torsoWidth/2;
+            const torsoY = 130;
+            
+            // Create pattern from uploaded image
+            const pattern = ctx.createPattern(img, 'no-repeat');
+            if (pattern) {
+                ctx.fillStyle = pattern;
+            } else {
+                ctx.fillStyle = '#4a90e2';
+            }
+            ctx.fillRect(torsoX, torsoY, torsoWidth, torsoHeight);
+            
+            // Arms
+            ctx.fillStyle = '#ffcc99';
+            ctx.fillRect(torsoX - 25, torsoY + 10, 25, 60);
+            ctx.fillRect(torsoX + torsoWidth, torsoY + 10, 25, 60);
+            
+            // Legs
+            ctx.fillStyle = '#4a90e2';
+            ctx.fillRect(torsoX + 10, torsoY + torsoHeight, 20, 60);
+            ctx.fillRect(torsoX + torsoWidth - 30, torsoY + torsoHeight, 20, 60);
+            
+            ctx.restore();
+            
+            document.getElementById('previewText').innerHTML = '✅ Preview ready! Looks good? Click Upload.';
+        };
+        img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+}
+
+// Upload avatar item
+async function uploadAvatarItem() {
+    if (!currentUser) {
+        alert('Please login to upload items');
+        navigateTo('signin');
+        return;
+    }
+    
+    const itemName = document.getElementById('itemName').value.trim();
+    const itemType = document.getElementById('itemType').value;
+    const itemPrice = parseInt(document.getElementById('itemPrice').value);
+    const file = document.getElementById('templateUpload').files[0];
+    const errorDiv = document.getElementById('uploadError');
+    
+    // Validation
+    if (!itemName) {
+        errorDiv.textContent = 'Please enter an item name';
+        errorDiv.style.display = 'block';
+        return;
+    }
+    
+    if (itemName.length < 3) {
+        errorDiv.textContent = 'Item name must be at least 3 characters';
+        errorDiv.style.display = 'block';
+        return;
+    }
+    
+    if (!file) {
+        errorDiv.textContent = 'Please select a template image';
+        errorDiv.style.display = 'block';
+        return;
+    }
+    
+    if (file.type !== 'image/png') {
+        errorDiv.textContent = 'Only PNG images are allowed';
+        errorDiv.style.display = 'block';
+        return;
+    }
+    
+    errorDiv.style.display = 'none';
+    
+    // Validate dimensions
+    const isValid = await validateTemplate(file);
+    if (!isValid) {
+        errorDiv.textContent = '❌ Template must be exactly 1024x1024 pixels';
+        errorDiv.style.display = 'block';
+        return;
+    }
+    
+    // Convert to base64 for storage
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+        const imageData = e.target.result;
+        
+        // Create item object
+        const newItem = {
+            id: Date.now().toString() + Math.random().toString(36).substr(2, 6),
+            name: itemName,
+            type: itemType,
+            price: itemPrice,
+            image: imageData,
+            creatorId: currentUser.id,
+            creatorUsername: currentUser.username,
+            creatorDisplayName: currentUser.displayName || currentUser.username,
+            createdAt: new Date().toISOString(),
+            purchases: 0
+        };
+        
+        // Upload to server
+        const savedItem = await uploadAvatarItemToAPI(newItem);
+        if (savedItem) {
+            avatarItems.push(savedItem);
+        } else {
+            avatarItems.push(newItem);
+        }
+        
+        localStorage.setItem('tavian_avatar_items', JSON.stringify(avatarItems));
+        
+        // Clear form
+        document.getElementById('itemName').value = '';
+        document.getElementById('templateUpload').value = '';
+        document.getElementById('itemPrice').value = '10';
+        document.getElementById('previewText').innerHTML = 'Upload a template to preview';
+        
+        // Clear canvas
+        const canvas = document.getElementById('previewCanvas');
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#e0e0e0';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // Refresh displays
+        renderMyUploads();
+        renderCatalog();
+        
+        alert(`✅ "${itemName}" uploaded successfully!`);
+    };
+    reader.readAsDataURL(file);
+}
+
+// Render My Uploads section
+function renderMyUploads() {
+    const container = document.getElementById('myUploadsGrid');
+    if (!container) return;
+    
+    const myItems = avatarItems.filter(item => item.creatorId === currentUser?.id);
+    
+    if (myItems.length === 0) {
+        container.innerHTML = '<div style="text-align: center; padding: 40px; color: #888;">📭 You haven\'t uploaded any items yet</div>';
+        return;
+    }
+    
+    container.innerHTML = myItems.map(item => `
+        <div class="catalog-item">
+            <img src="${item.image}" alt="${item.name}" style="width: 100%; height: 150px; object-fit: cover;">
+            <div class="catalog-item-info">
+                <div class="item-name">${escapeHtml(item.name)}</div>
+                <div class="catalog-creator">By @${escapeHtml(item.creatorUsername)}</div>
+                <div class="catalog-price">💰 ${item.price} TAVIX</div>
+                <div class="catalog-stats" style="font-size: 11px; color: #888; margin-top: 5px;">
+                    📥 ${item.purchases || 0} purchases
+                </div>
+                <button class="wear-btn" onclick="wearFromCatalog('${item.id}')">👕 Try On</button>
+                <button class="delete-item-btn" onclick="deleteMyItem('${item.id}')">🗑️ Delete</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Delete my item
+async function deleteMyItem(itemId) {
+    if (!confirm('Delete this item permanently?')) return;
+    
+    const success = await deleteAvatarItemFromAPI(itemId);
+    if (success) {
+        avatarItems = avatarItems.filter(item => item.id !== itemId);
+        localStorage.setItem('tavian_avatar_items', JSON.stringify(avatarItems));
+        renderMyUploads();
+        renderCatalog();
+        alert('Item deleted');
+    } else {
+        alert('Failed to delete item');
+    }
+}
+
+// Render catalog with all items
+function renderCatalog() {
+    const container = document.getElementById('catalogGrid');
+    if (!container) return;
+    
+    if (avatarItems.length === 0) {
+        container.innerHTML = '<div style="text-align: center; padding: 40px; color: #888;">📭 No items in catalog yet. Be the first to upload!</div>';
+        return;
+    }
+    
+    container.innerHTML = avatarItems.map(item => `
+        <div class="catalog-item">
+            <img src="${item.image}" alt="${item.name}" style="width: 100%; height: 150px; object-fit: cover;">
+            <div class="catalog-item-info">
+                <div class="item-name">${escapeHtml(item.name)}</div>
+                <div class="catalog-creator">By @${escapeHtml(item.creatorUsername)}</div>
+                <div class="catalog-price">💰 ${item.price} TAVIX</div>
+                <button class="wear-btn" onclick="wearFromCatalog('${item.id}')">👕 Try On</button>
+                ${currentUser && currentUser.id !== item.creatorId ? `<button class="purchase-btn" onclick="purchaseItem('${item.id}')">🛒 Purchase (${item.price} TAVIX)</button>` : ''}
+            </div>
+        </div>
+    `).join('');
+}
+
+// Wear item from catalog
+function wearFromCatalog(itemId) {
+    const item = avatarItems.find(i => i.id === itemId);
+    if (!item) return;
+    
+    // Apply to avatar preview
+    document.getElementById('avatarPreviewImg').src = item.image;
+    document.getElementById('currentClothingText').innerHTML = `Current clothing: ${item.name} by @${item.creatorUsername}`;
+    
+    // Store current selection
+    currentSelectedTexture = item.image;
+    currentSelectedName = item.name;
+    
+    addNotification("👕 Trying On", `You're trying on ${item.name} by @${item.creatorUsername}`);
+    alert(`👕 Trying on: ${item.name}\nBy: @${item.creatorUsername}\nPrice: ${item.price} TAVIX`);
+}
+
+// Purchase item
+async function purchaseItem(itemId) {
+    if (!currentUser) {
+        alert('Please login to purchase');
+        navigateTo('signin');
+        return;
+    }
+    
+    const item = avatarItems.find(i => i.id === itemId);
+    if (!item) return;
+    
+    if ((currentUser.tavix || 0) < item.price) {
+        alert(`❌ Insufficient TAVIX! You need ${item.price} TAVIX to buy this item.`);
+        return;
+    }
+    
+    if (confirm(`Purchase "${item.name}" for ${item.price} TAVIX?\nCreator: @${item.creatorUsername}`)) {
+        const result = await purchaseItemFromAPI(itemId);
+        
+        if (result && result.success) {
+            // Update local data
+            currentUser.tavix = result.newBalance;
+            item.purchases = (item.purchases || 0) + 1;
+            localStorage.setItem('tavian_avatar_items', JSON.stringify(avatarItems));
+            
+            // Add to inventory
+            if (!currentUser.inventory) currentUser.inventory = [];
+            currentUser.inventory.push({
+                id: item.id,
+                name: item.name,
+                type: item.type,
+                image: item.image,
+                purchasedAt: Date.now(),
+                creatorUsername: item.creatorUsername,
+                price: item.price
+            });
+            
+            backupUserData(currentUser);
+            
+            alert(`✅ Purchased "${item.name}"! Check your inventory.`);
+            updateTavixDisplay();
+            renderCatalog();
+            renderMyUploads();
+        } else {
+            alert('Purchase failed');
+        }
+    }
+}
+
+// ============ PAGE NAVIGATION ============
 function showHome(){
     document.getElementById("authPage").style.display = "none";
     document.getElementById("profilePage").style.display = "none";
@@ -1030,6 +1484,7 @@ function showHome(){
     document.getElementById("deletePage").style.display = "none";
     document.getElementById("catalog").style.display = "none";
     document.getElementById("avatar").style.display = "none";
+    document.getElementById("createPage").style.display = "none";
     document.getElementById("homePage").style.display = "block";
     updateWelcome();
     updateTavixDisplay();
@@ -1043,7 +1498,9 @@ function showCatalog(){
     document.getElementById("deletePage").style.display = "none";
     document.getElementById("homePage").style.display = "none";
     document.getElementById("avatar").style.display = "none";
+    document.getElementById("createPage").style.display = "none";
     document.getElementById("catalog").style.display = "block";
+    renderCatalog();
 }
 
 function showAvatar(){
@@ -1053,12 +1510,25 @@ function showAvatar(){
     document.getElementById("deletePage").style.display = "none";
     document.getElementById("homePage").style.display = "none";
     document.getElementById("catalog").style.display = "none";
+    document.getElementById("createPage").style.display = "none";
     document.getElementById("avatar").style.display = "block";
     
     if(currentUser && currentUser.avatarUrl){
         document.getElementById("avatarPreviewImg").src = currentUser.avatarUrl;
         document.getElementById("currentClothingText").innerHTML = `Current clothing: ${currentUser.currentClothing || "Default"}`;
     }
+}
+
+function showCreate(){
+    document.getElementById("authPage").style.display = "none";
+    document.getElementById("profilePage").style.display = "none";
+    document.getElementById("tosPage").style.display = "none";
+    document.getElementById("deletePage").style.display = "none";
+    document.getElementById("homePage").style.display = "none";
+    document.getElementById("catalog").style.display = "none";
+    document.getElementById("avatar").style.display = "none";
+    document.getElementById("createPage").style.display = "block";
+    renderMyUploads();
 }
 
 function showTOS(){
@@ -1068,6 +1538,7 @@ function showTOS(){
     document.getElementById("deletePage").style.display = "none";
     document.getElementById("catalog").style.display = "none";
     document.getElementById("avatar").style.display = "none";
+    document.getElementById("createPage").style.display = "none";
     document.getElementById("tosPage").style.display = "block";
 }
 
@@ -1078,6 +1549,7 @@ function showDelete(){
     document.getElementById("tosPage").style.display = "none";
     document.getElementById("catalog").style.display = "none";
     document.getElementById("avatar").style.display = "none";
+    document.getElementById("createPage").style.display = "none";
     document.getElementById("deletePage").style.display = "block";
     document.getElementById("deleteConfirmInput").value = "";
 }
@@ -1089,6 +1561,7 @@ function showAuth(){
     document.getElementById("deletePage").style.display = "none";
     document.getElementById("catalog").style.display = "none";
     document.getElementById("avatar").style.display = "none";
+    document.getElementById("createPage").style.display = "none";
     document.getElementById("authPage").style.display = "block";
     renderSaved();
 }
@@ -1098,6 +1571,7 @@ function navigateTo(p, userId = null){
     else if(p === "profile" && !userId && currentUser) navigateToUserProfile(currentUser.id);
     else if(p === "catalog"){ showCatalog(); updateHash("#catalog"); }
     else if(p === "avatar"){ showAvatar(); updateHash("#avatar"); }
+    else if(p === "create"){ showCreate(); updateHash("#create"); }
     else if(p === "home"){
         if(currentUser){ showHome(); updateHash("#home"); }
         else { showAuth(); showAuthForm("login"); updateHash("#signin"); }
@@ -1119,9 +1593,11 @@ function updateHash(h){ history.pushState(null, null, h); }
 async function handleRoute(){
     const h = window.location.hash;
     await fetchAllUsers();
+    await loadAvatarItems();
     
     if(h === "#catalog"){ showCatalog(); return; }
     if(h === "#avatar"){ showAvatar(); return; }
+    if(h === "#create"){ showCreate(); return; }
     
     const profileMatch = h.match(/^#(\d+)-profile$/);
     if(profileMatch){
@@ -1204,6 +1680,12 @@ document.getElementById("globalSearchInput")?.addEventListener("keypress",handle
 document.getElementById("globalLogoutBtn")?.addEventListener("click",logoutGlobal);
 document.getElementById("searchOverlay")?.addEventListener("click",function(e){if(e.target===this)closeSearchGlobal();});
 document.getElementById("settingsOverlay")?.addEventListener("click",function(e){if(e.target===this)closeSettingsGlobal();});
+document.getElementById("uploadBtn")?.addEventListener("click",uploadAvatarItem);
+document.getElementById("templateUpload")?.addEventListener("change", function(e) {
+    const file = e.target.files[0];
+    if (file) previewTemplate(file);
+});
+
 const tb1=document.getElementById("tavixBtn");if(tb1)tb1.onclick=toggleTavix;
 const tb2=document.getElementById("tavixBtnProfile");if(tb2)tb2.onclick=toggleTavix;
 const nb1=document.getElementById("notificationBtnHome");if(nb1)nb1.onclick=toggleNotifications;
@@ -1226,7 +1708,7 @@ document.getElementById("signupForm")?.addEventListener("submit", async function
     if(pw !== cf){ err.textContent = "Passwords don't match"; return; }
     if(!em.includes("@")){ err.textContent = "Please enter a valid email address"; return; }
     const result = await registerAPI(un, em, pw, un, hcaptchaResponse);
-    if(result.success){ saveAccount({username: un, displayName: un, email: em}); navigateTo("home"); }
+    if(result.success){ saveAccount({username: un, displayName: un, email: em}); await loadAvatarItems(); navigateTo("home"); }
     else { err.textContent = result.error; hcaptcha.reset(); }
 });
 
@@ -1235,7 +1717,7 @@ document.getElementById("loginForm")?.addEventListener("submit", async function(
     const un = document.getElementById("loginUsername").value.trim();
     const pw = document.getElementById("loginPassword").value;
     const result = await loginAPI(un, pw);
-    if(result.success){ saveAccount({username: un, displayName: result.user.displayName || un, email: result.user.email}); navigateTo("home"); }
+    if(result.success){ saveAccount({username: un, displayName: result.user.displayName || un, email: result.user.email}); await loadAvatarItems(); navigateTo("home"); }
     else { document.getElementById("authError").textContent = result.error; }
 });
 
@@ -1243,12 +1725,13 @@ document.getElementById("loginForm")?.addEventListener("submit", async function(
 window.addEventListener("hashchange", handleRoute);
 window.onload = async function(){
     await fetchAllUsers();
+    await loadAvatarItems();
     const guestToken = localStorage.getItem('guest_token');
     if (guestToken) localStorage.removeItem('guest_token');
     await autoLogin();
     if (currentUser) setInterval(async () => { await refreshUserData(); }, 10 * 60 * 1000);
     handleRoute();
-    console.log('✅ Tavian Platform Ready with Catalog & Avatar!');
+    console.log('✅ Tavian Platform Ready with Catalog, Avatar & Create!');
 };
 </script>
 </body>
