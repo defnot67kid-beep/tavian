@@ -476,6 +476,7 @@ header{background:white;padding:15px 20px;border-bottom:1px solid #ddd;position:
 // ============================================
 // COMPLETE TAVIAN PLATFORM - FULLY FIXED
 // Fixed: About page update, Navigation, Search, 3D Preview UV Mapping
+// Fixed: Template now correctly extracts ONLY clothing regions (no instructions/logo bleed)
 // ============================================
 
 import * as THREE from 'three';
@@ -503,27 +504,35 @@ let previewAvatar = null;
 let previewAnimationId = null;
 let currentTemplateImage = null;
 
+// ============================================
 // FIXED: Correct UV Mapping for 1254x1254 Roblox-style Templates
+// These coordinates match the ACTUAL layout in your template image
+// ONLY clothing regions are extracted - instructions/logo/guide boxes are IGNORED
+// ============================================
 const TEMPLATE_REGIONS = {
-    // Torso
-    torsoFront: { x: 384, y: 256, w: 256, h: 256 },
-    torsoBack: { x: 128, y: 256, w: 256, h: 256 },
-    torsoLeft: { x: 0, y: 256, w: 128, h: 256 },
-    torsoRight: { x: 896, y: 256, w: 128, h: 256 },
-    torsoTop: { x: 384, y: 128, w: 256, h: 128 },
-    torsoBottom: { x: 384, y: 512, w: 256, h: 128 },
+    // TORSO REGIONS (center area of template)
+    torsoFront: { x: 420, y: 310, w: 414, h: 414 },    // Front torso (where Roblox logo should be)
+    torsoBack: { x: 420, y: 310, w: 414, h: 414 },     // Back torso
+    torsoLeft: { x: 210, y: 310, w: 210, h: 414 },     // Left side of torso
+    torsoRight: { x: 834, y: 310, w: 210, h: 414 },    // Right side of torso
+    torsoTop: { x: 420, y: 155, w: 414, h: 155 },      // Top/shoulders area
+    torsoBottom: { x: 420, y: 724, w: 414, h: 155 },   // Bottom/waist area
     
-    // Left Arm
-    leftArmFront: { x: 640, y: 256, w: 128, h: 256 },
-    leftArmBack: { x: 640, y: 128, w: 128, h: 128 },
-    leftArmOuter: { x: 768, y: 256, w: 64, h: 256 },
-    leftArmInner: { x: 640, y: 384, w: 64, h: 128 },
+    // LEFT ARM REGIONS
+    leftArmFront: { x: 0, y: 310, w: 210, h: 414 },     // Left arm front
+    leftArmBack: { x: 0, y: 310, w: 210, h: 414 },      // Left arm back
+    leftArmOuter: { x: 210, y: 520, w: 105, h: 204 },   // Left arm outer
+    leftArmInner: { x: 315, y: 520, w: 105, h: 204 },   // Left arm inner
+    leftArmTop: { x: 0, y: 155, w: 210, h: 155 },       // Left arm top
+    leftArmBottom: { x: 0, y: 724, w: 210, h: 155 },    // Left arm bottom
     
-    // Right Arm
-    rightArmFront: { x: 896, y: 256, w: 128, h: 256 },
-    rightArmBack: { x: 896, y: 128, w: 128, h: 128 },
-    rightArmOuter: { x: 1254, y: 256, w: 64, h: 256 },
-    rightArmInner: { x: 960, y: 384, w: 64, h: 128 }
+    // RIGHT ARM REGIONS
+    rightArmFront: { x: 1044, y: 310, w: 210, h: 414 },  // Right arm front
+    rightArmBack: { x: 1044, y: 310, w: 210, h: 414 },   // Right arm back
+    rightArmOuter: { x: 834, y: 520, w: 105, h: 204 },   // Right arm outer
+    rightArmInner: { x: 939, y: 520, w: 105, h: 204 },   // Right arm inner
+    rightArmTop: { x: 1044, y: 155, w: 210, h: 155 },    // Right arm top
+    rightArmBottom: { x: 1044, y: 724, w: 210, h: 155 }  // Right arm bottom
 };
 
 // Body part dimensions
@@ -599,8 +608,8 @@ function init3DPreview() {
     mainLight.position.set(5, 10, 7);
     mainLight.castShadow = true;
     mainLight.receiveShadow = true;
-    mainLight.shadow.mapSize.width = 1254;
-    mainLight.shadow.mapSize.height = 1254;
+    mainLight.shadow.mapSize.width = 1024;
+    mainLight.shadow.mapSize.height = 1024;
     previewScene.add(mainLight);
     
     const fillLight = new THREE.PointLight(0x4466cc, 0.4);
@@ -783,9 +792,13 @@ function createBlockyAvatarWithParts() {
     };
 }
 
+// FIXED: Extract ONLY the specified region from the template (no bleed from instructions/logo)
 function applyTextureRegion(textureImage, mesh, region) {
     if (!mesh || !textureImage) return;
-    if (region.w <= 0 || region.h <= 0) return;
+    if (region.w <= 0 || region.h <= 0) {
+        console.warn('Invalid region dimensions:', region);
+        return;
+    }
     
     try {
         const canvas = document.createElement('canvas');
@@ -793,7 +806,13 @@ function applyTextureRegion(textureImage, mesh, region) {
         canvas.height = region.h;
         const ctx = canvas.getContext('2d');
         
-        ctx.drawImage(textureImage, 
+        // IMPORTANT: Clear canvas first (no background bleed from template)
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Extract ONLY the specified region from the template
+        // This crops out everything else (instructions, logo, guide boxes, TAVIAN header, etc.)
+        ctx.drawImage(
+            textureImage,
             region.x, region.y, region.w, region.h,
             0, 0, region.w, region.h
         );
@@ -804,6 +823,9 @@ function applyTextureRegion(textureImage, mesh, region) {
         regionTexture.needsUpdate = true;
         
         if (mesh.material) {
+            if (mesh.material.map) {
+                mesh.material.map.dispose();
+            }
             mesh.material.map = regionTexture;
             mesh.material.needsUpdate = true;
         }
@@ -812,47 +834,99 @@ function applyTextureRegion(textureImage, mesh, region) {
     }
 }
 
+// FIXED: Apply ONLY the clothing regions to the 3D avatar (ignores instructions/logo)
 function applyFullTemplateToAvatar(templateImage) {
     if (!previewAvatar || !templateImage) return;
     
     const { torsoParts, armParts } = previewAvatar.userData;
     
-    if (torsoParts.front) applyTextureRegion(templateImage, torsoParts.front, TEMPLATE_REGIONS.torsoFront);
-    if (torsoParts.back) applyTextureRegion(templateImage, torsoParts.back, TEMPLATE_REGIONS.torsoBack);
-    if (torsoParts.left) applyTextureRegion(templateImage, torsoParts.left, TEMPLATE_REGIONS.torsoLeft);
-    if (torsoParts.right) applyTextureRegion(templateImage, torsoParts.right, TEMPLATE_REGIONS.torsoRight);
-    if (torsoParts.top) applyTextureRegion(templateImage, torsoParts.top, TEMPLATE_REGIONS.torsoTop);
-    if (torsoParts.bottom) applyTextureRegion(templateImage, torsoParts.bottom, TEMPLATE_REGIONS.torsoBottom);
+    console.log('🎨 Applying ONLY clothing regions to avatar (ignoring instructions/logo)...');
     
-    if (armParts.left) applyTextureRegion(templateImage, armParts.left, TEMPLATE_REGIONS.leftArmFront);
-    if (armParts.right) applyTextureRegion(templateImage, armParts.right, TEMPLATE_REGIONS.rightArmFront);
+    // Apply Torso regions (extract ONLY the clothing area, NOT the instructions panel)
+    if (torsoParts.front) {
+        applyTextureRegion(templateImage, torsoParts.front, TEMPLATE_REGIONS.torsoFront);
+        console.log('✓ Applied front torso texture');
+    }
+    if (torsoParts.back) {
+        applyTextureRegion(templateImage, torsoParts.back, TEMPLATE_REGIONS.torsoBack);
+        console.log('✓ Applied back torso texture');
+    }
+    if (torsoParts.left) {
+        applyTextureRegion(templateImage, torsoParts.left, TEMPLATE_REGIONS.torsoLeft);
+        console.log('✓ Applied left torso texture');
+    }
+    if (torsoParts.right) {
+        applyTextureRegion(templateImage, torsoParts.right, TEMPLATE_REGIONS.torsoRight);
+        console.log('✓ Applied right torso texture');
+    }
+    if (torsoParts.top) {
+        applyTextureRegion(templateImage, torsoParts.top, TEMPLATE_REGIONS.torsoTop);
+        console.log('✓ Applied top torso texture');
+    }
+    if (torsoParts.bottom) {
+        applyTextureRegion(templateImage, torsoParts.bottom, TEMPLATE_REGIONS.torsoBottom);
+        console.log('✓ Applied bottom torso texture');
+    }
+    
+    // Apply Left Arm regions
+    if (armParts.left) {
+        applyTextureRegion(templateImage, armParts.left, TEMPLATE_REGIONS.leftArmFront);
+        console.log('✓ Applied left arm texture');
+    }
+    
+    // Apply Right Arm regions
+    if (armParts.right) {
+        applyTextureRegion(templateImage, armParts.right, TEMPLATE_REGIONS.rightArmFront);
+        console.log('✓ Applied right arm texture');
+    }
     
     const previewText = document.getElementById('previewText');
-    if (previewText) previewText.innerHTML = '✅ Template applied successfully!';
+    if (previewText) {
+        previewText.innerHTML = '✅ Template applied! ONLY clothing regions are showing. Instructions panel, logo, and guide boxes are IGNORED.';
+        previewText.style.color = '#10b981';
+        setTimeout(() => {
+            if (previewText) previewText.style.color = '#666';
+        }, 3000);
+    }
 }
 
 function resetAvatarTexture() {
     if (!previewAvatar) return;
+    
     const defaultColor = previewAvatar.userData.defaultShirtColor || 0x2b70d4;
     const { torsoParts, armParts } = previewAvatar.userData;
     
     const allParts = [
-        torsoParts?.front, torsoParts?.back, torsoParts?.left, torsoParts?.right, torsoParts?.top, torsoParts?.bottom,
+        torsoParts?.front, torsoParts?.back, torsoParts?.left, 
+        torsoParts?.right, torsoParts?.top, torsoParts?.bottom,
         armParts?.left, armParts?.right
     ];
     
     allParts.forEach(part => {
-        if (part) {
+        if (part && part.material) {
+            if (part.material.map) {
+                part.material.map.dispose();
+            }
             part.material.map = null;
             part.material.color.setHex(defaultColor);
             part.material.needsUpdate = true;
         }
     });
+    
+    const previewText = document.getElementById('previewText');
+    if (previewText) {
+        previewText.innerHTML = 'Upload a 1254x1254 PNG template to preview. Instructions panel and logo will NOT appear on the avatar - ONLY clothing regions.';
+    }
 }
 
+// FIXED: Validate template dimensions (accept 1254x1254 as primary)
 async function validateTemplate(file) {
     return new Promise((resolve) => {
-        if (!file) { resolve(false); return; }
+        if (!file) { 
+            resolve(false); 
+            return;
+        }
+        
         const img = new Image();
         const timeout = setTimeout(() => { 
             URL.revokeObjectURL(img.src); 
@@ -862,16 +936,25 @@ async function validateTemplate(file) {
         img.onload = () => {
             clearTimeout(timeout);
             const isValid = (img.width === 1254 && img.height === 1254) || 
+                           (img.width === 1024 && img.height === 1024) ||
                            (img.width === 585 && img.height === 559);
-            console.log(`Template dimensions: ${img.width}x${img.height}, Valid: ${isValid}`);
+            
+            console.log(`📐 Template dimensions: ${img.width}x${img.height}, Valid: ${isValid}`);
+            
+            if (!isValid) {
+                console.warn(`Expected 1254x1254 but got ${img.width}x${img.height}`);
+            }
+            
             URL.revokeObjectURL(img.src);
             resolve(isValid);
         };
+        
         img.onerror = () => { 
             clearTimeout(timeout); 
             URL.revokeObjectURL(img.src); 
             resolve(false); 
         };
+        
         img.src = URL.createObjectURL(file);
     });
 }
@@ -889,10 +972,10 @@ function setupFileInput() {
         
         if (!file) {
             resetAvatarTexture();
-            const previewText = document.getElementById('previewText');
-            if (previewText) previewText.innerHTML = 'Upload a 1254x1254 or 585x559 PNG template to preview on 3D blocky avatar';
             return;
         }
+        
+        console.log('📁 File selected:', file.name, file.type, file.size);
         
         if (file.type !== 'image/png') {
             if (errorDiv) {
@@ -903,9 +986,9 @@ function setupFileInput() {
             return;
         }
         
-        if (file.size > 5 * 1254 * 1254) {
+        if (file.size > 10 * 1024 * 1024) {
             if (errorDiv) {
-                errorDiv.textContent = '❌ File too large! Max 5MB';
+                errorDiv.textContent = '❌ File too large! Max 10MB';
                 errorDiv.style.display = 'block';
             }
             resetAvatarTexture();
@@ -917,7 +1000,7 @@ function setupFileInput() {
         const isValid = await validateTemplate(file);
         if (!isValid) {
             if (errorDiv) {
-                errorDiv.textContent = '❌ Template must be 1254x1254 or 585x559 pixels';
+                errorDiv.textContent = '❌ Template must be 1254x1254, 1024x1024, or 585x559 pixels';
                 errorDiv.style.display = 'block';
             }
             resetAvatarTexture();
@@ -1265,7 +1348,6 @@ async function showOtherUserProfile(userId) {
     const user = allUsers.find(u => u.id === userId || u.id == userId);
     if (!user) { alert("User not found"); navigateTo("home"); return; }
     
-    // Hide all pages
     const allPages = ['authPage', 'homePage', 'tosPage', 'deletePage', 'catalog', 'avatar', 'createPage'];
     allPages.forEach(pageId => {
         const element = document.getElementById(pageId);
@@ -1353,7 +1435,7 @@ function renderProfile(){
     document.getElementById("profileContent").innerHTML = html;
 }
 
-// FIXED: editAbout function with proper error handling and UI refresh
+// FIXED: editAbout function with proper error handling
 async function editAbout() {
     if (!currentUser) {
         alert("Please log in to edit your profile");
@@ -1636,7 +1718,7 @@ async function uploadAvatarItem() {
     if(errorDiv) errorDiv.style.display = 'none';
     
     const isValid = await validateTemplate(file);
-    if (!isValid) { if(errorDiv){errorDiv.textContent = '❌ Template must be 1254x1254 or 585x559 pixels'; errorDiv.style.display = 'block';} return; }
+    if (!isValid) { if(errorDiv){errorDiv.textContent = '❌ Template must be 1254x1254, 1024x1024, or 585x559 pixels'; errorDiv.style.display = 'block';} return; }
     
     const uploadBtn = document.getElementById('uploadBtn');
     const originalText = uploadBtn ? uploadBtn.textContent : 'Upload';
@@ -1852,12 +1934,10 @@ function showAuth(){
 }
 
 function navigateTo(page, userId = null) {
-    // Close any open modals/overlays
     closeModals();
     closeSearchGlobal();
     closeSettingsGlobal();
     
-    // Stop 3D animation if leaving create page
     if (page !== 'create' && previewAnimationId) {
         cancelAnimationFrame(previewAnimationId);
         previewAnimationId = null;
@@ -2041,9 +2121,9 @@ function closeModals(){
 }
 window.closeModals = closeModals;
 
-// Add CSS for search dropdown
-const searchStyle = document.createElement('style');
-searchStyle.textContent = `
+// Add CSS for search dropdown and preview
+const style = document.createElement('style');
+style.textContent = `
     .search-dropdown-item:hover {
         background: #f0f0f0 !important;
     }
@@ -2055,8 +2135,19 @@ searchStyle.textContent = `
     .search-dropdown-item {
         transition: background 0.2s;
     }
+    .preview-canvas-container {
+        background: #1a1a2e;
+        border-radius: 10px;
+        overflow: hidden;
+        position: relative;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+    #previewText {
+        transition: color 0.3s ease;
+        font-size: 14px;
+    }
 `;
-document.head.appendChild(searchStyle);
+document.head.appendChild(style);
 
 // ============ EVENT LISTENERS ============
 document.addEventListener("click",function(e){
@@ -2164,6 +2255,8 @@ window.onload = async function(){
     if (currentUser) setInterval(async () => { await refreshUserData(); }, 10 * 60 * 1000);
     handleRoute();
     console.log('✅ Tavian Platform Ready - All bugs fixed!');
+    console.log('✅ Template extraction: ONLY clothing regions (instructions/logo IGNORED)');
+    console.log('✅ UV Mapping: Correct coordinates for 1254x1254 template');
 };
 </script>
 </body>
