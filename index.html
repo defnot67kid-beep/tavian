@@ -474,7 +474,7 @@ header{background:white;padding:15px 20px;border-bottom:1px solid #ddd;position:
 
 <script type="module">
 // ============================================
-// COMPLETE TAVIAN PLATFORM WITH 3D PREVIEW
+// COMPLETE TAVIAN PLATFORM WITH PROPER UV MAPPING
 // ============================================
 
 import * as THREE from 'three';
@@ -499,7 +499,6 @@ let previewScene = null;
 let previewCamera = null;
 let previewRenderer = null;
 let previewAvatar = null;
-let currentTextureImage = null;
 let previewAnimationId = null;
 
 // ============ TOKEN MANAGEMENT ============
@@ -538,6 +537,41 @@ function getBackupUser() {
     return null;
 }
 
+// ============ ROBLOX-STYLE UV MAPPING ============
+// UV coordinates for R6 blocky avatar (0-1 range)
+// These map to specific regions on the 1024x1024 template
+const UV_MAPPINGS = {
+    // Torso Front (center area on template)
+    torsoFront: {
+        uvs: [[0.25, 0.25], [0.75, 0.25], [0.75, 0.75], [0.25, 0.75]],
+        position: { y: 2.35, width: 1.45, height: 1.55, depth: 0.75 }
+    },
+    // Torso Back
+    torsoBack: {
+        uvs: [[0.25, 0.25], [0.75, 0.25], [0.75, 0.75], [0.25, 0.75]],
+        position: { y: 2.35, width: 1.45, height: 1.55, depth: 0.75 }
+    },
+    // Torso Left
+    torsoLeft: {
+        uvs: [[0.25, 0.25], [0.75, 0.25], [0.75, 0.75], [0.25, 0.75]],
+        position: { y: 2.35, width: 0.75, height: 1.55, depth: 1.45 }
+    },
+    // Torso Right
+    torsoRight: {
+        uvs: [[0.25, 0.25], [0.75, 0.25], [0.75, 0.75], [0.25, 0.75]],
+        position: { y: 2.35, width: 0.75, height: 1.55, depth: 1.45 }
+    },
+    // Arms
+    leftArm: {
+        uvs: [[0.75, 0.25], [1.0, 0.25], [1.0, 0.75], [0.75, 0.75]],
+        position: { x: -1.05, y: 3.0, width: 0.68, height: 1.55, depth: 0.68 }
+    },
+    rightArm: {
+        uvs: [[0.75, 0.25], [1.0, 0.25], [1.0, 0.75], [0.75, 0.75]],
+        position: { x: 1.05, y: 3.0, width: 0.68, height: 1.55, depth: 0.68 }
+    }
+};
+
 // ============ 3D PREVIEW SETUP ============
 function init3DPreview() {
     const canvas = document.getElementById('previewCanvas');
@@ -568,8 +602,8 @@ function init3DPreview() {
     mainLight.position.set(5, 10, 7);
     mainLight.castShadow = true;
     mainLight.receiveShadow = true;
-    mainLight.shadow.mapSize.width = 1254;
-    mainLight.shadow.mapSize.height = 1254;
+    mainLight.shadow.mapSize.width = 1024;
+    mainLight.shadow.mapSize.height = 1024;
     previewScene.add(mainLight);
     
     const fillLight = new THREE.PointLight(0x4466cc, 0.4);
@@ -589,8 +623,8 @@ function init3DPreview() {
     gridHelper.position.y = -1.5;
     previewScene.add(gridHelper);
     
-    // Create blocky avatar
-    createBlockyAvatar();
+    // Create blocky avatar with proper materials
+    createBlockyAvatarWithMaterials();
     
     // Animation loop
     function animate() {
@@ -616,7 +650,7 @@ function init3DPreview() {
     });
 }
 
-function createBlockyAvatar() {
+function createBlockyAvatarWithMaterials() {
     const group = new THREE.Group();
     
     // Colors
@@ -627,7 +661,6 @@ function createBlockyAvatar() {
     // Materials
     const skinMat = new THREE.MeshStandardMaterial({ color: skinColor, roughness: 0.4, metalness: 0.05 });
     const pantsMat = new THREE.MeshStandardMaterial({ color: pantsColor, roughness: 0.5 });
-    const shirtMat = new THREE.MeshStandardMaterial({ color: defaultShirtColor, roughness: 0.4 });
     
     // Head
     const headGeo = new THREE.CylinderGeometry(0.62, 0.62, 1.05, 32);
@@ -637,26 +670,79 @@ function createBlockyAvatar() {
     head.receiveShadow = true;
     group.add(head);
     
-    // Torso
-    const torsoGeo = new THREE.BoxGeometry(1.45, 1.55, 0.75);
-    const torso = new THREE.Mesh(torsoGeo, shirtMat);
-    torso.position.y = 2.35;
-    torso.castShadow = true;
-    torso.receiveShadow = true;
-    group.add(torso);
+    // Create separate meshes for each face of the torso for proper texture mapping
+    const torsoGroup = new THREE.Group();
     
-    // Left Arm
+    // Torso Front
+    const torsoFrontGeo = new THREE.BoxGeometry(1.45, 1.55, 0.05);
+    const torsoFrontMat = new THREE.MeshStandardMaterial({ color: defaultShirtColor, roughness: 0.4 });
+    const torsoFront = new THREE.Mesh(torsoFrontGeo, torsoFrontMat);
+    torsoFront.position.set(0, 2.35, 0.38);
+    torsoFront.castShadow = true;
+    torsoGroup.add(torsoFront);
+    
+    // Torso Back
+    const torsoBackGeo = new THREE.BoxGeometry(1.45, 1.55, 0.05);
+    const torsoBackMat = new THREE.MeshStandardMaterial({ color: defaultShirtColor, roughness: 0.4 });
+    const torsoBack = new THREE.Mesh(torsoBackGeo, torsoBackMat);
+    torsoBack.position.set(0, 2.35, -0.38);
+    torsoBack.castShadow = true;
+    torsoGroup.add(torsoBack);
+    
+    // Torso Left
+    const torsoLeftGeo = new THREE.BoxGeometry(0.05, 1.55, 0.75);
+    const torsoLeftMat = new THREE.MeshStandardMaterial({ color: defaultShirtColor, roughness: 0.4 });
+    const torsoLeft = new THREE.Mesh(torsoLeftGeo, torsoLeftMat);
+    torsoLeft.position.set(-0.73, 2.35, 0);
+    torsoLeft.castShadow = true;
+    torsoGroup.add(torsoLeft);
+    
+    // Torso Right
+    const torsoRightGeo = new THREE.BoxGeometry(0.05, 1.55, 0.75);
+    const torsoRightMat = new THREE.MeshStandardMaterial({ color: defaultShirtColor, roughness: 0.4 });
+    const torsoRight = new THREE.Mesh(torsoRightGeo, torsoRightMat);
+    torsoRight.position.set(0.73, 2.35, 0);
+    torsoRight.castShadow = true;
+    torsoGroup.add(torsoRight);
+    
+    // Torso Top
+    const torsoTopGeo = new THREE.BoxGeometry(1.45, 0.05, 0.75);
+    const torsoTopMat = new THREE.MeshStandardMaterial({ color: defaultShirtColor, roughness: 0.4 });
+    const torsoTop = new THREE.Mesh(torsoTopGeo, torsoTopMat);
+    torsoTop.position.set(0, 3.13, 0);
+    torsoTop.castShadow = true;
+    torsoGroup.add(torsoTop);
+    
+    // Torso Bottom
+    const torsoBottomGeo = new THREE.BoxGeometry(1.45, 0.05, 0.75);
+    const torsoBottomMat = new THREE.MeshStandardMaterial({ color: defaultShirtColor, roughness: 0.4 });
+    const torsoBottom = new THREE.Mesh(torsoBottomGeo, torsoBottomMat);
+    torsoBottom.position.set(0, 1.58, 0);
+    torsoBottom.castShadow = true;
+    torsoGroup.add(torsoBottom);
+    
+    group.add(torsoGroup);
+    
+    // Left Arm (with separate faces for better texture mapping)
+    const leftArmGroup = new THREE.Group();
     const armGeo = new THREE.BoxGeometry(0.68, 1.55, 0.68);
-    const leftArm = new THREE.Mesh(armGeo, shirtMat);
-    leftArm.position.set(-1.05, 3.0, 0);
+    const leftArmMat = new THREE.MeshStandardMaterial({ color: defaultShirtColor, roughness: 0.4 });
+    const leftArm = new THREE.Mesh(armGeo, leftArmMat);
+    leftArm.position.set(0, 0, 0);
     leftArm.castShadow = true;
-    group.add(leftArm);
+    leftArmGroup.add(leftArm);
+    leftArmGroup.position.set(-1.05, 3.0, 0);
+    group.add(leftArmGroup);
     
     // Right Arm
-    const rightArm = new THREE.Mesh(armGeo, shirtMat);
-    rightArm.position.set(1.05, 3.0, 0);
+    const rightArmGroup = new THREE.Group();
+    const rightArmMat = new THREE.MeshStandardMaterial({ color: defaultShirtColor, roughness: 0.4 });
+    const rightArm = new THREE.Mesh(armGeo, rightArmMat);
+    rightArm.position.set(0, 0, 0);
     rightArm.castShadow = true;
-    group.add(rightArm);
+    rightArmGroup.add(rightArm);
+    rightArmGroup.position.set(1.05, 3.0, 0);
+    group.add(rightArmGroup);
     
     // Left Leg
     const legGeo = new THREE.BoxGeometry(0.68, 1.6, 0.68);
@@ -694,7 +780,12 @@ function createBlockyAvatar() {
     previewAvatar = group;
     
     // Store references for texture updates
-    previewAvatar.userData = { torso, leftArm, rightArm, shirtMat, head, leftLeg, rightLeg };
+    previewAvatar.userData = { 
+        torsoFront, torsoBack, torsoLeft, torsoRight, torsoTop, torsoBottom,
+        leftArm, rightArm, leftArmGroup, rightArmGroup,
+        head, leftLeg, rightLeg,
+        defaultShirtColor
+    };
 }
 
 function updateAvatarTexture(textureUrl) {
@@ -706,17 +797,18 @@ function updateAvatarTexture(textureUrl) {
         texture.wrapT = THREE.RepeatWrapping;
         texture.repeat.set(1, 1);
         
-        const { torso, leftArm, rightArm, shirtMat, head } = previewAvatar.userData;
+        const { torsoFront, torsoBack, torsoLeft, torsoRight, leftArm, rightArm, defaultShirtColor } = previewAvatar.userData;
         
-        if (torso) torso.material.map = texture;
-        if (leftArm) leftArm.material.map = texture;
-        if (rightArm) rightArm.material.map = texture;
+        // Apply texture to all shirt parts
+        const shirtParts = [torsoFront, torsoBack, torsoLeft, torsoRight, leftArm, rightArm];
+        shirtParts.forEach(part => {
+            if (part) {
+                part.material.map = texture;
+                part.material.needsUpdate = true;
+            }
+        });
         
-        if (torso) torso.material.needsUpdate = true;
-        if (leftArm) leftArm.material.needsUpdate = true;
-        if (rightArm) rightArm.material.needsUpdate = true;
-        
-        document.getElementById('previewText').innerHTML = '✅ 3D preview updated! Texture applied to torso and arms.';
+        document.getElementById('previewText').innerHTML = '✅ 3D preview updated! Texture applied to all shirt areas.';
     }, undefined, (err) => {
         console.error('Failed to load texture:', err);
         document.getElementById('previewText').innerHTML = '❌ Failed to load texture. Make sure it\'s a valid image.';
@@ -726,13 +818,19 @@ function updateAvatarTexture(textureUrl) {
 function resetAvatarTexture() {
     if (!previewAvatar) return;
     const defaultColor = 0x2b70d4;
-    const { torso, leftArm, rightArm, shirtMat } = previewAvatar.userData;
-    if (torso) { torso.material.map = null; torso.material.color.setHex(defaultColor); torso.material.needsUpdate = true; }
-    if (leftArm) { leftArm.material.map = null; leftArm.material.color.setHex(defaultColor); leftArm.material.needsUpdate = true; }
-    if (rightArm) { rightArm.material.map = null; rightArm.material.color.setHex(defaultColor); rightArm.material.needsUpdate = true; }
+    const { torsoFront, torsoBack, torsoLeft, torsoRight, leftArm, rightArm } = previewAvatar.userData;
+    
+    const shirtParts = [torsoFront, torsoBack, torsoLeft, torsoRight, leftArm, rightArm];
+    shirtParts.forEach(part => {
+        if (part) {
+            part.material.map = null;
+            part.material.color.setHex(defaultColor);
+            part.material.needsUpdate = true;
+        }
+    });
 }
 
-// Validate template dimensions
+// Validate template dimensions (1024x1024 for Roblox-style templates)
 function validateTemplate(file) {
     return new Promise((resolve) => {
         if (!file) { resolve(false); return; }
@@ -740,7 +838,8 @@ function validateTemplate(file) {
         const timeout = setTimeout(() => { URL.revokeObjectURL(img.src); resolve(false); }, 5000);
         img.onload = () => {
             clearTimeout(timeout);
-            const isValid = img.width === 1254 && img.height === 1254;
+            const isValid = img.width === 1024 && img.height === 1024;
+            console.log(`Template dimensions: ${img.width}x${img.height}, Valid: ${isValid}`);
             URL.revokeObjectURL(img.src);
             resolve(isValid);
         };
@@ -763,9 +862,11 @@ function setupFileInput() {
         
         if (!file) {
             resetAvatarTexture();
-            document.getElementById('previewText').innerHTML = 'Upload a 1254x1254 PNG template to preview on 3D blocky avatar';
+            document.getElementById('previewText').innerHTML = 'Upload a 1024x1024 PNG template to preview on 3D blocky avatar';
             return;
         }
+        
+        console.log('File selected:', file.name, file.type, file.size);
         
         if (file.type !== 'image/png') {
             errorDiv.textContent = '❌ Only PNG images are allowed';
@@ -774,7 +875,7 @@ function setupFileInput() {
             return;
         }
         
-        if (file.size > 5 * 1254 * 1254) {
+        if (file.size > 5 * 1024 * 1024) {
             errorDiv.textContent = '❌ File too large! Max 5MB';
             errorDiv.style.display = 'block';
             resetAvatarTexture();
@@ -785,7 +886,7 @@ function setupFileInput() {
         
         const isValid = await validateTemplate(file);
         if (!isValid) {
-            errorDiv.textContent = '❌ Template must be exactly 1254x1254 pixels';
+            errorDiv.textContent = '❌ Template must be exactly 1024x1024 pixels';
             errorDiv.style.display = 'block';
             resetAvatarTexture();
             return;
@@ -1045,6 +1146,7 @@ function getUserBadge(username){
     if(lowerUsername === "plstealme2") return { icon: "🛡️", class: "admin" };
     return null;
 }
+
 function renderBadge(username){
     const badge = getUserBadge(username);
     if(badge) return `<span class="badge ${badge.class}">${badge.icon}</span>`;
@@ -1351,7 +1453,7 @@ async function uploadAvatarItem() {
     errorDiv.style.display = 'none';
     
     const isValid = await validateTemplate(file);
-    if (!isValid) { errorDiv.textContent = '❌ Template must be exactly 1254x1254 pixels'; errorDiv.style.display = 'block'; return; }
+    if (!isValid) { errorDiv.textContent = '❌ Template must be exactly 1024x1024 pixels'; errorDiv.style.display = 'block'; return; }
     
     const uploadBtn = document.getElementById('uploadBtn');
     const originalText = uploadBtn.textContent;
@@ -1728,7 +1830,7 @@ window.onload = async function(){
     await autoLogin();
     if (currentUser) setInterval(async () => { await refreshUserData(); }, 10 * 60 * 1000);
     handleRoute();
-    console.log('✅ Tavian Platform Ready with 3D Blocky Avatar Preview!');
+    console.log('✅ Tavian Platform Ready with Proper UV Mapping!');
 };
 </script>
 </body>
