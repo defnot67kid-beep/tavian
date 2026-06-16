@@ -475,9 +475,8 @@ header{background:white;padding:15px 20px;border-bottom:1px solid #ddd;position:
 <script type="module">
 // ============================================
 // COMPLETE TAVIAN PLATFORM - FULLY FIXED
-// Fixed: About page update, Navigation, Search, 3D Preview UV Mapping
-// Fixed: Template now correctly extracts ONLY clothing regions (no instructions/logo bleed)
-// ALL ORIGINAL FUNCTIONALITY PRESERVED - NOTHING REMOVED
+// Fixed: Template preprocessing removes everything except black template parts
+// TAVIAN logo, text, labels, white background ALL removed automatically
 // ============================================
 
 import * as THREE from 'three';
@@ -506,34 +505,20 @@ let previewAnimationId = null;
 let currentTemplateImage = null;
 
 // ============================================
-// FIXED: Correct UV Mapping for 1254x1254 Roblox-style Templates
-// These coordinates match the ACTUAL layout in your template image
-// ONLY clothing regions are extracted - instructions/logo/guide boxes are IGNORED
+// NEW: Template Regions for the New Tavian Layout
+// Center cross = torso, Bottom-left = right arm, Bottom-right = left arm
 // ============================================
 const TEMPLATE_REGIONS = {
-    // TORSO REGIONS (center area of template)
-    torsoFront: { x: 420, y: 310, w: 414, h: 414 },    // Front torso (where Roblox logo should be)
-    torsoBack: { x: 420, y: 310, w: 414, h: 414 },     // Back torso
-    torsoLeft: { x: 210, y: 310, w: 210, h: 414 },     // Left side of torso
-    torsoRight: { x: 834, y: 310, w: 210, h: 414 },    // Right side of torso
-    torsoTop: { x: 420, y: 155, w: 414, h: 155 },      // Top/shoulders area
-    torsoBottom: { x: 420, y: 724, w: 414, h: 155 },   // Bottom/waist area
+    // TORSO - Center cross
+    torsoTop:    { x: 320, y: 75,  w: 200, h: 200 },
+    torsoFront:  { x: 320, y: 290, w: 200, h: 350 },
+    torsoBottom: { x: 320, y: 650, w: 200, h: 180 },
+    torsoLeft:   { x: 150, y: 290, w: 150, h: 350 },
+    torsoRight:  { x: 540, y: 290, w: 150, h: 350 },
     
-    // LEFT ARM REGIONS
-    leftArmFront: { x: 0, y: 310, w: 210, h: 414 },     // Left arm front
-    leftArmBack: { x: 0, y: 310, w: 210, h: 414 },      // Left arm back
-    leftArmOuter: { x: 210, y: 520, w: 105, h: 204 },   // Left arm outer
-    leftArmInner: { x: 315, y: 520, w: 105, h: 204 },   // Left arm inner
-    leftArmTop: { x: 0, y: 155, w: 210, h: 155 },       // Left arm top
-    leftArmBottom: { x: 0, y: 724, w: 210, h: 155 },    // Left arm bottom
-    
-    // RIGHT ARM REGIONS
-    rightArmFront: { x: 1044, y: 310, w: 210, h: 414 },  // Right arm front
-    rightArmBack: { x: 1044, y: 310, w: 210, h: 414 },   // Right arm back
-    rightArmOuter: { x: 834, y: 520, w: 105, h: 204 },   // Right arm outer
-    rightArmInner: { x: 939, y: 520, w: 105, h: 204 },   // Right arm inner
-    rightArmTop: { x: 1044, y: 155, w: 210, h: 155 },    // Right arm top
-    rightArmBottom: { x: 1044, y: 724, w: 210, h: 155 }  // Right arm bottom
+    // ARMS - Bottom crosses
+    rightArm:    { x: 90,  y: 840, w: 460, h: 300 },
+    leftArm:     { x: 700, y: 840, w: 460, h: 300 }
 };
 
 // Body part dimensions
@@ -577,6 +562,49 @@ function getBackupUser() {
     const backup = localStorage.getItem('tavian_user_backup');
     if (backup) try { return JSON.parse(backup); } catch(e) { return null; }
     return null;
+}
+
+// ============================================
+// NEW: Preprocess template to remove everything except black template parts
+// This removes: TAVIAN logo, text, labels, white background, gray borders
+// Keeps ONLY the black template pieces
+// ============================================
+function createTransparentTemplate(img) {
+    const canvas = document.createElement("canvas");
+    canvas.width = img.width;
+    canvas.height = img.height;
+
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(img, 0, 0);
+
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const data = imageData.data;
+
+    for (let i = 0; i < data.length; i += 4) {
+        const r = data[i];
+        const g = data[i + 1];
+        const b = data[i + 2];
+
+        const brightness = (r + g + b) / 3;
+
+        // White/light gray becomes transparent (removes background, logos, text)
+        if (brightness > 80) {
+            data[i + 3] = 0;
+        } else {
+            // Black template parts become solid white
+            data[i] = 255;
+            data[i + 1] = 255;
+            data[i + 2] = 255;
+            data[i + 3] = 255;
+        }
+    }
+
+    ctx.putImageData(imageData, 0, 0);
+
+    console.log('✅ Template preprocessed: Removed logo, text, labels, white background');
+    console.log(`   Kept ONLY black template parts (${canvas.width}x${canvas.height})`);
+    
+    return canvas;
 }
 
 // ============ 3D PREVIEW SETUP ============
@@ -793,7 +821,7 @@ function createBlockyAvatarWithParts() {
     };
 }
 
-// FIXED: Extract ONLY the specified region from the template (no bleed from instructions/logo)
+// FIXED: Apply texture with transparency support
 function applyTextureRegion(textureImage, mesh, region) {
     if (!mesh || !textureImage) return;
     if (region.w <= 0 || region.h <= 0) return;
@@ -815,12 +843,15 @@ function applyTextureRegion(textureImage, mesh, region) {
         const regionTexture = new THREE.CanvasTexture(canvas);
         regionTexture.wrapS = THREE.RepeatWrapping;
         regionTexture.wrapT = THREE.RepeatWrapping;
+        regionTexture.transparent = true;
         regionTexture.needsUpdate = true;
         
         if (mesh.material) {
             if (mesh.material.map) {
                 mesh.material.map.dispose();
             }
+            mesh.material.transparent = true;
+            mesh.material.alphaTest = 0.1;
             mesh.material.map = regionTexture;
             mesh.material.needsUpdate = true;
         }
@@ -829,19 +860,20 @@ function applyTextureRegion(textureImage, mesh, region) {
     }
 }
 
-// FIXED: Apply ONLY the clothing regions to the 3D avatar (ignores instructions/logo)
+// FIXED: Apply ONLY the clothing regions to the 3D avatar
 function applyFullTemplateToAvatar(templateImage) {
     if (!previewAvatar || !templateImage) return;
     
     const { torsoParts, armParts } = previewAvatar.userData;
     
-    console.log('🎨 Applying ONLY clothing regions to avatar (ignoring instructions/logo)...');
+    console.log('🎨 Applying clothing regions from preprocessed template...');
     
+    // Torso regions
     if (torsoParts.front) {
         applyTextureRegion(templateImage, torsoParts.front, TEMPLATE_REGIONS.torsoFront);
     }
     if (torsoParts.back) {
-        applyTextureRegion(templateImage, torsoParts.back, TEMPLATE_REGIONS.torsoBack);
+        applyTextureRegion(templateImage, torsoParts.back, TEMPLATE_REGIONS.torsoFront); // Back uses same region
     }
     if (torsoParts.left) {
         applyTextureRegion(templateImage, torsoParts.left, TEMPLATE_REGIONS.torsoLeft);
@@ -856,17 +888,17 @@ function applyFullTemplateToAvatar(templateImage) {
         applyTextureRegion(templateImage, torsoParts.bottom, TEMPLATE_REGIONS.torsoBottom);
     }
     
+    // Arms
     if (armParts.left) {
-        applyTextureRegion(templateImage, armParts.left, TEMPLATE_REGIONS.leftArmFront);
+        applyTextureRegion(templateImage, armParts.left, TEMPLATE_REGIONS.leftArm);
     }
-    
     if (armParts.right) {
-        applyTextureRegion(templateImage, armParts.right, TEMPLATE_REGIONS.rightArmFront);
+        applyTextureRegion(templateImage, armParts.right, TEMPLATE_REGIONS.rightArm);
     }
     
     const previewText = document.getElementById('previewText');
     if (previewText) {
-        previewText.innerHTML = '✅ Template applied! ONLY clothing regions are showing. Instructions panel, logo, and guide boxes are IGNORED.';
+        previewText.innerHTML = '✅ Template applied! Logo, text, labels, and background are automatically removed. Only clothing regions show.';
         previewText.style.color = '#10b981';
         setTimeout(() => {
             if (previewText) previewText.style.color = '#666';
@@ -892,6 +924,8 @@ function resetAvatarTexture() {
                 part.material.map.dispose();
             }
             part.material.map = null;
+            part.material.transparent = false;
+            part.material.alphaTest = 0;
             part.material.color.setHex(defaultColor);
             part.material.needsUpdate = true;
         }
@@ -899,11 +933,11 @@ function resetAvatarTexture() {
     
     const previewText = document.getElementById('previewText');
     if (previewText) {
-        previewText.innerHTML = 'Upload a 1254x1254 PNG template to preview. Instructions panel and logo will NOT appear on the avatar - ONLY clothing regions.';
+        previewText.innerHTML = 'Upload a PNG template. The system will automatically remove logos, text, labels, and background.';
     }
 }
 
-// FIXED: Validate template dimensions (accept 1254x1254 as primary)
+// FIXED: Validate template dimensions
 async function validateTemplate(file) {
     return new Promise((resolve) => {
         if (!file) { 
@@ -939,6 +973,7 @@ async function validateTemplate(file) {
     });
 }
 
+// FIXED: Setup file input with preprocessing
 function setupFileInput() {
     const fileInput = document.getElementById('templateUpload');
     if (!fileInput) return;
@@ -987,14 +1022,41 @@ function setupFileInput() {
             return;
         }
         
+        const previewText = document.getElementById('previewText');
+        if (previewText) {
+            previewText.innerHTML = '⏳ Processing template... Removing logo, text, labels, and background...';
+            previewText.style.color = '#f0b800';
+        }
+        
         const reader = new FileReader();
         reader.onload = (ev) => {
             const img = new Image();
             img.onload = () => {
-                currentTemplateImage = img;
-                applyFullTemplateToAvatar(img);
+                // NEW: Preprocess the template to remove everything except black template parts
+                const cleanedTemplate = createTransparentTemplate(img);
+                
+                currentTemplateImage = cleanedTemplate;
+                applyFullTemplateToAvatar(cleanedTemplate);
+                
+                if (previewText && previewText.innerHTML.includes('Processing')) {
+                    previewText.innerHTML = '✅ Template cleaned and applied! All logos, text, labels, and background removed.';
+                    previewText.style.color = '#10b981';
+                }
+            };
+            img.onerror = () => {
+                if (previewText) {
+                    previewText.innerHTML = '❌ Failed to load image. Please try again.';
+                    previewText.style.color = '#dc2626';
+                }
             };
             img.src = ev.target.result;
+        };
+        reader.onerror = () => {
+            if (errorDiv) {
+                errorDiv.textContent = '❌ Failed to read file';
+                errorDiv.style.display = 'block';
+            }
+            resetAvatarTexture();
         };
         reader.readAsDataURL(file);
     });
@@ -2234,8 +2296,8 @@ window.onload = async function(){
     if (currentUser) setInterval(async () => { await refreshUserData(); }, 10 * 60 * 1000);
     handleRoute();
     console.log('✅ Tavian Platform Ready - All bugs fixed!');
-    console.log('✅ Template extraction: ONLY clothing regions (instructions/logo IGNORED)');
-    console.log('✅ UV Mapping: Correct coordinates for 1254x1254 template');
+    console.log('✅ Template preprocessing: Removes logos, text, labels, and background');
+    console.log('✅ ONLY black template parts are kept and applied to avatar');
 };
 </script>
 </body>
